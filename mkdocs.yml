@@ -1,0 +1,14 @@
+site_name: BurkeQL Tutorial
+
+nav:
+  - Home: index.md
+  - 'Project Overview': 00-intro/project-overview.md
+  - 'Basic CLI':
+    - Intro: 01-basic-cli/intro.md
+    - Flex: 01-basic-cli/flex.md
+    - Bison: 01-basic-cli/bison.md
+    - 'Putting It Together': 01-basic-cli/putting-it-together.md
+  - 'Abstract Syntax Trees':
+    - Intro: 02-ast/intro.md
+
+theme: readthedocs
