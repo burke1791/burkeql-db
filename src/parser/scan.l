@@ -1,4 +1,7 @@
 %option noyywrap nodefault yylineno case-insensitive
+%option bison-bridge reentrant
+
+%x SYSCMD
 
 %{
 
@@ -10,10 +13,14 @@ void yyerror(char* s, ...);
 
 %%
 
+  /* beginning a system command */
+[\\]      { BEGIN SYSCMD; }
+
+  /* valid system command inputs */
+<SYSCMD>[A-Za-z]+   { yylval->str = strdup(yytext); return SYS_CMD; }
+
   /* keywords */
 INSERT    { return INSERT; }
-
-QUIT      { return QUIT; }
 
 SELECT    { return SELECT; }
 
