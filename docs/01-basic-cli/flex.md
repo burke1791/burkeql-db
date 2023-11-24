@@ -31,7 +31,7 @@ Enough with the intro, let's get started.
 ## Config
 
 ```c
-%option noyywrap nodefault yylineno case-insensitive
+%option noyywrap nodefault case-insensitive
 
 %{
   #include "gram.tab.h"
@@ -40,7 +40,7 @@ Enough with the intro, let's get started.
 }%
 ```
 
-Again, I'm not deep-diving flex here so I won't be going into the `%options`, but just know we need all four of them for the scanner to behave as expected.
+Again, I'm not deep-diving flex here so I won't be going into the `%options`, but just know we need all three of them for the scanner to behave how we want.
 
 In the code block we include the header file that bison produces (explained in the next section), as well as an interface to bison's error function.
 
