@@ -1,11 +1,7 @@
 CC = gcc
 LEX = flex
 YACC = bison
-<<<<<<< HEAD
 CFLAGS = -I./ -I./include -fsanitize=address -static-libasan -g
-=======
-CFLAGS = -fsanitize=address -static-libasan -g
->>>>>>> cf20fa5375dfc78d4868c7eeecd7b221a1bb4d53
 
 TARGET_EXEC = burkeql
 
