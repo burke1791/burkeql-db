@@ -10,8 +10,6 @@ The last piece we need is an outer program that can call the parser. We define o
 
 #include "gram.tab.h"
 
-extern int yylineno;
-
 static void print_prompt() {
   printf("bql > ");
 }
@@ -21,7 +19,6 @@ int main(int argc, char** argv) {
 
   while (!yyparse()) {
     print_prompt();
-    yylineno = 0;
   }
 
   return EXIT_SUCCESS;
@@ -115,9 +112,9 @@ INSERT command received
 bql > quit
 QUIT command received
 bql > foo
-error on line 1: unknown character 'f'
-error on line 1: unknown character 'o'
-error on line 1: unknown character 'o'
+error: unknown character 'f'
+error: unknown character 'o'
+error: unknown character 'o'
 
 ```
 

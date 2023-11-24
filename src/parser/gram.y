@@ -4,10 +4,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-// void yyerror(char* s, ...);
-
-extern int yylineno;
-
 %}
 
 %token INSERT
@@ -40,12 +36,10 @@ quit_stmt: QUIT     { printf("QUIT command received\n"); }
 %%
 
 void yyerror(char* s, ...) {
-  extern yylineno;
-
   va_list ap;
   va_start(ap, s);
 
-  fprintf(stderr, "error on line %d: ", yylineno);
+  fprintf(stderr, "error: ");
   vfprintf(stderr, s, ap);
   fprintf(stderr, "\n");
 }

@@ -30,8 +30,6 @@ Another note, comments in a bison file DO NOT need to be indented like they do i
 %{
 #include <stdio.h>
 #include <stdarg.h>
-
-extern int yylineno;
 %}
 
 %token INSERT
@@ -81,16 +79,14 @@ Drilling deeper, a `stmt` rule can be one of three things: `select_stmt`, `inser
 
 ## Code Section
 
-Unlike the scanner, we are actually going to write some code for the third section. We are simply implementing our own error function that prints out the line number it found the error, as well as a provided message.
+Unlike the scanner, we are actually going to write some code for the third section. We are simply implementing our own error function that prints out a provided message.
 
 ```c
 void yyerror(char* s, ...) {
-  extern yylineno;
-
   va_list ap;
   va_start(ap, s);
 
-  fprintf(stderr, "error on line %d: ", yylineno);
+  fprintf(stderr, "error: ");
   vfprintf(stderr, s, ap);
   fprintf(stderr, "\n");
 }
@@ -105,8 +101,6 @@ void yyerror(char* s, ...) {
 
 #include <stdio.h>
 #include <stdarg.h>
-
-extern int yylineno;
 
 %}
 
@@ -140,12 +134,10 @@ quit_stmt: QUIT     { printf("QUIT command received\n"); }
 %%
 
 void yyerror(char* s, ...) {
-  extern yylineno;
-
   va_list ap;
   va_start(ap, s);
 
-  fprintf(stderr, "error on line %d: ", yylineno);
+  fprintf(stderr, "error: ");
   vfprintf(stderr, s, ap);
   fprintf(stderr, "\n");
 }
