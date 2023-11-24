@@ -28,4 +28,5 @@ clean:
 	rm -f $(wildcard *.output)
 	rm -f $(wildcard *.tab.*)
 	rm -f lex.yy.c
+	rm -f $(wildcard *.lex.*)
 	rm -f $(BUILD_DIR)/$(TARGET_EXEC)

@@ -1,5 +1,6 @@
-%option noyywrap nodefault yylineno case-insensitive
+%option noyywrap nodefault case-insensitive
 %option bison-bridge reentrant
+%option header-file="scan.lex.h"
 
 %x SYSCMD
 

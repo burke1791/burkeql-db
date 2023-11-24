@@ -7,8 +7,6 @@
 #include <stdarg.h>
 #include "include/parser/parsetree.h"
 
-extern int yylineno;
-
 %}
 
 %union {
@@ -18,6 +16,7 @@ extern int yylineno;
 }
 
 %parse-param { struct Node** n }
+%param { void* scanner }
 
 %token <str> SYS_CMD
 
@@ -26,15 +25,15 @@ extern int yylineno;
 
 %token SELECT
 
-%type <node> query cmd stmt sys_cmd select_stmt insert_stmt
+%type <node> cmd stmt sys_cmd select_stmt insert_stmt
 
 %start query
 
 %%
 
 query: cmd  { 
-      *n = $$ = $1;
-      return 0;
+      *n = $1;
+      YYACCEPT;
     }
   ;
 
@@ -43,11 +42,11 @@ cmd: stmt
   ;
 
 sys_cmd: SYS_CMD {
-      SysCmd* n = create_node(SysCmd);
+      SysCmd* sc = create_node(SysCmd);
 
-      n->cmd = $1;
+      sc->cmd = $1;
 
-      $$ = (Node*)n;
+      $$ = (Node*)sc;
     }
   ;
 
@@ -70,12 +69,10 @@ insert_stmt: INSERT {
 %%
 
 void yyerror(char* s, ...) {
-  extern yylineno;
-
   va_list ap;
   va_start(ap, s);
 
-  fprintf(stderr, "error on line %d: ", yylineno);
+  fprintf(stderr, "error: ");
   vfprintf(stderr, s, ap);
   fprintf(stderr, "\n");
 }
