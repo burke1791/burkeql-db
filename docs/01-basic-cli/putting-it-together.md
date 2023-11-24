@@ -41,7 +41,7 @@ Just like I didn't dive into flex and bison, I'm also not going to dive into mak
 CC = gcc
 LEX = flex
 YACC = bison
-CFLAGS = -I./src/include -fsanitize=address -static-libasan -g
+CFLAGS = -fsanitize=address -static-libasan -g
 
 TARGET_EXEC = burkeql
 
