@@ -1,36 +1,69 @@
 
+%define api.pure true
+
 %{
 
 #include <stdio.h>
 #include <stdarg.h>
+#include "include/parser/parsetree.h"
 
 %}
 
-%token INSERT
+%union {
+  char* str;
 
-%token QUIT
+  struct Node* node;
+}
+
+%parse-param { struct Node** n }
+%param { void* scanner }
+
+%token <str> SYS_CMD
+
+/* reserved keywords in alphabetical order */
+%token INSERT
 
 %token SELECT
 
-%start cmd
+%type <node> cmd stmt sys_cmd select_stmt insert_stmt
+
+%start query
 
 %%
 
-cmd: stmt   { return 0; }
+query: cmd  { 
+      *n = $1;
+      YYACCEPT;
+    }
   ;
 
-stmt:   select_stmt
+cmd: stmt
+  | sys_cmd 
+  ;
+
+sys_cmd: SYS_CMD {
+      SysCmd* sc = create_node(SysCmd);
+
+      sc->cmd = $1;
+
+      $$ = (Node*)sc;
+    }
+  ;
+
+stmt: select_stmt
   | insert_stmt
-  | quit_stmt
   ;
 
-select_stmt: SELECT   { printf("SELECT command received\n"); }
+select_stmt: SELECT {
+      printf("SELECT command received\n");
+      $$ = NULL;
+    }
   ;
 
-insert_stmt: INSERT   { printf("INSERT command received\n"); }
-  ;
-
-quit_stmt: QUIT     { printf("QUIT command received\n"); }
+insert_stmt: INSERT {
+      printf("INSERT command received\n");
+      $$ = NULL;
+    }
   ;
 
 %%

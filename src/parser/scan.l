@@ -1,4 +1,8 @@
 %option noyywrap nodefault case-insensitive
+%option bison-bridge reentrant
+%option header-file="scan.lex.h"
+
+%x SYSCMD
 
 %{
 
@@ -10,10 +14,14 @@ void yyerror(char* s, ...);
 
 %%
 
+  /* beginning a system command */
+[\\]      { BEGIN SYSCMD; }
+
+  /* valid system command inputs */
+<SYSCMD>[A-Za-z]+   { yylval->str = strdup(yytext); return SYS_CMD; }
+
   /* keywords */
 INSERT    { return INSERT; }
-
-QUIT      { return QUIT; }
 
 SELECT    { return SELECT; }
 

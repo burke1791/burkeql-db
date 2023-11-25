@@ -10,5 +10,10 @@ nav:
     - 'Putting It Together': 01-basic-cli/putting-it-together.md
   - 'Abstract Syntax Trees':
     - Intro: 02-ast/intro.md
+    - 'AST Interface': 02-ast/ast-interface.md
+    - 'AST Implementation': 02-ast/ast-implementation.md
+    - 'Parser Refactor': 02-ast/parser-refactor.md
+    - 'Parser Interface': 02-ast/parser-interface.md
+    - 'Putting It Together': 02-ast/putting-it-together.md
 
 theme: readthedocs

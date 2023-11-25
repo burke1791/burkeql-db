@@ -1,13 +1,15 @@
 CC = gcc
 LEX = flex
 YACC = bison
-CFLAGS = -fsanitize=address -static-libasan -g
+CFLAGS = -I./ -I./include -fsanitize=address -static-libasan -g
 
 TARGET_EXEC = burkeql
 
 BUILD_DIR = ..
 
-SRC_FILES = main.c
+SRC_FILES = main.c \
+						parser/parse.c \
+						parser/parsetree.c
 
 
 $(BUILD_DIR)/$(TARGET_EXEC): gram.tab.o lex.yy.o ${SRC_FILES}
@@ -26,4 +28,5 @@ clean:
 	rm -f $(wildcard *.output)
 	rm -f $(wildcard *.tab.*)
 	rm -f lex.yy.c
+	rm -f $(wildcard *.lex.*)
 	rm -f $(BUILD_DIR)/$(TARGET_EXEC)
