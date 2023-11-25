@@ -15,7 +15,6 @@ Node* parse_sql() {
 
   int e = yyparse(&n, scanner);
 
-  printf("parse code: %d\n", e);
   yylex_destroy(scanner);
 
   if (e != 0) printf("Parse error\n");
