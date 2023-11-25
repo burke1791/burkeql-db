@@ -2,7 +2,7 @@ site_name: BurkeQL Tutorial
 
 nav:
   - Home: index.md
-  - 'Project Overview': 00-intro/project-overview.md
+  - 'Project Plan': 00-intro/project-plan.md
   - 'Basic CLI':
     - Intro: 01-basic-cli/intro.md
     - Flex: 01-basic-cli/flex.md
