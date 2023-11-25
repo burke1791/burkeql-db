@@ -4,7 +4,7 @@ BurkeQL is a relational database we are going to write from scratch in C. The cu
 
 ## Why?
 
-**The name?** Well, my name is Chris Burke and I like to incorporate my last name into a lot of my personal projects - call it vanity. Plus, a single syllable is easy to squeeze into made up names.
+**The name?** Well, my name is Chris Burke and I like to incorporate my last name into a lot of personal projects - call it vanity if you must. Plus, a single syllable is easy to squeeze into made up names.
 
 **This project?** I love databases. I am a database engineer by day and love teaching my app dev coworkers how to make their queries go fast. And I often find an excuse to dive into database internals as part of query tuning exercises.
 
