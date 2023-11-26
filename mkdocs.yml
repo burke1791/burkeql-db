@@ -16,6 +16,6 @@ nav:
     - 'Parser Interface': 02-ast/parser-interface.md
     - 'Putting It Together': 02-ast/putting-it-together.md
   - 'The Database Page':
-    - Intro: 03-db-page/intro.md
+    - 'Page Structure': 03-db-page/page-structure.md
 
 theme: readthedocs
