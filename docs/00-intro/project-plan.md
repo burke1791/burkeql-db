@@ -21,10 +21,10 @@ Writing an extremely basic cli with an extremely basic input parser.
 
 Github branch: [basic-cli](https://github.com/burke1791/burkeql-db/tree/basic-cli)
 
-1. [Intro](/01-basic-cli/intro)
-1. [Flex](/01-basic-cli/flex)
-1. [Bison](/01-basic-cli/bison)
-1. [Putting It Together](/01-basic-cli/putting-it-together)
+1. [Intro](../../01-basic-cli/intro)
+1. [Flex](../../01-basic-cli/flex)
+1. [Bison](../../01-basic-cli/bison)
+1. [Putting It Together](../../01-basic-cli/putting-it-together)
 
 ### Abstract Syntax Trees (COMPLETE)
 
@@ -32,12 +32,12 @@ Introduce ASTs to the parser.
 
 Github branch: [ast](https://github.com/burke1791/burkeql-db/tree/ast)
 
-1. [Intro](/02-ast/intro)
-1. [AST Interface](/02-ast/ast-interface)
-1. [AST Implementation](/02-ast/ast-implementation)
-1. [Parser Refactor](/02-ast/parser-refactor)
-1. [Parser Interface](/02-ast/parser-interface)
-1. [Putting It Together](/02-ast/putting-it-together)
+1. [Intro](../../02-ast/intro)
+1. [AST Interface](../../02-ast/ast-interface)
+1. [AST Implementation](../../02-ast/ast-implementation)
+1. [Parser Refactor](../../02-ast/parser-refactor)
+1. [Parser Interface](../../02-ast/parser-interface)
+1. [Putting It Together](../../02-ast/putting-it-together)
 
 ### The Database Page (in progress)
 

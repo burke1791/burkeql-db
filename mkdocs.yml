@@ -1,4 +1,6 @@
 site_name: BurkeQL Tutorial
+site_url: https://burke1791.github.io/burkeql-db/
+repo_url: https://github.com/burke1791/burkeql-db/
 
 nav:
   - Home: index.md
