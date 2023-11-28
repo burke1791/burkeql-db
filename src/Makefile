@@ -9,7 +9,8 @@ BUILD_DIR = ..
 
 SRC_FILES = main.c \
 						parser/parse.c \
-						parser/parsetree.c
+						parser/parsetree.c \
+						global/config.c
 
 
 $(BUILD_DIR)/$(TARGET_EXEC): gram.tab.o lex.yy.o ${SRC_FILES}

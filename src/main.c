@@ -6,12 +6,24 @@
 #include "gram.tab.h"
 #include "parser/parsetree.h"
 #include "parser/parse.h"
+#include "global/config.h"
+
+Config* conf;
 
 static void print_prompt() {
   printf("bql > ");
 }
 
 int main(int argc, char** argv) {
+  // initialize global config
+  conf = new_config();
+
+  if (!set_global_config(conf)) {
+    return EXIT_FAILURE;
+  }
+
+  // print config
+  print_config(conf);
 
   while(true) {
     print_prompt();
