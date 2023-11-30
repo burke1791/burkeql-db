@@ -39,16 +39,13 @@ Github branch: [ast](https://github.com/burke1791/burkeql-db/tree/ast)
 1. [Parser Interface](../../02-ast/parser-interface)
 1. [Putting It Together](../../02-ast/putting-it-together)
 
-### The Database Page (in progress)
+### The Database Page (COMPLETE)
 
 This section is entirely conceptual - there will be zero code written.
 
 Discussion about how data are organized on disk. Also touch on how different DBMS's do things slightly different from one another.
 
-1. Intro
-1. Header
-1. Slot Array
-1. Record Structure
+1. [Page Structure](../../03-db-page/page-structure)
 
 ### Data Persistence (in progress)
 
