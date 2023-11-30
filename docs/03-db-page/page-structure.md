@@ -2,6 +2,8 @@
 
 In this section I am going to introduce and discuss the concept of a database "page". I won't be writing any code, so if that's all you're interested in, I suggest you skip to the next section.
 
+TODO: Add more diagrams, especially for the Record Structure section.
+
 ## Data File
 
 Databases store data in files on disk. They aren't doing any magic voodoo behind the scenes (although they're so clever it kind of seems like magic), it's just reading and writing data to regular files. Some of the magic comes in to play with how the storage engine organizes data in those files.
@@ -63,11 +65,71 @@ Because the empty space is in the middle of the page, when a new insert comes al
 
 ### Slot Array
 
-The slot array is responsible for maintaining the order of records stored on the page. This is not as significant in a heap as it is in an index; however, it's important to understand that the records themselves ARE NOT physically stored in any particular order.
+Growing from the end of the page towards the beginning, each slot array item consumes 4-bytes and stores two pieces of information:
 
-The slot array grows from the end of the page towards the beginning. For each new record inserted on the page, the data itself is **appended** to the end of the last record on the page, and a new slot array item is **prepended** to the beginning of the slot array. This means in order for a page to have enough space for a new record, it must have enough empty space for the record itself AND space for the new slot array entry.
+- A byte offset from the beginning of the page to the beginning of its corresponding data record
+- The byte length of the data record
 
-Each slot array item takes up 4-bytes. In order to calculate how many bytes the whole slot array consumes, you can multiply the `numRecords` header field by 4.
+The slot array is also responsible for maintaining the order of records stored on the page. This is not as significant in a heap as it is in an index; however, it's important to understand that the records themselves ARE NOT physically stored in any particular order. The slot array is what determines the sort order of data records on the page.
+
+The slot array grows from the end of the page towards the beginning. For each new record inserted on the page, the data itself is **appended** to the end of the last record on the page, and a new slot array item is **prepended** to the beginning of the slot array. This means in order for a page to have enough space for the new record, it must have enough empty space for the record itself AND space for the new slot array entry.
 
 ### Record Structure
 
+Data records are added to the page starting at the end of the header and growing towards the end of the page.
+
+Much like data pages, data records also have a fixed-length header that stores certain metadata about the record. The header fields we use in this project are most similar to postgres because the way we handle transaction isolation will be like postgres. In fact, we won't even use most of these fields for a while, but building them in right now so we don't have to do as much refactoring in the future. The record header is a fixed 12 bytes long with the following fields:
+
+| Header Field | Size | Description |
+| ------------ | ---- | ----------- |
+| xmin | 4-bytes | Transaction Id that inserted the record |
+| xmax | 4-bytes | Transaction Id that deleted the record |
+| infomask | 2-bytes | Bit fields containing meta-information about record, e.g. if the row has Nullable columns or variable-length columns. |
+| nullOffset | 2-bytes | The byte-offset from the beginning of the record to the start of the Null bitmap |
+
+`xmin`, `xmax`, and some of the bit fields in `infomask` won't be used until we implement transaction isolation.
+
+#### Record Data Layout
+
+After the header, the columns in the record are organized in a particular manner. To demonstrate this, we'll use the following table definition as an example:
+
+```sql
+Create Table person (
+    person_id Int Not Null,
+    first_name Varchar(20) Null,
+    last_name Varchar(20) Not Null,
+    age Int Null
+);
+```
+
+This table has both fixed-length (`Int`) and variable-length (`Varchar`) columns, as well as nullable columns. After the record header, the storage engine stores data in the following order:
+
+1. Fixed-length columns
+1. Null bitmap (iff the table has Nullable columns)
+1. Variable-length columns (if any)
+
+So if we inserted data like this:
+
+```sql
+Insert Into person ( person_id, first_name, last_name, age )
+Values
+(1, Null, 'burke', 30);
+```
+
+At a high level, the engine would store the data on disk like so:
+
+```
+| <record_header> | 1 | 30 | <null_bitmap> | burke |
+```
+
+Notice the two fixed-length columns come first, sorted in the order they were defined in the `Create Table` statement, then the Null bitmap, and finally the variable-length columns. However, since `first_name` is Null, the storage engine does not need to store anything for it in the variable-length portion of the record because the Null bitmap will let the engine know that it's Null.
+
+#### Variable-Length Offsets
+
+The last thing we need to cover is the storage overhead associated with `Varchar` columns. Each non-null `Varchar` column has a corresponding 2-byte field storing the length of the data. These 2-byte fields are stored immediately before the `Varchar` value. If we zoom in on the data shown above:
+
+```
+| ... | <null_bitmap> | 7-burke |
+```
+
+It's a little wonky to represent it like this. But, we store `7` to represent the entire length of the `Varchar` column: 2-bytes for the overhead + 5-bytes for the data (1-byte per character).
