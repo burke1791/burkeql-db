@@ -50,7 +50,7 @@ Discussion about how data are organized on disk. Also touch on how different DBM
 1. Slot Array
 1. Record Structure
 
-### Data Persistence (planned)
+### Data Persistence (in progress)
 
 Start storing data on disk. Using a hard-coded table definition:
 
