@@ -53,5 +53,5 @@ dkms.conf
 
 .vscode/
 site/
-data/
+db_files/
 burkeql.conf

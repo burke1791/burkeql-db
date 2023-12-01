@@ -2,13 +2,14 @@
 #define FILE_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct FileDesc {
   char* filename;
-  int fd;
+  FILE* fp;
 } FileDesc;
 
-FileDesc* file_open(char* filename);
-void file_close(int fd);
+FileDesc* file_open(char* filename, char* mode);
+void file_close(FileDesc* fd);
 
 #endif /* FILE_H */

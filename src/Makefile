@@ -1,7 +1,7 @@
 CC = gcc
 LEX = flex
 YACC = bison
-CFLAGS = -I./ -I./include -fsanitize=address -static-libasan -g
+CFLAGS = -I./ -I./include -fsanitize=address -fsanitize=undefined -static-libasan -g
 
 TARGET_EXEC = burkeql
 
@@ -10,7 +10,8 @@ BUILD_DIR = ..
 SRC_FILES = main.c \
 						parser/parse.c \
 						parser/parsetree.c \
-						global/config.c
+						global/config.c \
+						storage/file.c
 
 
 $(BUILD_DIR)/$(TARGET_EXEC): gram.tab.o lex.yy.o ${SRC_FILES}

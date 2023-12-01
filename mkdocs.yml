@@ -21,6 +21,7 @@ nav:
     - 'Page Structure': 03-db-page/page-structure.md
   - 'Data Persistence':
     - Intro: 04-data-persistence/intro.md
+    - 'Config File': 04-data-persistence/config-file.md
     - 'DB File Interface': 04-data-persistence/file-interface.md
     - 'DB Page Interface': 04-data-persistence/page-interface.md
     - 'DB Page Implementation': 04-data-persistence/page-implementation.md
