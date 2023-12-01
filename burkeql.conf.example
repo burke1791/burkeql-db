@@ -1,0 +1,4 @@
+# Config file for the BurkeQL database
+
+# Absolute location of the data file
+DATA_FILE=
