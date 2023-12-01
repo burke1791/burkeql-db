@@ -13,10 +13,9 @@ typedef struct Config {
 } Config;
 
 Config* new_config();
+void free_config(Config* conf);
 
 bool set_global_config(Config* conf);
-
-void free_config(Config* conf);
 
 void print_config(Config* conf);
 

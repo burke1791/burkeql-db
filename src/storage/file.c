@@ -14,6 +14,8 @@ FileDesc* file_open(char* filename, char* mode) {
   }
 
   fd->filename = strdup(filename);
+
+  return fd;
 }
 
 /**

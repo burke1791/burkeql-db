@@ -1,6 +1,6 @@
 # BurkeQL - Project Plan
 
-This page contains an outline of my plan for this project. It's meant to serve as a scratchpad for me to organize my thoughts.
+This page contains an outline of my plan for this project. It's meant to serve as a scratchpad for me to organize my thoughts. Please ignore any notes that don't make sense, I probably just forgot to delete/move them.
 
 ## Milestones
 
@@ -68,8 +68,10 @@ Create Table person (
 ---
 
 1. [Config File](../../04-data-persistence/config-file)
-1. DB File Interface
-1. DB File Implementation
+1. [DB File Interface](../../04-data-persistence/file-interface)
+1. [Loading Config](../../04-data-persistence/loading-config)
+1. DB Page Interface
+1. DB Page Implementation
 1. Update Parser - Insert
 1. Insert Implementation
 1. Putting It Together
