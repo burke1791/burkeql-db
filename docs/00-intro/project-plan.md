@@ -67,10 +67,11 @@ Create Table person (
 
 ---
 
+1. [Intro](../../04-data-persistence/intro)
 1. [Config File](../../04-data-persistence/config-file)
 1. [DB File Interface](../../04-data-persistence/file-interface)
 1. [Loading Config](../../04-data-persistence/loading-config)
-1. DB Page Interface
+1. [DB Page Interface](../../04-data-persistence/page-interface)
 1. DB Page Implementation
 1. Update Parser - Insert
 1. Insert Implementation

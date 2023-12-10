@@ -24,7 +24,7 @@ nav:
     - 'Config File': 04-data-persistence/config-file.md
     - 'DB File Interface': 04-data-persistence/file-interface.md
     - 'Loading Config': 04-data-persistence/loading-config.md
-    # - 'DB Page Interface': 04-data-persistence/page-interface.md
+    - 'DB Page Interface': 04-data-persistence/page-interface.md
     # - 'DB Page Implementation': 04-data-persistence/page-implementation.md
     # - 'Parser Update - Insert': 04-data-persistence/parser-insert.md
     # - 'Insert Logic': 04-data-persistence/insert-logic.md
