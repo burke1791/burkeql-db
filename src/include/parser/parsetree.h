@@ -13,7 +13,8 @@
  */
 
 typedef enum NodeTag {
-  T_SysCmd
+  T_SysCmd,
+  T_InsertStmt
 } NodeTag;
 
 typedef struct Node {
@@ -24,6 +25,13 @@ typedef struct SysCmd {
   NodeTag type;
   char* cmd;
 } SysCmd;
+
+typedef struct InsertStmt {
+  NodeTag type;
+  int personId;
+  char* firstName;
+  char* lastName;
+} InsertStmt;
 
 
 /**

@@ -7,10 +7,13 @@
 #include <stdarg.h>
 #include "include/parser/parsetree.h"
 
+// void yyerror(Node** n, void* scanner, char* s, ...);
+
 %}
 
 %union {
   char* str;
+  int intval;
 
   struct Node* node;
 }
@@ -18,7 +21,9 @@
 %parse-param { struct Node** n }
 %param { void* scanner }
 
-%token <str> SYS_CMD
+%token <str> SYS_CMD STRING
+
+%token <intval> INTNUM
 
 /* reserved keywords in alphabetical order */
 %token INSERT
@@ -60,19 +65,22 @@ select_stmt: SELECT {
     }
   ;
 
-insert_stmt: INSERT {
-      printf("INSERT command received\n");
-      $$ = NULL;
+insert_stmt: INSERT INTNUM STRING STRING  {
+      InsertStmt* ins = create_node(InsertStmt);
+      ins->personId = $2;
+      ins->firstName = $3;
+      ins->lastName = $4;
+      $$ = (Node*)ins;
     }
   ;
 
 %%
 
-void yyerror(char* s, ...) {
+/* void yyerror(Node** n, void* scanner, char* s, ...) {
   va_list ap;
   va_start(ap, s);
 
   fprintf(stderr, "error: ");
   vfprintf(stderr, s, ap);
   fprintf(stderr, "\n");
-}
+} */

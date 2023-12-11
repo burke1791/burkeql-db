@@ -5,11 +5,13 @@
 
 typedef enum ConfigParameter {
   CONF_DATA_FILE,
+  CONF_PAGE_SIZE,
   CONF_UNRECOGNIZED
 } ConfigParameter;
 
 typedef struct Config {
   char* dataFile;
+  int pageSize;
 } Config;
 
 Config* new_config();

@@ -2,9 +2,29 @@
 #define PAGE_H
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
 
-// disabling memory alignment because I don't want to deal with it
-#pragma pack(push, 1)
+typedef char* Page;
+
+/**
+ * @brief the 20-byte data page header structure
+ * 
+ * pageId     | one-based page identifier, numbered sequentially from the beginning of
+ *              the file to the end. Gaps are not allowed
+ * pageType   | 0=data page, 1=index page
+ * indexLevel | level of the page in a B+tree index. 0=leaf level (or heap page)
+ * prevPageId | pointer to the previous page in the current table or index at the
+ *              same index level
+ * nextPageId | pointer to the next page in the current table or index at the same
+ *              index level
+ * numRecords | count of the slot array entries
+ * freeBytes  | number of free bytes on the page
+ * freeData   | number of continuous free bytes between the last record and the
+ *              beginning of the slot array
+ * 
+ */
+#pragma pack(push, 1) /* disabling memory alignment because I don't want to deal with it */
 typedef struct PageHeader {
   uint32_t pageId;
   uint8_t pageType;
@@ -17,8 +37,16 @@ typedef struct PageHeader {
 } PageHeader;
 
 typedef struct SlotPointer {
-  uint16_t recordOff;
-  uint16_t recordLen;
+  uint16_t offset;
+  uint16_t length;
 } SlotPointer;
+
+Page new_page();
+void free_page(Page pg);
+
+bool page_insert(Page pg, char* data, uint16_t length);
+
+Page read_page(FILE* fp, uint32_t pageId);
+void flush_page(FILE* fp, Page pg);
 
 #endif /* PAGE_H */

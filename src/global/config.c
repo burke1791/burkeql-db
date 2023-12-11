@@ -19,10 +19,12 @@ void free_config(Config* conf) {
 void print_config(Config* conf) {
   printf("======   BurkeQL Config   ======\n");
   printf("= DATA_FILE: %s\n", conf->dataFile);
+  printf("= PAGE_SIZE: %d\n", conf->pageSize);
 }
 
 static ConfigParameter parse_config_param(char* p) {
   if (strcmp(p, "DATA_FILE") == 0) return CONF_DATA_FILE;
+  if (strcmp(p, "PAGE_SIZE") == 0) return CONF_PAGE_SIZE;
 
   return CONF_UNRECOGNIZED;
 }
@@ -32,6 +34,9 @@ static void set_config_value(Config* conf, ConfigParameter p, char* v) {
     case CONF_DATA_FILE:
       v[strcspn(v, "\r\n")] = 0; // remove trailing newline character if it exists
       conf->dataFile = strdup(v);
+      break;
+    case CONF_PAGE_SIZE:
+      conf->pageSize = atoi(v);
       break;
   }
 }
