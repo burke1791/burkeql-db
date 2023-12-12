@@ -119,4 +119,95 @@ This one is comparatively a lot simpler. First we just need to extract the `page
 
 The last piece is just an informational console log to tell us if something unexpected happened. We'll implement error handling later.
 
-## 
+## Updating `main.c` and `Makefile`
+
+Before we can demonstrate reading and writing pages to disk, we need to make some small updates to our main function and the Makefile.
+
+`src/main.c`
+
+```diff
+ #include "global/config.h"
++#include "storage/file.h"
++#include "storage/page.h"
+ 
+ Config* conf;
+```
+
+```diff
+   print_config(conf);
+ 
++  FileDesc* fd = file_open(conf->dataFile, "wb");
++  Page pg = read_page(fd->fp, 1);
++
+   while(true) {
+     print_prompt();
+```
+
+At the very beginning of our program, we want to open the data file and attempt to read the first page into memory.
+
+```diff
+     switch (n->type) {
+       case T_SysCmd:
+         if (strcmp(((SysCmd*)n)->cmd, "quit") == 0) {
+           print_node(n);
+           free_node(n);
+           printf("Shutting down...\n");
++          flush_page(fd->fp, pg);
++          free_page(pg);
++          file_close(fd);
+           return EXIT_SUCCESS;
+         }
+       default:
+```
+
+When the database receives the quit command, we want to flush the data page that's currently in memory to disk, close the file, then shut down.
+
+`src/Makefile`
+
+```diff
+ SRC_FILES = main.c \
+ 						parser/parse.c \
+ 						parser/parsetree.c \
+ 						global/config.c \
+ 						storage/file.c \
++ 						storage/page.c
+```
+
+## Running the Program
+
+Now we can compile and run our program to test out these changes.
+
+```shell
+$ ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql > \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+$
+```
+
+We didn't change anything with the parser, so the interesting stuff doesn't happen here. We just needed to run and quit the program so that it would write a page to our data file for us. Let's take a look at its contents:
+
+![Page Contents](assets/empty_page.png)
+
+Using the `xxd` command, we can inspect the contents of our binary data file. `xxd [filename]` shows the hex representation of each byte in the file. Every pair of characters represents a single byte. The orange box I highlighted contains the 4-byte `pageId` header field, which we set to a value of 1 when we created the empty page.
+
+Note: my machine is a Little-endian machine, which means it stores the "little-end" first. As an example, say we have a two-byte (`uint16_t`) integer 38,924 represented in binary. As humans, we would show the binary value as:
+
+`10011000 00011110`
+
+This is the same as Big-endian in the machine world. A Little-endian machine would represent it in reverse order:
+
+`00011110 10011000`
+
+This is why we see the `pageId` field with the smallest byte first instead of `0000 0001`.
+
+Also, note that endian-ness only affects the order of bytes, it DOES NOT affect the order of the individual bits within the bytes.
+
+The green box contains the 12-bytes of the header that are uninteresting to us right now. And the two blue boxes represent the 2-byte `freeBytes` and `freeData` fields. The "human readable" way to represent this hex value would be `0x006c`, which translates to 108 in decimal. And this is exactly what we want; the page is empty except for the 20-byte header, and we set the page size to 128 bytes in our config file, so there are 108 unused bytes on the page right now.
+
+And that covers it. In the next section, we're going to update our lexer and parser to prepare for inserting data into our data page.
