@@ -73,9 +73,9 @@ Create Table person (
 1. [Loading Config](../../04-data-persistence/loading-config)
 1. [DB Page Interface](../../04-data-persistence/page-interface)
 1. [DB Page Implementation](../../04-data-persistence/page-implementation)
-1. Update Parser - Insert
-1. Insert Implementation
-1. Putting It Together
+1. Parser Refactor - Insert
+1. Record Struct
+1. Inserting Data
 
 ### Selecting Data (planned)
 
@@ -87,7 +87,7 @@ Create Table person (
 
 ---
 
-1. Update Parser - Select
+1. Parser Refactor - Select
 1. Basic Analyzer (MAYBE)
 1. Table Scan
 1. Putting It Together
