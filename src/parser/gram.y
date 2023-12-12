@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include "include/parser/parsetree.h"
 
-// void yyerror(Node** n, void* scanner, char* s, ...);
+void yyerror(Node** n, void* scanner, char* s, ...);
 
 %}
 
@@ -68,19 +68,19 @@ select_stmt: SELECT {
 insert_stmt: INSERT INTNUM STRING STRING  {
       InsertStmt* ins = create_node(InsertStmt);
       ins->personId = $2;
-      ins->firstName = $3;
-      ins->lastName = $4;
+      ins->firstName = str_strip_quotes($3);
+      ins->lastName = str_strip_quotes($4);
       $$ = (Node*)ins;
     }
   ;
 
 %%
 
-/* void yyerror(Node** n, void* scanner, char* s, ...) {
+void yyerror(Node** n, void* scanner, char* s, ...) {
   va_list ap;
   va_start(ap, s);
 
   fprintf(stderr, "error: ");
   vfprintf(stderr, s, ap);
   fprintf(stderr, "\n");
-} */
+}

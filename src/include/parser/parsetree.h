@@ -51,4 +51,6 @@ void free_node(Node* n);
 
 void print_node(Node* n);
 
+char* str_strip_quotes(char* str);
+
 #endif /* PARSETREE_H */

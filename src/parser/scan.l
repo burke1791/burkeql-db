@@ -1,14 +1,15 @@
 %option noyywrap nodefault case-insensitive
-%option bison-bridge
+%option bison-bridge reentrant
 %option header-file="scan.lex.h"
 
 %x SYSCMD
 
 %{
 
+#include "include/parser/parsetree.h"
 #include "gram.tab.h"
 
-void yyerror(char* s, ...);
+void yyerror(Node** n, void* scanner, char* s, ...);
 
 %}
 
@@ -30,10 +31,10 @@ SELECT    { return SELECT; }
 
   /* strings */
 '(\\.|''|[^'\n])*'  { yylval->str = strdup(yytext); return STRING; }
-'(\\.|[^'\n])*$     { yyerror(yylval, "Unterminated string %s", yytext); }
+'(\\.|[^'\n])*$     { yyerror(yylval, yytext, "Unterminated string %s"); }
 
   /* everything else */
 [ \t\n]   /* whitespace */
-.     { yyerror("unknown character '%c'", *yytext); }
+.     { yyerror(yylval, yytext, "unknown character '%c'"); }
 
 %%

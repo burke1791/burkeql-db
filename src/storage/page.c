@@ -36,7 +36,7 @@ static bool page_has_space(Page pg, int length) {
  * 
  * If any of the above is not possible, we return false.
  */
-bool page_insert(Page pg, char* data, uint16_t length) {
+bool page_insert(Page pg, Record data, uint16_t length) {
   int spaceRequired = length + sizeof(SlotPointer);
   if (!page_has_space(pg, spaceRequired)) return false;
 
@@ -76,8 +76,11 @@ Page read_page(FILE* fp, uint32_t pageId) {
   int pages_read = fread(pg, conf->pageSize, 1, fp);
 
   if (pages_read != 1) {
-    /* page doesn't exist in the file - need to set the pageId header */
-    ((PageHeader*)pg)->pageId = pageId;
+    PageHeader* pgHdr = (PageHeader*)pg;
+    /* Since this is a brand new page, we need to set the header fields appropriately */
+    pgHdr->pageId = pageId;
+    pgHdr->freeBytes = conf->pageSize - sizeof(PageHeader);
+    pgHdr->freeData = conf->pageSize - sizeof(PageHeader);
   }
 
   return pg;
@@ -85,6 +88,7 @@ Page read_page(FILE* fp, uint32_t pageId) {
 
 void flush_page(FILE* fp, Page pg) {
   int pageId = ((PageHeader*)pg)->pageId;
+  fseek(fp, (pageId - 1) * conf->pageSize, SEEK_SET);
   int pages_written = fwrite(pg, conf->pageSize, 1, fp);
 
   if (pages_written != 1) {

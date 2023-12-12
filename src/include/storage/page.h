@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "storage/record.h"
+
 typedef char* Page;
 
 /**
@@ -44,7 +46,7 @@ typedef struct SlotPointer {
 Page new_page();
 void free_page(Page pg);
 
-bool page_insert(Page pg, char* data, uint16_t length);
+bool page_insert(Page pg, Record data, uint16_t length);
 
 Page read_page(FILE* fp, uint32_t pageId);
 void flush_page(FILE* fp, Page pg);

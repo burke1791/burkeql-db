@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 #include "parser/parsetree.h"
@@ -16,11 +17,6 @@ static void free_insert_stmt(InsertStmt* ins) {
   if (ins->lastName != NULL) free(ins->lastName);
 }
 
-/**
- * @brief 
- * 
- * @param n 
- */
 void free_node(Node* n) {
   if (n == NULL) return;
 
@@ -56,7 +52,17 @@ void print_node(Node* n) {
       printf("=  person_id:  %d\n", ((InsertStmt*)n)->personId);
       printf("=  first_name: %s\n", ((InsertStmt*)n)->firstName);
       printf("=  last_name:  %s\n", ((InsertStmt*)n)->lastName);
+      break;
     default:
       printf("print_node() | unknown node type\n");
   }
+}
+
+char* str_strip_quotes(char* str) {
+  int length = strlen(str);
+  char* finalStr = malloc(length - 1);
+  memcpy(finalStr, str + 1, length - 2);
+  finalStr[length - 2] = '\0';
+  free(str);
+  return finalStr;
 }
