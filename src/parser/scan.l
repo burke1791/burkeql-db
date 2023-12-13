@@ -6,7 +6,6 @@
 
 %{
 
-#include "include/parser/parsetree.h"
 #include "gram.tab.h"
 
 void yyerror(char* s, ...);
@@ -31,7 +30,6 @@ SELECT    { return SELECT; }
 
   /* strings */
 '(\\.|''|[^'\n])*'  { yylval->str = strdup(yytext); return STRING; }
-'(\\.|[^'\n])*$     { yyerror("Unterminated string %s", yytext); }
 
   /* everything else */
 [ \t\n]   /* whitespace */

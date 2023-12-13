@@ -73,7 +73,7 @@ Create Table person (
 1. [Loading Config](../../04-data-persistence/loading-config)
 1. [DB Page Interface](../../04-data-persistence/page-interface)
 1. [DB Page Implementation](../../04-data-persistence/page-implementation)
-1. Parser Refactor - Insert
+1. [Parser Refactor - Insert](../../04-data-persistence/parser-refactor-insert)
 1. Record Struct
 1. Inserting Data
 

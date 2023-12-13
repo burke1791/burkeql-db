@@ -30,7 +30,6 @@ typedef struct InsertStmt {
   NodeTag type;
   int personId;
   char* firstName;
-  char* lastName;
 } InsertStmt;
 
 

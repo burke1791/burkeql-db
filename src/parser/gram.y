@@ -7,8 +7,6 @@
 #include <stdarg.h>
 #include "include/parser/parsetree.h"
 
-// void yyerror(Node** n, void* scanner, char* s, ...);
-
 %}
 
 %union {
@@ -65,11 +63,10 @@ select_stmt: SELECT {
     }
   ;
 
-insert_stmt: INSERT INTNUM STRING STRING  {
+insert_stmt: INSERT INTNUM STRING  {
       InsertStmt* ins = create_node(InsertStmt);
       ins->personId = $2;
       ins->firstName = str_strip_quotes($3);
-      ins->lastName = str_strip_quotes($4);
       $$ = (Node*)ins;
     }
   ;
