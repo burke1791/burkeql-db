@@ -13,7 +13,8 @@
  */
 
 typedef enum NodeTag {
-  T_SysCmd
+  T_SysCmd,
+  T_InsertStmt
 } NodeTag;
 
 typedef struct Node {
@@ -24,6 +25,12 @@ typedef struct SysCmd {
   NodeTag type;
   char* cmd;
 } SysCmd;
+
+typedef struct InsertStmt {
+  NodeTag type;
+  int personId;
+  char* firstName;
+} InsertStmt;
 
 
 /**
@@ -42,5 +49,7 @@ typedef struct SysCmd {
 void free_node(Node* n);
 
 void print_node(Node* n);
+
+char* str_strip_quotes(char* str);
 
 #endif /* PARSETREE_H */

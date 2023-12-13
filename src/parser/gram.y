@@ -11,6 +11,7 @@
 
 %union {
   char* str;
+  int intval;
 
   struct Node* node;
 }
@@ -18,7 +19,9 @@
 %parse-param { struct Node** n }
 %param { void* scanner }
 
-%token <str> SYS_CMD
+%token <str> SYS_CMD STRING
+
+%token <intval> INTNUM
 
 /* reserved keywords in alphabetical order */
 %token INSERT
@@ -60,9 +63,11 @@ select_stmt: SELECT {
     }
   ;
 
-insert_stmt: INSERT {
-      printf("INSERT command received\n");
-      $$ = NULL;
+insert_stmt: INSERT INTNUM STRING  {
+      InsertStmt* ins = create_node(InsertStmt);
+      ins->personId = $2;
+      ins->firstName = str_strip_quotes($3);
+      $$ = (Node*)ins;
     }
   ;
 

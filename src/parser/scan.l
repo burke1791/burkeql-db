@@ -25,6 +25,12 @@ INSERT    { return INSERT; }
 
 SELECT    { return SELECT; }
 
+  /* numbers */
+-?[0-9]+    { yylval->intval = atoi(yytext); return INTNUM; }
+
+  /* strings */
+'(\\.|''|[^'\n])*'  { yylval->str = strdup(yytext); return STRING; }
+
   /* everything else */
 [ \t\n]   /* whitespace */
 .     { yyerror("unknown character '%c'", *yytext); }

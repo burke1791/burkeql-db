@@ -2,3 +2,6 @@
 
 # Absolute location of the data file
 DATA_FILE=
+
+# Byte size of a data page (must be a power of two)
+PAGE_SIZE=
