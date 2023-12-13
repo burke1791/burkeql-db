@@ -9,7 +9,7 @@
 #include "include/parser/parsetree.h"
 #include "gram.tab.h"
 
-void yyerror(Node** n, void* scanner, char* s, ...);
+void yyerror(char* s, ...);
 
 %}
 
@@ -31,10 +31,10 @@ SELECT    { return SELECT; }
 
   /* strings */
 '(\\.|''|[^'\n])*'  { yylval->str = strdup(yytext); return STRING; }
-'(\\.|[^'\n])*$     { yyerror(yylval, yytext, "Unterminated string %s"); }
+'(\\.|[^'\n])*$     { yyerror("Unterminated string %s", yytext); }
 
   /* everything else */
 [ \t\n]   /* whitespace */
-.     { yyerror(yylval, yytext, "unknown character '%c'"); }
+.     { yyerror("unknown character '%c'", *yytext); }
 
 %%

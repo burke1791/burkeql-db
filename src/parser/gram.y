@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include "include/parser/parsetree.h"
 
-void yyerror(Node** n, void* scanner, char* s, ...);
+// void yyerror(Node** n, void* scanner, char* s, ...);
 
 %}
 
@@ -76,7 +76,7 @@ insert_stmt: INSERT INTNUM STRING STRING  {
 
 %%
 
-void yyerror(Node** n, void* scanner, char* s, ...) {
+void yyerror(char* s, ...) {
   va_list ap;
   va_start(ap, s);
 
