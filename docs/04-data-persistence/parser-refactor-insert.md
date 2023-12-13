@@ -25,6 +25,116 @@ Where `person_id` is a raw number and `name` is a QUOTED string (single quotes).
 bql > insert 5 'Chris Burke'
 ```
 
+## Parsetree
+
+`src/include/parser/parsetree.h`
+
+```diff
+ typedef enum NodeTag {
+-  T_SysCmd
++  T_SysCmd,
++  T_InsertStmt
+ } NodeTag;
+
+ typedef struct Node {
+   NodeTag type;
+ } Node;
+ 
+ typedef struct SysCmd {
+   NodeTag type;
+   char* cmd;
+ } SysCmd;
+ 
++typedef struct InsertStmt {
++  NodeTag type;
++  int personId;
++  char* firstName;
++} InsertStmt;
+```
+
+In our parsetree header we're just adding a new node type and struct to support our new insert statement. Here, you can see we're beginning to hard-code our table definition.
+
+`src/parser/parsetree.c`
+
+```diff
+ #include <stdlib.h>
++#include <string.h>
+ #include <stdio.h>
+ 
+ #include "parser/parsetree.h"
+ 
+ static void free_syscmd(SysCmd* sc) {
+   if (sc == NULL) return;
+ 
+   free(sc->cmd);
+ }
+ 
++static void free_insert_stmt(InsertStmt* ins) {
++  if (ins == NULL) return;
++
++  if (ins->firstName != NULL) free(ins->firstName);
++}
++
+ void free_node(Node* n) {
+   if (n == NULL) return;
+ 
+   switch (n->type) {
+     case T_SysCmd:
+       free_syscmd((SysCmd*)n);
+       break;
++    case T_InsertStmt:
++      free_insert_stmt((InsertStmt*)n);
++      break;
+     default:
+       printf("Unknown node type\n");
+   }
+ 
+   free(n);
+ }
+```
+
+In our parsetree implementation, we need to write a function that can free the new `InsertStmt` struct. Remember, we don't need a special function to allocate memory for it because we wrote that `create_node` macro in the parsetree header.
+
+```diff
+ void print_node(Node* n) {
+   if (n == NULL) {
+     printf("print_node() | Node is NULL\n");
+     return;
+   }
+ 
+   printf("======  Node  ======\n");
+ 
+   switch (n->type) {
+     case T_SysCmd:
+       printf("=  Type: SysCmd\n");
+       printf("=  Cmd: %s\n", ((SysCmd*)n)->cmd);
+       break;
++    case T_InsertStmt:
++      printf("=  Type: Insert\n");
++      printf("=  person_id:  %d\n", ((InsertStmt*)n)->personId);
++      printf("=  first_name: %s\n", ((InsertStmt*)n)->firstName);
++      break;
+     default:
+       printf("print_node() | unknown node type\n");
+   }
+ }
+```
+
+I'm also adding the insert node to our `print_node` logic just so we can make sure the parser processes everything correctly.
+
+```diff
++char* str_strip_quotes(char* str) {
++  int length = strlen(str);
++  char* finalStr = malloc(length - 1);
++  memcpy(finalStr, str + 1, length - 2);
++  finalStr[length - 2] = '\0';
++  free(str);
++  return finalStr;
++}
+```
+
+Lastly, we need a helper function to strip the single quote characters off of the matched input from the lexer. When we write `insert 5 'chris burke'`, our lexer will match all of `'chris burke'`, including the quote characters. We don't want to store those in the table, so we need a way of stripping them out.
+
 ## Lexer
 
 `src/parser/scan.l`
@@ -83,3 +193,21 @@ Here we add the `intval` property to our union, which gives flex access to it vi
    ;
 ```
 
+## Running the Program
+
+Since we didn't add any new files, we don't need to add anything to the Makefile. We can just compile and run:
+
+```shell
+$ make && ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql > insert 5 'chris burke'
+======  Node  ======
+=  Type: Insert
+=  person_id:  5
+=  first_name: chris burke
+bql >
+```
+
+As expected, our parser was able to identify both the Int and string we want to insert, as well as successfully strip the single quote characters from the string.
