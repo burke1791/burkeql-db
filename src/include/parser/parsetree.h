@@ -29,7 +29,7 @@ typedef struct SysCmd {
 typedef struct InsertStmt {
   NodeTag type;
   int personId;
-  char* firstName;
+  char* name;
 } InsertStmt;
 
 

@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "global/config.h"
 #include "storage/page.h"
@@ -70,12 +72,13 @@ bool page_insert(Page pg, Record data, uint16_t length) {
   return true;
 }
 
-Page read_page(FILE* fp, uint32_t pageId) {
+Page read_page(int fd, uint32_t pageId) {
   Page pg = new_page();
-  fseek(fp, (pageId - 1) * conf->pageSize, SEEK_SET);
-  int pages_read = fread(pg, conf->pageSize, 1, fp);
+  lseek(fd, (pageId - 1) * conf->pageSize, SEEK_SET);
+  int bytes_read = read(fd, pg, conf->pageSize);
 
-  if (pages_read != 1) {
+  if (bytes_read != conf->pageSize) {
+    printf("Bytes read: %d\n", bytes_read);
     PageHeader* pgHdr = (PageHeader*)pg;
     /* Since this is a brand new page, we need to set the header fields appropriately */
     pgHdr->pageId = pageId;
@@ -86,12 +89,12 @@ Page read_page(FILE* fp, uint32_t pageId) {
   return pg;
 }
 
-void flush_page(FILE* fp, Page pg) {
+void flush_page(int fd, Page pg) {
   int pageId = ((PageHeader*)pg)->pageId;
-  fseek(fp, (pageId - 1) * conf->pageSize, SEEK_SET);
-  int pages_written = fwrite(pg, conf->pageSize, 1, fp);
+  lseek(fd, (pageId - 1) * conf->pageSize, SEEK_SET);
+  int bytes_written = write(fd, pg, conf->pageSize);
 
-  if (pages_written != 1) {
+  if (bytes_written != conf->pageSize) {
     printf("Page flush unsuccessful\n");
   }
 }

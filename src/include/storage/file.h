@@ -6,10 +6,10 @@
 
 typedef struct FileDesc {
   char* filename;
-  FILE* fp;
+  int fd;
 } FileDesc;
 
-FileDesc* file_open(char* filename, char* mode);
-void file_close(FileDesc* fd);
+FileDesc* file_open(char* filename);
+void file_close(FileDesc* fdesc);
 
 #endif /* FILE_H */

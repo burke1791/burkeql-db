@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "global/config.h"
-#include "storage/file.h"
 
 Config* new_config() {
   Config* conf = malloc(sizeof(Config));
@@ -41,6 +40,16 @@ static void set_config_value(Config* conf, ConfigParameter p, char* v) {
   }
 }
 
+static FILE* read_config_file() {
+  FILE* fp = fopen("burkeql.conf", "r");
+  
+  return fp;
+}
+
+static void close_config_file(FILE* fp) {
+  fclose(fp);
+}
+
 /**
  * @brief Set the global config object
  * 
@@ -51,13 +60,13 @@ static void set_config_value(Config* conf, ConfigParameter p, char* v) {
  * @return false 
  */
 bool set_global_config(Config* conf) {
-  FileDesc* fd = file_open("burkeql.conf", "r");
+  FILE* fp = read_config_file();
   char* line = NULL;
   size_t len = 0;
   ssize_t read;
   ConfigParameter p;
 
-  if (fd->fp == NULL) {
+  if (fp == NULL) {
     printf("Unable to read config file: burkeql.conf\n");
     return false;
   }
@@ -66,7 +75,7 @@ bool set_global_config(Config* conf) {
    * loops through the config file and sets values in the
    * global Config object
    */
-  while ((read = getline(&line, &len, fd->fp)) != -1) {
+  while ((read = getline(&line, &len, fp)) != -1) {
     // skip comment lines or empty lines
     if (strncmp(line, "#", 1) == 0 || read <= 1) continue;
 
@@ -83,7 +92,7 @@ bool set_global_config(Config* conf) {
 
   if (line) free(line);
 
-  file_close(fd);
+  close_config_file(fp);
 
   return true;
 }

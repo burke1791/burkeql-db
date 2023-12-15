@@ -1,34 +1,45 @@
 #include <string.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "storage/file.h"
 
-FileDesc* file_open(char* filename, char* mode) {
-  FileDesc* fd = malloc(sizeof(FileDesc));
+FileDesc* file_open(char* filename) {
+  FileDesc* fdesc = malloc(sizeof(FileDesc));
 
-  fd->fp = fopen(filename, mode);
+  fdesc->fd = open(filename,
+                O_RDWR |    // read/write mode
+                  O_CREAT,  // create file if it doesn't exist
+                S_IWUSR |   // user write permission
+                  S_IRUSR   // user read permission
+  );
 
-  if (fd->fp == NULL) {
-    free(fd);
+  if (fdesc->fd == -1) {
+    free(fdesc);
     return NULL;
   }
 
-  fd->filename = strdup(filename);
+  fdesc->filename = strdup(filename);
 
-  return fd;
+  return fdesc;
 }
+
+
 
 /**
  * @brief closes the FILE* referenced in the FileDesc struct and frees FileDesc
  * 
  * @param fd 
  */
-void file_close(FileDesc* fd) {
-  if (fd->fp != NULL) {
-    fclose(fd->fp);
+void file_close(FileDesc* fdesc) {
+  if (fdesc->fd != -1) {
+    close(fdesc->fd);
   }
 
-  if (fd->filename != NULL) free(fd->filename);
+  if (fdesc->filename != NULL) free(fdesc->filename);
 
-  free(fd);
+  free(fdesc);
 }

@@ -20,14 +20,13 @@ nav:
   - 'The Database Page':
     - 'Page Structure': 03-db-page/page-structure.md
   - 'Data Persistence':
-    - Intro: 04-data-persistence/intro.md
-    - 'Config File': 04-data-persistence/config-file.md
-    - 'DB File Interface': 04-data-persistence/file-interface.md
-    - 'Loading Config': 04-data-persistence/loading-config.md
-    - 'DB Page Interface': 04-data-persistence/page-interface.md
-    - 'DB Page Implementation': 04-data-persistence/page-implementation.md
-    - 'Parser Refactor - Insert': 04-data-persistence/parser-refactor-insert.md
-    # - 'Insert Logic': 04-data-persistence/insert-logic.md
-    # - 'Putting It Together': 04-data-persistence/putting-it-together.md
+    - Intro: 04-data-persistence/01-intro.md
+    - 'Config File': 04-data-persistence/02-config-file.md
+    - 'Loading Config': 04-data-persistence/03-loading-config.md
+    - 'DB File Interface': 04-data-persistence/04-file-interface.md
+    - 'DB Page Interface': 04-data-persistence/05-page-interface.md
+    - 'DB Page Implementation': 04-data-persistence/06-page-implementation.md
+    - 'Parser Refactor - Insert': 04-data-persistence/07-parser-refactor-insert.md
+    - 'Serializing and Inserting Data': 04-data-persistence/08-serializing-and-inserting-data.md
 
 theme: readthedocs
