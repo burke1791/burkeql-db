@@ -66,7 +66,7 @@ select_stmt: SELECT {
 insert_stmt: INSERT INTNUM STRING  {
       InsertStmt* ins = create_node(InsertStmt);
       ins->personId = $2;
-      ins->firstName = str_strip_quotes($3);
+      ins->name = str_strip_quotes($3);
       $$ = (Node*)ins;
     }
   ;

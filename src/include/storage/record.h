@@ -3,13 +3,16 @@
 
 #include <stdint.h>
 
+#include "storage/datum.h"
+
 typedef char* Record;
 
 typedef enum DataType {
-  DT_INT = 2,     /* 4-bytes, signed */
-  DT_CHAR = 7     /* Byte-size defined at table creation */
+  DT_INT,     /* 4-bytes, signed */
+  DT_CHAR     /* Byte-size defined at table creation */
 } DataType;
 
+#pragma pack(push, 1) /* disabling memory alignment because I don't want to deal with it */
 typedef struct Column {
   char* colname;
   DataType dataType;
@@ -32,5 +35,19 @@ typedef struct RecordHeader {
   uint16_t infomask;
   uint16_t nullOffset;
 } RecordHeader;
+
+typedef struct RecordDescriptor {
+  int ncols;        /* number of columns (defined by the Create Table DDL) */
+  Column cols[];
+} RecordDescriptor;
+
+Record record_init(uint16_t recordLen);
+void free_record(Record r);
+
+void free_record_desc(RecordDescriptor* rd);
+
+void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len);
+
+void fill_record(RecordDescriptor* rd, Record r, Datum* data);
 
 #endif /* RECORD_H */

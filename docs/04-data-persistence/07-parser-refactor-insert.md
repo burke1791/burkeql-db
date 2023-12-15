@@ -48,7 +48,7 @@ bql > insert 5 'Chris Burke'
 +typedef struct InsertStmt {
 +  NodeTag type;
 +  int personId;
-+  char* firstName;
++  char* name;
 +} InsertStmt;
 ```
 
@@ -72,7 +72,7 @@ In our parsetree header we're just adding a new node type and struct to support 
 +static void free_insert_stmt(InsertStmt* ins) {
 +  if (ins == NULL) return;
 +
-+  if (ins->firstName != NULL) free(ins->firstName);
++  if (ins->name != NULL) free(ins->name);
 +}
 +
  void free_node(Node* n) {
@@ -111,8 +111,8 @@ In our parsetree implementation, we need to write a function that can free the n
        break;
 +    case T_InsertStmt:
 +      printf("=  Type: Insert\n");
-+      printf("=  person_id:  %d\n", ((InsertStmt*)n)->personId);
-+      printf("=  first_name: %s\n", ((InsertStmt*)n)->firstName);
++      printf("=  person_id: %d\n", ((InsertStmt*)n)->personId);
++      printf("=  name:      %s\n", ((InsertStmt*)n)->name);
 +      break;
      default:
        printf("print_node() | unknown node type\n");
@@ -187,7 +187,7 @@ Here we add the `intval` property to our union, which gives flex access to it vi
 -      $$ = NULL;
 +      InsertStmt* ins = create_node(InsertStmt);
 +      ins->personId = $2;
-+      ins->firstName = str_strip_quotes($3);
++      ins->name = str_strip_quotes($3);
 +      $$ = (Node*)ins;
      }
    ;
@@ -205,8 +205,8 @@ $ make && ./burkeql
 bql > insert 5 'chris burke'
 ======  Node  ======
 =  Type: Insert
-=  person_id:  5
-=  first_name: chris burke
+=  person_id: 5
+=  name:      chris burke
 bql >
 ```
 

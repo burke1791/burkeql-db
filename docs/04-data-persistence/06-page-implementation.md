@@ -76,14 +76,15 @@ It's about as straightforward as you can get. We simply allocate enough memory f
 Now let's read a page block from disk into a `Page` object:
 
 ```c
-Page read_page(FILE* fp, uint32_t pageId) {
+Page read_page(int fd, uint32_t pageId) {
   Page pg = new_page();
-  fseek(fp, (pageId - 1) * conf->pageSize, SEEK_SET);
-  int pages_read = fread(pg, conf->pageSize, 1, fp);
+  lseek(fd, (pageId - 1) * conf->pageSize, SEEK_SET);
+  int bytes_read = read(fd, pg, conf->pageSize);
 
-  if (pages_read != 1) {
-    /* Since this is a brand new page, we need to set the header fields appropriately */
+  if (bytes_read != conf->pageSize) {
+    printf("Bytes read: %d\n", bytes_read);
     PageHeader* pgHdr = (PageHeader*)pg;
+    /* Since this is a brand new page, we need to set the header fields appropriately */
     pgHdr->pageId = pageId;
     pgHdr->freeBytes = conf->pageSize - sizeof(PageHeader);
     pgHdr->freeData = conf->pageSize - sizeof(PageHeader);
@@ -93,29 +94,29 @@ Page read_page(FILE* fp, uint32_t pageId) {
 }
 ```
 
-Our function takes two inputs: a `FILE*` pointer and a `pageId`. This implies the caller will already have an open file, and it knows exactly which page block it wants to pull from disk.
+Our function takes two inputs: a file descriptor and a `pageId`. This implies the caller will already have an open file, and it knows exactly which page block it wants to pull from disk.
 
 First, we need to allocate memory as a landing spot for the data we intend to pull from disk. Then we tell the file pointer to move to offset `(pageId - 1) * conf->pageSize` bytes from the beginning of the file (`SEEK_SET`). It's important to note that OUR `pageId`s are 1-based, but the math required to get the byte offset operates on 0-based pageIds.
 
-Next we read `conf->pageSize` bytes into our `Page` memory block. The `fread` function returns the number of `conf->pageSize` blocks read from disk. In our implementation, a value of 1 indicates a successful read from disk. If the value is not equal to 1, then there was an error, or the page does not exist in the file. If the page doesn't exist, then we need to set the `PageHeader` fields to values that represent a blank data page.
+Next we read `conf->pageSize` bytes into our `Page` memory block. The `read` function returns the number of bytes read from disk. If the value is not equal to the size of a page block, then there was an error, or the page does not exist in the file. If the page doesn't exist, then we need to set the `PageHeader` fields to values that represent a blank data page.
 
 We're currently not using `pageType`, `indexLevel`, `prevPageId`, and `nextPageId` so we don't need to set any values. As for the rest, we do need to set some values. The `pageId` is pretty straightforward; the caller asked for a specific `pageId`, so we need to make sure that's what we return. `freeBytes` and `freeData` are always the same value for an empty page - just a count of empty bytes on the page. The page header is the only space being used, so we just subtract 20-bytes from the size of a full page. And the last field, `numRecords`, does not need to be explicitly set because it is already zero.
 
 Next up, we need to write a function to flush data pages to disk.
 
 ```c
-void flush_page(FILE* fp, Page pg) {
+void flush_page(int fd, Page pg) {
   int pageId = ((PageHeader*)pg)->pageId;
-  fseek(fp, (pageId - 1) * conf->pageSize, SEEK_SET);
-  int pages_written = fwrite(pg, conf->pageSize, 1, fp);
+  lseek(fd, (pageId - 1) * conf->pageSize, SEEK_SET);
+  int bytes_written = write(fd, pg, conf->pageSize);
 
-  if (pages_written != 1) {
+  if (bytes_written != conf->pageSize) {
     printf("Page flush unsuccessful\n");
   }
 }
 ```
 
-This one is comparatively a lot simpler. First we just need to extract the `pageId` from the header, then we tell the file pointer to move to the beginning of the spot where this page should be written. Then we `fwrite` the page to disk.
+This one is comparatively a lot simpler. First we just need to extract the `pageId` from the header, then we tell the file pointer to move to the beginning of the spot where this page should be written. Then we `write` the page to disk.
 
 The last piece is just an informational console log to tell us if something unexpected happened. We'll implement error handling later.
 
@@ -136,8 +137,8 @@ Before we can demonstrate reading and writing pages to disk, we need to make som
 ```diff
    print_config(conf);
  
-+  FileDesc* fd = file_open(conf->dataFile, "wb");
-+  Page pg = read_page(fd->fp, 1);
++  FileDesc* fdesc = file_open(conf->dataFile);
++  Page pg = read_page(fdesc->fd, 1);
 +
    while(true) {
      print_prompt();
@@ -152,9 +153,9 @@ At the very beginning of our program, we want to open the data file and attempt 
            print_node(n);
            free_node(n);
            printf("Shutting down...\n");
-+          flush_page(fd->fp, pg);
++          flush_page(fdesc->fd, pg);
 +          free_page(pg);
-+          file_close(fd);
++          file_close(fdesc);
            return EXIT_SUCCESS;
          }
        default:
@@ -196,7 +197,7 @@ We didn't change anything with the parser, so the interesting stuff doesn't happ
 
 Using the `xxd` command, we can inspect the contents of our binary data file. `xxd [filename]` shows the hex representation of each byte in the file. Every pair of characters represents a single byte. The orange box I highlighted contains the 4-byte `pageId` header field, which we set to a value of 1 when we created the empty page.
 
-Note: my machine is a Little-endian machine, which means it stores the "little-end" first. As an example, say we have a two-byte (`uint16_t`) integer 38,924 represented in binary. As humans, we would show the binary value as:
+Note: my machine is a Little-endian machine, which means it stores the "little-end" of a byte sequence first. As an example, say we have a two-byte (`uint16_t`) integer 38,924 represented in binary. As humans, we would show the binary value as:
 
 `10011000 00011110`
 
@@ -204,7 +205,7 @@ This is the same as Big-endian in the machine world. A Little-endian machine wou
 
 `00011110 10011000`
 
-This is why we see the `pageId` field with the smallest byte first instead of `0000 0001`.
+This is why we see the `pageId` field with the smallest byte first instead of `0000 0001` <-- hex representation.
 
 Also, note that endian-ness only affects the order of bytes, it DOES NOT affect the order of the individual bits within the bytes.
 

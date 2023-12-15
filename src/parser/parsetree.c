@@ -13,7 +13,7 @@ static void free_syscmd(SysCmd* sc) {
 static void free_insert_stmt(InsertStmt* ins) {
   if (ins == NULL) return;
 
-  if (ins->firstName != NULL) free(ins->firstName);
+  if (ins->name != NULL) free(ins->name);
 }
 
 void free_node(Node* n) {
@@ -48,8 +48,8 @@ void print_node(Node* n) {
       break;
     case T_InsertStmt:
       printf("=  Type: Insert\n");
-      printf("=  person_id:  %d\n", ((InsertStmt*)n)->personId);
-      printf("=  first_name: %s\n", ((InsertStmt*)n)->firstName);
+      printf("=  person_id: %d\n", ((InsertStmt*)n)->personId);
+      printf("=  name:      %s\n", ((InsertStmt*)n)->name);
       break;
     default:
       printf("print_node() | unknown node type\n");

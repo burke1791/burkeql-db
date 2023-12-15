@@ -12,7 +12,9 @@ SRC_FILES = main.c \
 						parser/parsetree.c \
 						global/config.c \
 						storage/file.c \
-						storage/page.c
+						storage/page.c \
+						storage/record.c \
+						storage/datum.c
 
 
 $(BUILD_DIR)/$(TARGET_EXEC): gram.tab.o lex.yy.o ${SRC_FILES}

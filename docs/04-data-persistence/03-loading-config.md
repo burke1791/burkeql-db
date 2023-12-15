@@ -1,6 +1,6 @@
 # Loading Config
 
-Now that we have functions to open and close files for us, we need to write the code that reads the config file line-by-line and sets the valid values in a global `Config` object. Let's begin by writing the header file for our config code:
+With the config file format defined, we need to write the code that reads the config file line-by-line and sets the valid values in a global `Config` object. Let's begin by writing the header file for our config code:
 
 ```c
 typedef enum ConfigParameter {
@@ -36,7 +36,21 @@ The first two are just responsible for allocating and freeing memory associated 
 
 ## Implementation
 
-Let's start with the simple functions, `new_config`, `free_config`, and `print_config`:
+First up, let's start with basic opening and closing of files.
+
+```c
+static FILE* read_config_file() {
+  FILE* fp = fopen("burkeql.conf", "r");
+  
+  return fp;
+}
+
+static void close_config_file(FILE* fp) {
+  fclose(fp);
+}
+```
+
+Next up, we need memory management functions and a debugging function that prints info to the console, `new_config`, `free_config`, and `print_config`:
 
 ```c
 Config* new_config() {
@@ -57,17 +71,17 @@ void print_config(Config* conf) {
 
 Very straightforward. Allocate the memory we need. Free everything that was allocated. And print the only config property we currently have.
 
-The fourth function has a lot more going on by comparison, and even utilizes some `static` helper functions:
+Now we can write our primary worker function, which has a lot more going on by comparison, and even utilizes some `static` helper functions:
 
 ```c
 bool set_global_config(Config* conf) {
-  FileDesc* fd = file_open("burkeql.conf", "r");
+  FILE* fp = read_config_file();
   char* line = NULL;
   size_t len = 0;
   ssize_t read;
   ConfigParameter p;
 
-  if (fd->fp == NULL) {
+  if (fp == NULL) {
     printf("Unable to read config file: burkeql.conf\n");
     return false;
   }
@@ -80,7 +94,7 @@ We start by declaring/initializing the variables we'll need when we loop through
    * loops through the config file and sets values in the
    * global Config object
    */
-  while ((read = getline(&line, &len, fd->fp)) != -1) {
+  while ((read = getline(&line, &len, fp)) != -1) {
     // skip comment lines or empty lines
     if (strncmp(line, "#", 1) == 0 || read <= 1) continue;
 
@@ -105,7 +119,7 @@ Finally, we free up any memory we allocated for this function:
 ```c
   if (line) free(line);
 
-  file_close(fd);
+  close_config_file(fp);
 
   return true;
 }
@@ -172,8 +186,7 @@ Lastly, we need to update the `Makefile` by adding the new c files to the `SRC_F
 SRC_FILES = main.c \
  						parser/parse.c \
 +						parser/parsetree.c \
-+						global/config.c \
-+						storage/file.c
++						global/config.c
 ```
 
 ## Running the Program
@@ -223,16 +236,12 @@ Here's the folder layout I have at this point:
     │   ├── parser
     │   │   ├── parse.h
     │   │   └── parsetree.h
-    │   └── storage
-    │       └── file.h
     ├── main.c
     ├── parser
     │   ├── gram.y
     │   ├── parse.c
     │   ├── parsetree.c
     │   └── scan.l
-    └── storage
-        └── file.c
 ```
 
 And the current state of all the files we changed.
@@ -252,8 +261,7 @@ BUILD_DIR = ..
 SRC_FILES = main.c \
 						parser/parse.c \
 						parser/parsetree.c \
-						global/config.c \
-						storage/file.c
+						global/config.c
 
 
 $(BUILD_DIR)/$(TARGET_EXEC): gram.tab.o lex.yy.o ${SRC_FILES}
@@ -303,26 +311,6 @@ void print_config(Config* conf);
 #endif /* CONFIG_H */
 ```
 
-`src/include/storage/file.h`
-
-```c
-#ifndef FILE_H
-#define FILE_H
-
-#include <stdint.h>
-#include <stdio.h>
-
-typedef struct FileDesc {
-  char* filename;
-  FILE* fp;
-} FileDesc;
-
-FileDesc* file_open(char* filename, char* mode);
-void file_close(FileDesc* fd);
-
-#endif /* FILE_H */
-```
-
 `src/global/config.c`
 
 ```c
@@ -332,7 +320,6 @@ void file_close(FileDesc* fd);
 #include <string.h>
 
 #include "global/config.h"
-#include "storage/file.h"
 
 Config* new_config() {
   Config* conf = malloc(sizeof(Config));
@@ -364,14 +351,24 @@ static void set_config_value(Config* conf, ConfigParameter p, char* v) {
   }
 }
 
+static FILE* read_config_file() {
+  FILE* fp = fopen("burkeql.conf", "r");
+  
+  return fp;
+}
+
+static void close_config_file(FILE* fp) {
+  fclose(fp);
+}
+
 bool set_global_config(Config* conf) {
-  FileDesc* fd = file_open("burkeql.conf", "r");
+  FILE* fp = read_config_file();
   char* line = NULL;
   size_t len = 0;
   ssize_t read;
   ConfigParameter p;
 
-  if (fd->fp == NULL) {
+  if (fp == NULL) {
     printf("Unable to read config file: burkeql.conf\n");
     return false;
   }
@@ -380,7 +377,7 @@ bool set_global_config(Config* conf) {
    * loops through the config file and sets values in the
    * global Config object
    */
-  while ((read = getline(&line, &len, fd->fp)) != -1) {
+  while ((read = getline(&line, &len, fp)) != -1) {
     // skip comment lines or empty lines
     if (strncmp(line, "#", 1) == 0 || read <= 1) continue;
 
@@ -397,43 +394,9 @@ bool set_global_config(Config* conf) {
 
   if (line) free(line);
 
-  file_close(fd);
+  close_config_file(fp);
 
   return true;
-}
-```
-
-`src/storage/file.c`
-
-```c
-#include <string.h>
-#include <stdlib.h>
-
-#include "storage/file.h"
-
-FileDesc* file_open(char* filename, char* mode) {
-  FileDesc* fd = malloc(sizeof(FileDesc));
-
-  fd->fp = fopen(filename, mode);
-
-  if (fd->fp == NULL) {
-    free(fd);
-    return NULL;
-  }
-
-  fd->filename = strdup(filename);
-
-  return fd;
-}
-
-void file_close(FileDesc* fd) {
-  if (fd->fp != NULL) {
-    fclose(fd->fp);
-  }
-
-  if (fd->filename != NULL) free(fd->filename);
-
-  free(fd);
 }
 ```
 

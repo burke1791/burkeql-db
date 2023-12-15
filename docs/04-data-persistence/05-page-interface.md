@@ -52,8 +52,8 @@ To start, let's narrow the scope to a database with a data file that contains on
 First up are a pair of functions responsible for reading and writing data pages to disk:
 
 ```c
-Page read_page(FILE* fp, uint32_t pageId);
-void flush_page(FILE* fp, Page pg);
+Page read_page(int fd, uint32_t pageId);
+void flush_page(int fd, Page pg);
 ```
 
 It's a fairly simple task, the caller just needs to have the file pointer readily available. And remember we defined `Page` as a `char*` above, so we're just passing a pointer to the block of memory containing our data page.
@@ -101,8 +101,8 @@ typedef struct SlotPointer {
 Page new_page();
 void free_page(Page pg);
 
-Page read_page(FILE* fp, uint32_t pageId);
-void flush_page(FILE* fp, Page pg);
+Page read_page(int fd, uint32_t pageId);
+void flush_page(int fd, Page pg);
 
 #endif /* PAGE_H */
 ```

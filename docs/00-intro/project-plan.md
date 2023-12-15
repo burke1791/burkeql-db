@@ -47,15 +47,14 @@ Discussion about how data are organized on disk. Also touch on how different DBM
 
 1. [Page Structure](../../03-db-page/page-structure)
 
-### Data Persistence (in progress)
+### Data Persistence (COMPLETE)
 
 Start storing data on disk. Using a hard-coded table definition:
 
 ```sql
 Create Table person (
     person_id Int Not Null,
-    first_name Char(20) Not Null,
-    last_name Char(20) Not Null
+    name Char(20) Not Null
 );
 ```
 
@@ -67,17 +66,16 @@ Create Table person (
 
 ---
 
-1. [Intro](../../04-data-persistence/intro)
-1. [Config File](../../04-data-persistence/config-file)
-1. [DB File Interface](../../04-data-persistence/file-interface)
-1. [Loading Config](../../04-data-persistence/loading-config)
-1. [DB Page Interface](../../04-data-persistence/page-interface)
-1. [DB Page Implementation](../../04-data-persistence/page-implementation)
-1. [Parser Refactor - Insert](../../04-data-persistence/parser-refactor-insert)
-1. Record Struct
-1. Inserting Data
+1. [Intro](../../04-data-persistence/01-intro)
+1. [Config File](../../04-data-persistence/02-config-file)
+1. [Loading Config](../../04-data-persistence/03-loading-config)
+1. [DB File Interface](../../04-data-persistence/04-file-interface)
+1. [DB Page Interface](../../04-data-persistence/05-page-interface)
+1. [DB Page Implementation](../../04-data-persistence/06-page-implementation)
+1. [Parser Refactor - Insert](../../04-data-persistence/07-parser-refactor-insert)
+1. [Serializing and Inserting Data](../../04-data-persistence/08-serializing-and-inserting-data)
 
-### Selecting Data (planned)
+### Selecting Data (in progress)
 
 - Updating the parser to support selecting data from the table
 - MAYBE introduce the analyzer
