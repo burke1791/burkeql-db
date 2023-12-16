@@ -1,6 +1,6 @@
-# BurkeQL - Project Plan
+# BurkeQL - Project Roadmap
 
-This page contains an outline of my plan for this project. It's meant to serve as a scratchpad for me to organize my thoughts. Please ignore any notes that don't make sense, I probably just forgot to delete/move them.
+This page contains an outline of my plan for this project. It's really meant to serve as a scratchpad for me to organize my thoughts. Please ignore any notes that don't make sense, I probably just forgot to delete/move them.
 
 ## Milestones
 
@@ -85,10 +85,10 @@ Create Table person (
 
 ---
 
-1. Parser Refactor - Select
+1. [Parser Refactor - Select](../../05-selecting-data/01-parser-refactor-select)
 1. Basic Analyzer (MAYBE)
 1. Table Scan
-1. Putting It Together
+1. Displaying Results
 
 ### Page Splits (planned)
 

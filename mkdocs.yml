@@ -4,7 +4,7 @@ repo_url: https://github.com/burke1791/burkeql-db/
 
 nav:
   - Home: index.md
-  - 'Project Plan': 00-intro/project-plan.md
+  - 'Project Roadmap': 00-intro/project-plan.md
   - 'Basic CLI':
     - Intro: 01-basic-cli/intro.md
     - Flex: 01-basic-cli/flex.md
@@ -28,5 +28,7 @@ nav:
     - 'DB Page Implementation': 04-data-persistence/06-page-implementation.md
     - 'Parser Refactor - Insert': 04-data-persistence/07-parser-refactor-insert.md
     - 'Serializing and Inserting Data': 04-data-persistence/08-serializing-and-inserting-data.md
+  - 'Selecting Data':
+    - 'Parser Refactor - Select': 05-selecting-data/01-parser-refactor-select.md
 
 theme: readthedocs

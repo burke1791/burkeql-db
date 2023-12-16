@@ -28,8 +28,14 @@ SELECT    { return SELECT; }
   /* numbers */
 -?[0-9]+    { yylval->intval = atoi(yytext); return INTNUM; }
 
+  /* operators */
+[,;]   { return yytext[0]; }
+
   /* strings */
 '(\\.|''|[^'\n])*'  { yylval->str = strdup(yytext); return STRING; }
+
+  /* names */
+[A-Za-z_][A-Za-z0-9_]*   { yylval->str = strdup(yytext); return IDENT; }
 
   /* everything else */
 [ \t\n]   /* whitespace */
