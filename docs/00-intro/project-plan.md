@@ -89,6 +89,7 @@ Create Table person (
 1. Basic Analyzer (MAYBE)
 1. Table Scan
 1. Displaying Results
+1. Select *
 
 ### Page Splits (planned)
 

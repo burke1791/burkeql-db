@@ -34,7 +34,7 @@ SELECT    { return SELECT; }
   /* strings */
 '(\\.|''|[^'\n])*'  { yylval->str = strdup(yytext); return STRING; }
 
-  /* names */
+  /* identifiers */
 [A-Za-z_][A-Za-z0-9_]*   { yylval->str = strdup(yytext); return IDENT; }
 
   /* everything else */

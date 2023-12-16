@@ -97,8 +97,7 @@ void print_node(Node* n) {
       break;
     case T_SelectStmt:
       print_selectstmt((SelectStmt*)n);
-    case T_ParseList:
-    case T_ResTarget:
+      break;
     default:
       printf("print_node() | unknown node type\n");
   }
@@ -141,12 +140,12 @@ static void enlarge_list(ParseList* list) {
   }
 }
 
-static inline ParseCell* list_last_cell(const ParseList* list) {
-	return &list->elements[list->length];
+static inline ParseCell* parselist_last_cell(const ParseList* l) {
+	return &l->elements[l->length];
 }
 
 #define lcptr(lc)  ((lc)->ptr)
-#define llast(l)  lcptr(list_last_cell(l))
+#define llast(l)  lcptr(parselist_last_cell(l))
 
 ParseList* parselist_append(ParseList* l, void* cell) {
   if (l->length >= l->maxLength) {
@@ -164,7 +163,7 @@ void free_parselist(ParseList* l) {
   if (l != NULL) {
     for (int i = 0; i < l->length; i++) {
       if (&(l->elements[i]) != NULL) {
-        free_node(l->elements[i].ptr);
+        free_node((Node*)l->elements[i].ptr);
       }
     }
 

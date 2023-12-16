@@ -71,7 +71,7 @@ target_list: target {
       $$ = create_parselist($1);
     }
   | target_list ',' target {
-      parselist_append($1, $3);
+      $$ = parselist_append($1, $3);
     }
   ;
 

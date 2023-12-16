@@ -104,8 +104,6 @@ int main(int argc, char** argv) {
         if (!insert_record(pg, person_id, name)) {
           printf("Unable to insert record\n");
         }
-      case T_SelectStmt:
-        break;
     }
 
     free_node(n);
