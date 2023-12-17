@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <strings.h>
 
 #include "gram.tab.h"
 #include "parser/parsetree.h"
@@ -59,6 +60,25 @@ static bool insert_record(Page pg, int32_t person_id, char* name) {
   return insertSuccessful;
 }
 
+static bool analyze_selectstmt(SelectStmt* s) {
+  for (int i = 0; i < s->targetList->length; i++) {
+    ResTarget* r = (ResTarget*)s->targetList->elements[i].ptr;
+    if (!(strcasecmp(r->name, "person_id") == 0 || strcasecmp(r->name, "name") == 0)) return false;
+  }
+  return true;
+}
+
+static bool analyze_node(Node* n) {
+  switch (n->type) {
+    case T_SelectStmt:
+      return analyze_selectstmt((SelectStmt*)n);
+    default:
+      printf("analyze_node() | unhandled node type");
+  }
+
+  return false;
+}
+
 /* END TEMPORARY CODE */
 
 static void print_prompt() {
@@ -103,6 +123,10 @@ int main(int argc, char** argv) {
         char* name = ((InsertStmt*)n)->name;
         if (!insert_record(pg, person_id, name)) {
           printf("Unable to insert record\n");
+        }
+      case T_SelectStmt:
+        if (!analyze_node(n)) {
+          printf("Semantic analysis failed\n");
         }
     }
 
