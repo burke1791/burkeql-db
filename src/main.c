@@ -12,6 +12,7 @@
 #include "storage/page.h"
 
 Config* conf;
+FileDesc* fdesc;
 
 /* TEMPORARY CODE SECTION */
 
@@ -96,7 +97,7 @@ int main(int argc, char** argv) {
   // print config
   print_config(conf);
 
-  FileDesc* fdesc = file_open(conf->dataFile);
+  fdesc = file_open(conf->dataFile);
   Page pg = read_page(fdesc->fd, 1);
 
   while(true) {

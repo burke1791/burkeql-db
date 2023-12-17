@@ -2,8 +2,7 @@
 #define TABLEAM_H
 
 #include "storage/table.h"
-#include "parser/parsetree.h"
 
-void scan_table(TableDesc* td, ParseList* targetList, Datum* values);
+void scan_table(TableDesc* td, RecordSet* rs);
 
 #endif /* TABLEAM_H */
