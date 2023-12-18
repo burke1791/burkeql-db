@@ -48,7 +48,4 @@ void free_page(Page pg);
 
 bool page_insert(Page pg, Record data, uint16_t length);
 
-Page read_page(int fd, uint32_t pageId);
-void flush_page(int fd, Page pg);
-
 #endif /* PAGE_H */

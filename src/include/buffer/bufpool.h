@@ -20,7 +20,8 @@ typedef struct BufPool {
 BufPool* bufpool_init(FileDesc* fdesc, int numSlots);
 void bufpool_destroy(BufPool* bp);
 
-void bufpool_load_page(BufPool* bp, uint32_t pageId);
+BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId);
 void bufpool_flush_page(BufPool* bp, uint32_t pageId);
+void bufpool_flush_all(BufPool* bp);
 
 #endif /* BUFPOOL_H */
