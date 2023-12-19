@@ -90,7 +90,7 @@ BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId) {
 static bool flush_page(int fd, Page pg, uint32_t pageId) {
   uint32_t headerPageId = ((PageHeader*)pg)->pageId;
 
-  if (headerPageId != pageId) {
+  if (headerPageId != pageId || pageId == 0) {
     printf("Page Ids do not match\n");
     return false;
   }
@@ -124,6 +124,7 @@ void bufpool_flush_page(BufPool* bp, uint32_t pageId) {
 
 void bufpool_flush_all(BufPool* bp) {
   for (int i = 0; i < bp->size; i++) {
+    printf("i: %d\n", i);
     BufPoolSlot* slot = &bp->slots[i];
     flush_page(bp->fdesc->fd, slot->pg, slot->pageId);
   }

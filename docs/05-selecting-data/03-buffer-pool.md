@@ -169,7 +169,7 @@ static BufPoolSlot* bufpool_find_slot_by_page_id(BufPool* bp, uint32_t pageId) {
 static bool flush_page(int fd, Page pg, uint32_t pageId) {
   uint32_t headerPageId = ((PageHeader*)pg)->pageId;
 
-  if (headerPageId != pageId) {
+  if (headerPageId != pageId || pageId == 0) {
     printf("Page Ids do not match\n");
     return false;
   }
