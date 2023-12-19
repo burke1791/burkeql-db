@@ -128,6 +128,7 @@ int main(int argc, char** argv) {
         if (!insert_record(bp, person_id, name)) {
           printf("Unable to insert record\n");
         }
+        break;
       case T_SelectStmt:
         if (!analyze_node(n)) {
           printf("Semantic analysis failed\n");

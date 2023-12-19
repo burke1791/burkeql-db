@@ -65,6 +65,7 @@ We just add a couple functions to our temporary code section in `main.c`. We hav
         if (!insert_record(pg, person_id, name)) {
           printf("Unable to insert record\n");
         }
++       break;
 +     case T_SelectStmt:
 +       if (!analyze_node(n)) {
 +         printf("Semantic analysis failed\n");
