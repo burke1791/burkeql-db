@@ -71,30 +71,3 @@ bool page_insert(Page pg, Record data, uint16_t length) {
 
   return true;
 }
-
-Page read_page(int fd, uint32_t pageId) {
-  Page pg = new_page();
-  lseek(fd, (pageId - 1) * conf->pageSize, SEEK_SET);
-  int bytes_read = read(fd, pg, conf->pageSize);
-
-  if (bytes_read != conf->pageSize) {
-    printf("Bytes read: %d\n", bytes_read);
-    PageHeader* pgHdr = (PageHeader*)pg;
-    /* Since this is a brand new page, we need to set the header fields appropriately */
-    pgHdr->pageId = pageId;
-    pgHdr->freeBytes = conf->pageSize - sizeof(PageHeader);
-    pgHdr->freeData = conf->pageSize - sizeof(PageHeader);
-  }
-
-  return pg;
-}
-
-void flush_page(int fd, Page pg) {
-  int pageId = ((PageHeader*)pg)->pageId;
-  lseek(fd, (pageId - 1) * conf->pageSize, SEEK_SET);
-  int bytes_written = write(fd, pg, conf->pageSize);
-
-  if (bytes_written != conf->pageSize) {
-    printf("Page flush unsuccessful\n");
-  }
-}

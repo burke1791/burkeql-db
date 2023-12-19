@@ -31,5 +31,6 @@ nav:
   - 'Selecting Data':
     - 'Parser Refactor - Select': 05-selecting-data/01-parser-refactor-select.md
     - 'The SQL Analyzer': 05-selecting-data/02-the-sql-analyzer.md
+    - 'Buffer Pool': 05-selecting-data/03-buffer-pool.md 
 
 theme: readthedocs

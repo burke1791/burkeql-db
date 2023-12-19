@@ -10,12 +10,14 @@
 #include "global/config.h"
 #include "storage/file.h"
 #include "storage/page.h"
+#include "buffer/bufpool.h"
 
 Config* conf;
 
 /* TEMPORARY CODE SECTION */
 
 #define RECORD_LEN  36  // 12-byte header + 4-byte Int + 20-byte Char(20)
+#define BUFPOOL_SLOTS  1
 
 static void populate_datum_array(Datum* data, int32_t person_id, char* name) {
   data[0] = int32GetDatum(person_id);
@@ -48,11 +50,12 @@ static void serialize_data(RecordDescriptor* rd, Record r, int32_t person_id, ch
   free(data);
 }
 
-static bool insert_record(Page pg, int32_t person_id, char* name) {
+static bool insert_record(BufPool* bp, int32_t person_id, char* name) {
+  BufPoolSlot* slot = bufpool_read_page(bp, 1);
   RecordDescriptor* rd = construct_record_descriptor();
   Record r = record_init(RECORD_LEN);
   serialize_data(rd, r, person_id, name);
-  bool insertSuccessful = page_insert(pg, r, RECORD_LEN);
+  bool insertSuccessful = page_insert(slot->pg, r, RECORD_LEN);
 
   free_record_desc(rd);
   free(r);
@@ -97,7 +100,7 @@ int main(int argc, char** argv) {
   print_config(conf);
 
   FileDesc* fdesc = file_open(conf->dataFile);
-  Page pg = read_page(fdesc->fd, 1);
+  BufPool* bp = bufpool_init(fdesc, BUFPOOL_SLOTS);
 
   while(true) {
     print_prompt();
@@ -112,8 +115,8 @@ int main(int argc, char** argv) {
         if (strcmp(((SysCmd*)n)->cmd, "quit") == 0) {
           free_node(n);
           printf("Shutting down...\n");
-          flush_page(fdesc->fd, pg);
-          free_page(pg);
+          bufpool_flush_all(bp);
+          bufpool_destroy(bp);
           file_close(fdesc);
           return EXIT_SUCCESS;
         }
@@ -121,7 +124,7 @@ int main(int argc, char** argv) {
       case T_InsertStmt:
         int32_t person_id = ((InsertStmt*)n)->personId;
         char* name = ((InsertStmt*)n)->name;
-        if (!insert_record(pg, person_id, name)) {
+        if (!insert_record(bp, person_id, name)) {
           printf("Unable to insert record\n");
         }
       case T_SelectStmt:

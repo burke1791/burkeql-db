@@ -87,6 +87,7 @@ Create Table person (
 
 1. [Parser Refactor - Select](../../05-selecting-data/01-parser-refactor-select)
 1. [The SQL Analyzer](../../05-selecting-data/02-the-sql-analyzer)
+1. [Buffer Pool](../../05-selecting-data/03-buffer-pool) 
 1. Table Scan
 1. Displaying Results
 1. Select *
