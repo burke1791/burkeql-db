@@ -12,7 +12,6 @@
 #include "buffer/bufpool.h"
 
 Config* conf;
-BufPool* bp;
 
 /* TEMPORARY CODE SECTION */
 
@@ -50,7 +49,7 @@ static void serialize_data(RecordDescriptor* rd, Record r, int32_t person_id, ch
   free(data);
 }
 
-static bool insert_record(int32_t person_id, char* name) {
+static bool insert_record(BufPool* bp, int32_t person_id, char* name) {
   BufPoolSlot* slot = bufpool_read_page(bp, 1);
   RecordDescriptor* rd = construct_record_descriptor();
   Record r = record_init(RECORD_LEN);
@@ -81,7 +80,7 @@ int main(int argc, char** argv) {
   print_config(conf);
 
   FileDesc* fdesc = file_open(conf->dataFile);
-  bp = bufpool_init(fdesc, BUFPOOL_SLOTS);
+  BufPool* bp = bufpool_init(fdesc, BUFPOOL_SLOTS);
 
   while(true) {
     print_prompt();
@@ -105,7 +104,7 @@ int main(int argc, char** argv) {
       case T_InsertStmt:
         int32_t person_id = ((InsertStmt*)n)->personId;
         char* name = ((InsertStmt*)n)->name;
-        if (!insert_record(person_id, name)) {
+        if (!insert_record(bp, person_id, name)) {
           printf("Unable to insert record\n");
         }
     }
