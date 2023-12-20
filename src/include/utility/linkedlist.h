@@ -1,10 +1,11 @@
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
+#pragma pack(push, 1) /* disabling memory alignment because I don't want to deal with it */
 typedef struct ListItem {
   void* ptr;
-  ListItem* prev;
-  ListItem* next;
+  struct ListItem* prev;
+  struct ListItem* next;
 } ListItem;
 
 typedef struct LinkedList {

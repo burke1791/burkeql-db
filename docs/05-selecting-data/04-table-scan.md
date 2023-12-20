@@ -6,7 +6,7 @@
 
 - What information do we need to perform a table scan?
     - TableDescriptor - has a `RecordDescriptor` property for the table's columns
-    - A `ResultSet` struct to dump the values into. The `ResultSet` has a `RecordDescriptor` property that only contains the columns that we want from the table. This will be built by the analyzer in our mature system.
+    - A `RecordSet` struct to dump the values into. The `RecordSet` has a `RecordDescriptor` property that only contains the columns that we want from the table. This will be built by the analyzer in our mature system.
 - The scan will populate a `LinkedList` as it pulls records from the table
 - Only the columns found in the `ResTarget` array will end up in the `ResultSet`
 

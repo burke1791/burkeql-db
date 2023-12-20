@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "utility/linkedlist.h"
 
@@ -40,15 +41,17 @@ void linkedlist_append(LinkedList* l, void* ptr) {
 
   ListItem* new = malloc(sizeof(ListItem));
   new->ptr = ptr;
+  new->next = NULL;
+  new->prev = NULL;
 
-  if (l->head == NULL) {
+  if (l->numItems == 0) {
     l->head = new;
-    l->tail = new;
   } else {
     ListItem* tail = l->tail;
     tail->next = new;
     new->prev = tail;
   }
 
+  l->tail = new;
   l->numItems++;
 }

@@ -5,6 +5,7 @@
 
 #include "buffer/bufpool.h"
 #include "global/config.h"
+#include "storage/page.h"
 
 extern Config* conf;
 
@@ -18,6 +19,14 @@ BufPool* bufpool_init(FileDesc* fdesc, int numSlots) {
   for (int i = 0; i < numSlots; i++) {
     bp->slots[i].pg = new_page();
     bp->slots[i].pageId = 0;
+  }
+
+  int offset = lseek(fdesc->fd, -(conf->pageSize), SEEK_END);
+  
+  if (offset == -1) {
+    bp->nextPageId = 1;
+  } else {
+    bp->nextPageId = (offset / conf->pageSize) + 1;
   }
 
   return bp;
@@ -62,6 +71,7 @@ static BufPoolSlot* bufpool_evict_page(BufPool* bp) {
 }
 
 BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId) {
+  if (pageId == 0) return NULL;
   BufPoolSlot* slot = bufpool_find_empty_slot(bp);
 
   if (slot == NULL) {
@@ -74,15 +84,26 @@ BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId) {
 
   if (bytes_read != conf->pageSize) {
     printf("Bytes read: %d\n", bytes_read);
-    
-    // pageId doesn't exist on disk, so we create it
-    PageHeader* pgHdr = (PageHeader*)slot->pg;
-    pgHdr->pageId = pageId;
-    pgHdr->freeBytes = conf->pageSize - sizeof(PageHeader);
-    pgHdr->freeData = conf->pageSize - sizeof(PageHeader);
+    return NULL;
   }
 
   slot->pageId = pageId;
+
+  return slot;
+}
+
+BufPoolSlot* bufpool_new_page(BufPool* bp) {
+  BufPoolSlot* slot = bufpool_find_empty_slot(bp);
+
+  slot->pageId = bp->nextPageId;
+  bp->nextPageId++;
+
+  memset(slot->pg, 0, conf->pageSize);
+
+  PageHeader* pgHdr = ((PageHeader*)slot->pg);
+  pgHdr->pageId = slot->pageId;
+  pgHdr->freeBytes = conf->pageSize - sizeof(PageHeader);
+  pgHdr->freeData = conf->pageSize - sizeof(PageHeader);
 
   return slot;
 }
@@ -124,7 +145,6 @@ void bufpool_flush_page(BufPool* bp, uint32_t pageId) {
 
 void bufpool_flush_all(BufPool* bp) {
   for (int i = 0; i < bp->size; i++) {
-    printf("i: %d\n", i);
     BufPoolSlot* slot = &bp->slots[i];
     flush_page(bp->fdesc->fd, slot->pg, slot->pageId);
   }

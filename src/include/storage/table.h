@@ -8,7 +8,7 @@ typedef struct TableDesc {
   RecordDescriptor* rd;
 } TableDesc;
 
-TableDesc* new_tabledesc(const char* tablename);
+TableDesc* new_tabledesc(char* tablename);
 
 void free_tabledesc(TableDesc* td);
 
