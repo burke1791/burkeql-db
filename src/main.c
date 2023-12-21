@@ -10,7 +10,13 @@
 #include "global/config.h"
 #include "storage/file.h"
 #include "storage/page.h"
+#include "storage/table.h"
 #include "buffer/bufpool.h"
+#include "storage/table.h"
+#include "resultset/recordset.h"
+#include "resultset/resultset_print.h"
+#include "access/tableam.h"
+#include "utility/linkedlist.h"
 
 Config* conf;
 
@@ -34,6 +40,20 @@ static RecordDescriptor* construct_record_descriptor() {
   return rd;
 }
 
+static RecordDescriptor* construct_record_descriptor_from_target_list(ParseList* targetList) {
+  RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (targetList->length * sizeof(Column)));
+  rd->ncols = targetList->length;
+
+  for (int i = 0; i < rd->ncols; i++) {
+    ResTarget* t = (ResTarget*)targetList->elements[i].ptr;
+
+    // we don't care about the data type or length here
+    construct_column_desc(&rd->cols[i], t->name, DT_UNKNOWN, i, 0);
+  }
+
+  return rd;
+}
+
 void free_record_desc(RecordDescriptor* rd) {
   for (int i = 0; i < rd->ncols; i++) {
     if (rd->cols[i].colname != NULL) {
@@ -52,6 +72,7 @@ static void serialize_data(RecordDescriptor* rd, Record r, int32_t person_id, ch
 
 static bool insert_record(BufPool* bp, int32_t person_id, char* name) {
   BufPoolSlot* slot = bufpool_read_page(bp, 1);
+  if (slot == NULL) slot = bufpool_new_page(bp);
   RecordDescriptor* rd = construct_record_descriptor();
   Record r = record_init(RECORD_LEN);
   serialize_data(rd, r, person_id, name);
@@ -131,7 +152,21 @@ int main(int argc, char** argv) {
       case T_SelectStmt:
         if (!analyze_node(n)) {
           printf("Semantic analysis failed\n");
+        } else {
+          TableDesc* td = new_tabledesc("person");
+          td->rd = construct_record_descriptor();
+          RecordSet* rs = new_recordset();
+          rs->rows = new_linkedlist();
+          RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)->targetList);
+          
+          tableam_fullscan(bp, td, rs->rows);
+          resultset_print(td->rd, rs, targets);
+
+          free_recordset(rs, td->rd);
+          free_tabledesc(td);
+          free_record_desc(targets);
         }
+        break;
     }
 
     free_node(n);

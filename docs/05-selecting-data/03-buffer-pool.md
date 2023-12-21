@@ -25,11 +25,12 @@ typedef struct BufPoolSlot {
 typedef struct BufPool {
   FileDesc* fdesc;
   int size;
+  uint32_t nextPageId;
   BufPoolSlot* slots;
 } BufPool;
 ```
 
-First we need two structs: one for the buffer pool itself and another for the page slots in the buffer pool. The `BufPool` struct will be responsible for reading and writing data for a single file only, hence the `FileDesc` pointer we store in it. It also has a fixed size, which corresponds to the number of slots we allow in the buffer pool - the `slots` property is an array of `BufPoolSlot`s.
+First we need two structs: one for the buffer pool itself and another for the page slots in the buffer pool. The `BufPool` struct will be responsible for reading and writing data for a single file only, hence the `FileDesc` pointer we store in it. It also has a fixed size, which corresponds to the number of slots we allow in the buffer pool - the `slots` property is an array of `BufPoolSlot`s. The `nextPageId` property tells us what `pageId` to set for any newly created pages.
 
 The `BufPoolSlot` struct represents a single page in memory. When occupied, we set the `pageId` to whatever page is currently in the slot. If the slot is empty, we set `pageId` to 0.
 
@@ -38,13 +39,14 @@ BufPool* bufpool_init(FileDesc* fdesc, int numSlots);
 void bufpool_destroy(BufPool* bp);
 
 BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId);
+BufPoolSlot* bufpool_new_page(BufPool* bp);
 void bufpool_flush_page(BufPool* bp, uint32_t pageId);
 void bufpool_flush_all(BufPool* bp);
 ```
 
 Now our functions, starting with the allocate/free pair. The allocator takes a `numSlots` parameter which enforces a maximum size of the buffer pool on initialization. This is kind of a hacky way we're using to limit memory consumption of our database. In reality, the rest of the program can consume as much as it wants, we're just restricting the buffer pool.
 
-The remaining three functions are replacements for the read/write functions we already have. But we also create a `flush_all` function that our program will call when it receives the `\quit` command.
+The `bufpool_flush_page` and `bufpool_read_page` functions are replacements for the read/write functions we already have. But we also create `bufpool_new_page` available for any writer process that needs a new page in order to insert data - we currently only support one data page, but that will chagne soon. And finally, the `flush_all` function is what our program will call when it receives the `\quit` command to make sure we're persist any in-memory changes to disk.
 
 ## Buffer Pool Implementation
 
@@ -65,6 +67,14 @@ BufPool* bufpool_init(FileDesc* fdesc, int numSlots) {
     bp->slots[i].pageId = 0;
   }
 
+  int offset = lseek(fdesc->fd, -(conf->pageSize), SEEK_END);
+  
+  if (offset == -1) {
+    bp->nextPageId = 1;
+  } else {
+    bp->nextPageId = (offset / conf->pageSize) + 1;
+  }
+
   return bp;
 }
 
@@ -83,12 +93,13 @@ void bufpool_destroy(BufPool* bp) {
 }
 ```
 
-Starting with the allocator/free functions again. The allocator sets the `fdesc` and `size` properties according to its input parameters, then initializes the `slots` array with a number equal to `numSlots`. Then we need to initialize each of the slots with blank database pages that are available for an incoming data page being read from disk.
+Starting with the allocator/free functions again. The allocator sets the `fdesc` and `size` properties according to its input parameters, then initializes the `slots` array with a number equal to `numSlots`. Then we need to initialize each of the slots with blank database pages that are available for an incoming data page being read from disk. Next, we calculate what the `nextPageId` should be based on how large the file is. Our file size will always be some multiple of the `conf->pageSize`, so the math fairly easy to do.
 
 The free function, as you'd expect, loops through the slots and frees everything we allocated in the beginning.
 
 ```c
 BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId) {
+  if (pageId == 0) return NULL;
   BufPoolSlot* slot = bufpool_find_empty_slot(bp);
 
   if (slot == NULL) {
@@ -101,12 +112,7 @@ BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId) {
 
   if (bytes_read != conf->pageSize) {
     printf("Bytes read: %d\n", bytes_read);
-    
-    // pageId doesn't exist on disk, so we create it
-    PageHeader* pgHdr = (PageHeader*)slot->pg;
-    pgHdr->pageId = pageId;
-    pgHdr->freeBytes = conf->pageSize - sizeof(PageHeader);
-    pgHdr->freeData = conf->pageSize - sizeof(PageHeader);
+    return NULL;
   }
 
   slot->pageId = pageId;
@@ -115,7 +121,7 @@ BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId) {
 }
 ```
 
-The `read_page` function has more going on than you might expect. It first needs to find an unclaimed slot, which we wrote a static helper function for (see below). If all slots are occupied, we need to evict a page by flushing it to disk - using another static helper function. After that, we'll have an empty slot we can use to read a page into. The rest is essentially the same as the old `read_page` function.
+The `read_page` function has more going on than you might expect. It first needs to find an unclaimed slot in the buffer pool, which we wrote a static helper function for (see below). If all slots are occupied, we need to evict a page by flushing it to disk - using another static helper function. After that, we'll have an empty slot we can use to read a page into.
 
 ```c
 static BufPoolSlot* bufpool_find_empty_slot(BufPool* bp) {
@@ -136,6 +142,26 @@ static BufPoolSlot* bufpool_evict_page(BufPool* bp) {
 ```
 
 These helper functions are pretty basic. In the first one, we simply loop through the `slots` array and return the first `pageId = 0` slot that we find - `NULL` otherwise. The `evict_page` function is extremely simple right now - we're just evicting the first page in the `slots` array. When we start supporting multiple pages, we'll come up with a better way to decide which page gets flushed.
+
+```c
+BufPoolSlot* bufpool_new_page(BufPool* bp) {
+  BufPoolSlot* slot = bufpool_find_empty_slot(bp);
+
+  slot->pageId = bp->nextPageId;
+  bp->nextPageId++;
+
+  memset(slot->pg, 0, conf->pageSize);
+
+  PageHeader* pgHdr = ((PageHeader*)slot->pg);
+  pgHdr->pageId = slot->pageId;
+  pgHdr->freeBytes = conf->pageSize - sizeof(PageHeader);
+  pgHdr->freeData = conf->pageSize - sizeof(PageHeader);
+
+  return slot;
+}
+```
+
+Our new page function takes advantage of the buffer pool's `nextPageId` parameter and creates a blank page in an available slot.
 
 ```c
 void bufpool_flush_page(BufPool* bp, uint32_t pageId) {
@@ -258,6 +284,7 @@ First we add a new macro so we can control how many buffer pool slots we want to
 -static bool insert_record(Page pg, int32_t person_id, char* name) {
 +static bool insert_record(BufPool* bp, int32_t person_id, char* name) {
 +  BufPoolSlot* slot = bufpool_read_page(bp, 1);
++  if (slot == NULL) slot = bufpool_new_page(bp);
    RecordDescriptor* rd = construct_record_descriptor();
    Record r = record_init(RECORD_LEN);
    serialize_data(rd, r, person_id, name);
@@ -317,6 +344,12 @@ Instead of passing a `Page` around everywhere, we're going to start passing arou
 +        if (!insert_record(bp, person_id, name)) {
            printf("Unable to insert record\n");
          }
+         break;
+       case T_SelectStmt:
+         if (!analyze_node(n)) {
+           printf("Semantic analysis failed\n");
+         }
+         break;
      }
  
      free_node(n);
