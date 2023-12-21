@@ -27,7 +27,7 @@ void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows) {
       int slotPointerOffset = conf->pageSize - (sizeof(SlotPointer) * (i + 1));
       SlotPointer* sp = (SlotPointer*)(slot->pg + slotPointerOffset);
       defill_record(td->rd, slot->pg + sp->offset, row->values);
-      linkedlist_append(rows, (void*)row);
+      linkedlist_append(rows, row);
     }
 
     slot = bufpool_read_page(bp, pgHdr->nextPageId);

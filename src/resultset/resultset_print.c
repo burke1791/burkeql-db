@@ -21,12 +21,9 @@ static void compute_column_widths(RecordDescriptor* rd, RecordSet* rs, int* widt
     Column* col = &rd->cols[i];
     ListItem* row = rs->rows->head;
 
-    int count = 0;
     while (row != NULL) {
-      count++;
       int len;
       RecordSetRow* data = (RecordSetRow*)row->ptr;
-      // Datum* values = (Datum*)row->ptr;
 
       switch (col->dataType) {
         case DT_INT:

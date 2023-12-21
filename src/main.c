@@ -19,7 +19,6 @@
 #include "utility/linkedlist.h"
 
 Config* conf;
-FileDesc* fdesc;
 
 /* TEMPORARY CODE SECTION */
 

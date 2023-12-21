@@ -3,7 +3,7 @@
 
 #include "storage/table.h"
 #include "buffer/bufpool.h"
-#include "resultset/recordset.h"
+#include "utility/linkedlist.h"
 
 void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows);
 

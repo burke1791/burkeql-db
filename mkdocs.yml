@@ -33,5 +33,6 @@ nav:
     - 'The SQL Analyzer': 05-selecting-data/02-the-sql-analyzer.md
     - 'Buffer Pool': 05-selecting-data/03-buffer-pool.md
     - 'Table Scan': 05-selecting-data/04-table-scan.md
+    - 'Displaying Results': 05-selecting-data/05-displaying-results.md
 
 theme: readthedocs

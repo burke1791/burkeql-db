@@ -284,6 +284,7 @@ First we add a new macro so we can control how many buffer pool slots we want to
 -static bool insert_record(Page pg, int32_t person_id, char* name) {
 +static bool insert_record(BufPool* bp, int32_t person_id, char* name) {
 +  BufPoolSlot* slot = bufpool_read_page(bp, 1);
++  if (slot == NULL) slot = bufpool_new_page(bp);
    RecordDescriptor* rd = construct_record_descriptor();
    Record r = record_init(RECORD_LEN);
    serialize_data(rd, r, person_id, name);
@@ -343,6 +344,12 @@ Instead of passing a `Page` around everywhere, we're going to start passing arou
 +        if (!insert_record(bp, person_id, name)) {
            printf("Unable to insert record\n");
          }
+         break;
+       case T_SelectStmt:
+         if (!analyze_node(n)) {
+           printf("Semantic analysis failed\n");
+         }
+         break;
      }
  
      free_node(n);

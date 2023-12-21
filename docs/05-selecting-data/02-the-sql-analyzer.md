@@ -70,6 +70,7 @@ We just add a couple functions to our temporary code section in `main.c`. We hav
 +       if (!analyze_node(n)) {
 +         printf("Semantic analysis failed\n");
 +       }
++       break;
     }
 ```
 
