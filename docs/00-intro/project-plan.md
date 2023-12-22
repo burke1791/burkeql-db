@@ -91,7 +91,7 @@ Create Table person (
 1. [Table Scan](../../05-selecting-data/04-table-scan)
 1. [Displaying Results](../../05-selecting-data/05-displaying-results)
 
-### Data Type - Ints (planned)
+### Data Type - Ints (in progress)
 
 - Write functions to support all of the `Int` class data types:
     - TinyInt
