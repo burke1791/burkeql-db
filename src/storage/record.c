@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "storage/record.h"
 
@@ -45,10 +46,51 @@ static void fill_val(Column* col, char** dataP, Datum datum) {
   *dataP = data;
 }
 
+/**
+ * Takes a Datum array and serializes the data into a Record
+ */
 void fill_record(RecordDescriptor* rd, Record r, Datum* data) {
   for (int i = 0; i < rd->ncols; i++) {
     Column* col = &rd->cols[i];
 
     fill_val(col, &r, data[i]);
+  }
+}
+
+static Datum record_get_int(Record r, int* offset) {
+  int32_t intVal;
+  memcpy(&intVal, r + *offset, 4);
+  *offset += 4;
+  return int32GetDatum(intVal);
+}
+
+static Datum record_get_char(Record r, int* offset, int charLen) {
+  char* pChar = malloc(charLen + 1);
+  memcpy(pChar, r + *offset, charLen);
+  pChar[charLen] = '\0';
+  *offset += charLen;
+  return charGetDatum(pChar);
+}
+
+static Datum record_get_col_value(Column* col, Record r, int* offset) {
+  switch (col->dataType) {
+    case DT_INT:
+      return record_get_int(r, offset);
+    case DT_CHAR:
+      return record_get_char(r, offset, col->len);
+    default:
+      printf("record_get_col_value() | Unknown data type!\n");
+      return (Datum)NULL;
+  }
+}
+
+/**
+ * Opposite of fill_record. Deserializes data from a Record into a Datum array
+ */
+void defill_record(RecordDescriptor* rd, Record r, Datum* values) {
+  int offset = sizeof(RecordHeader);
+  for (int i = 0; i < rd->ncols; i++) {
+    Column* col = &rd->cols[i];
+    values[i] = record_get_col_value(col, r, &offset);
   }
 }

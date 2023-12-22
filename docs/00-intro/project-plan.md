@@ -1,6 +1,6 @@
-# BurkeQL - Project Plan
+# BurkeQL - Project Roadmap
 
-This page contains an outline of my plan for this project. It's meant to serve as a scratchpad for me to organize my thoughts. Please ignore any notes that don't make sense, I probably just forgot to delete/move them.
+This page contains an outline of my plan for this project. It's really meant to serve as a scratchpad for me to organize my thoughts. Please ignore any notes that don't make sense, I probably just forgot to delete/move them.
 
 ## Milestones
 
@@ -75,7 +75,7 @@ Create Table person (
 1. [Parser Refactor - Insert](../../04-data-persistence/07-parser-refactor-insert)
 1. [Serializing and Inserting Data](../../04-data-persistence/08-serializing-and-inserting-data)
 
-### Selecting Data (in progress)
+### Selecting Data (COMPLETE)
 
 - Updating the parser to support selecting data from the table
 - MAYBE introduce the analyzer
@@ -85,15 +85,11 @@ Create Table person (
 
 ---
 
-1. Parser Refactor - Select
-1. Basic Analyzer (MAYBE)
-1. Table Scan
-1. Putting It Together
-
-### Page Splits (planned)
-
-- Create a new page when an insert won't fit on an existing page
-- Page metadata functionality - linked list in the header fields
+1. [Parser Refactor - Select](../../05-selecting-data/01-parser-refactor-select)
+1. [The SQL Analyzer](../../05-selecting-data/02-the-sql-analyzer)
+1. [Buffer Pool](../../05-selecting-data/03-buffer-pool) 
+1. [Table Scan](../../05-selecting-data/04-table-scan)
+1. [Displaying Results](../../05-selecting-data/05-displaying-results)
 
 ### Data Type - Ints (planned)
 
@@ -158,6 +154,11 @@ Create Table person (
     last_name Varchar(50) Not Null
 );
 ```
+
+### Page Splits (planned)
+
+- Create a new page when an insert won't fit on an existing page
+- Page metadata functionality - linked list in the header fields
 
 ### System Catalog - _tables (planned)
 

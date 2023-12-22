@@ -14,12 +14,26 @@
 
 typedef enum NodeTag {
   T_SysCmd,
-  T_InsertStmt
+  T_InsertStmt,
+  T_SelectStmt,
+  T_ParseList,
+  T_ResTarget
 } NodeTag;
 
 typedef struct Node {
   NodeTag type;
 } Node;
+
+typedef struct ParseCell {
+  void* ptr;
+} ParseCell;
+
+typedef struct ParseList {
+  NodeTag type;
+  int length;
+  int maxLength;
+  ParseCell* elements;
+} ParseList;
 
 typedef struct SysCmd {
   NodeTag type;
@@ -31,6 +45,16 @@ typedef struct InsertStmt {
   int personId;
   char* name;
 } InsertStmt;
+
+typedef struct ResTarget {
+  NodeTag type;
+  char* name;
+} ResTarget;
+
+typedef struct SelectStmt {
+  NodeTag type;
+  ParseList* targetList;
+} SelectStmt;
 
 
 /**
@@ -46,10 +70,19 @@ typedef struct InsertStmt {
 
 #define create_node(_type_)   ((_type_*) new_node(sizeof(_type_), T_##_type_))
 
+#define parselist_make_ptr_cell(v)    ((ParseCell) {.ptr = (v)})
+
+#define create_parselist(li)   new_parselist(parselist_make_ptr_cell(li))
+
 void free_node(Node* n);
 
 void print_node(Node* n);
 
 char* str_strip_quotes(char* str);
+
+ParseList* new_parselist(ParseCell li);
+void free_parselist(ParseList* l);
+ParseList* parselist_append(ParseList* l, void* cell);
+
 
 #endif /* PARSETREE_H */

@@ -14,12 +14,13 @@
   int intval;
 
   struct Node* node;
+  struct ParseList* list;
 }
 
 %parse-param { struct Node** n }
 %param { void* scanner }
 
-%token <str> SYS_CMD STRING
+%token <str> SYS_CMD STRING IDENT
 
 %token <intval> INTNUM
 
@@ -28,7 +29,9 @@
 
 %token SELECT
 
-%type <node> cmd stmt sys_cmd select_stmt insert_stmt
+%type <node> cmd stmt sys_cmd select_stmt insert_stmt target
+
+%type <list> target_list
 
 %start query
 
@@ -40,7 +43,7 @@ query: cmd  {
     }
   ;
 
-cmd: stmt
+cmd: stmt ';'
   | sys_cmd 
   ;
 
@@ -57,9 +60,25 @@ stmt: select_stmt
   | insert_stmt
   ;
 
-select_stmt: SELECT {
-      printf("SELECT command received\n");
-      $$ = NULL;
+select_stmt: SELECT target_list {
+      SelectStmt* s = create_node(SelectStmt);
+      s->targetList = $2;
+      $$ = (Node*)s;
+    }
+  ;
+
+target_list: target {
+      $$ = create_parselist($1);
+    }
+  | target_list ',' target {
+      $$ = parselist_append($1, $3);
+    }
+  ;
+
+target: IDENT {
+      ResTarget* r = create_node(ResTarget);
+      r->name = $1;
+      $$ = (Node*)r;
     }
   ;
 

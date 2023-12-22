@@ -9,7 +9,8 @@ typedef char* Record;
 
 typedef enum DataType {
   DT_INT,     /* 4-bytes, signed */
-  DT_CHAR     /* Byte-size defined at table creation */
+  DT_CHAR,    /* Byte-size defined at table creation */
+  DT_UNKNOWN
 } DataType;
 
 #pragma pack(push, 1) /* disabling memory alignment because I don't want to deal with it */
@@ -49,5 +50,6 @@ void free_record_desc(RecordDescriptor* rd);
 void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len);
 
 void fill_record(RecordDescriptor* rd, Record r, Datum* data);
+void defill_record(RecordDescriptor* rd, Record r, Datum* values);
 
 #endif /* RECORD_H */

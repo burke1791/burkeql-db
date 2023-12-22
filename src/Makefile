@@ -14,7 +14,13 @@ SRC_FILES = main.c \
 						storage/file.c \
 						storage/page.c \
 						storage/record.c \
-						storage/datum.c
+						storage/datum.c \
+						storage/table.c \
+						buffer/bufpool.c \
+						access/tableam.c \
+						resultset/recordset.c \
+						resultset/resultset_print.c \
+						utility/linkedlist.c
 
 
 $(BUILD_DIR)/$(TARGET_EXEC): gram.tab.o lex.yy.o ${SRC_FILES}
