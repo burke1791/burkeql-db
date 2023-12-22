@@ -436,4 +436,4 @@ bql >
 
 We get all of our target columns displayed to us - even the headers preserve the casing we used in our select statement.
 
-That wraps up this section. In the next section we're going to do a little refactoring to support running `Select *` statements.
+That wraps up this section. In the next section we're going to start expanding the data types we support - starting with the `Int` class.

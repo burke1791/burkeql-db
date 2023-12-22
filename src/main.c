@@ -142,13 +142,14 @@ int main(int argc, char** argv) {
           return EXIT_SUCCESS;
         }
         break;
-      case T_InsertStmt:
+      case T_InsertStmt: {
         int32_t person_id = ((InsertStmt*)n)->personId;
         char* name = ((InsertStmt*)n)->name;
         if (!insert_record(bp, person_id, name)) {
           printf("Unable to insert record\n");
         }
         break;
+      }
       case T_SelectStmt:
         if (!analyze_node(n)) {
           printf("Semantic analysis failed\n");

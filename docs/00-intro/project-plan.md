@@ -75,7 +75,7 @@ Create Table person (
 1. [Parser Refactor - Insert](../../04-data-persistence/07-parser-refactor-insert)
 1. [Serializing and Inserting Data](../../04-data-persistence/08-serializing-and-inserting-data)
 
-### Selecting Data (in progress)
+### Selecting Data (COMPLETE)
 
 - Updating the parser to support selecting data from the table
 - MAYBE introduce the analyzer
@@ -90,7 +90,6 @@ Create Table person (
 1. [Buffer Pool](../../05-selecting-data/03-buffer-pool) 
 1. [Table Scan](../../05-selecting-data/04-table-scan)
 1. [Displaying Results](../../05-selecting-data/05-displaying-results)
-1. Select *
 
 ### Data Type - Ints (planned)
 
