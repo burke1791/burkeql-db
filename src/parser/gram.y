@@ -82,10 +82,13 @@ target: IDENT {
     }
   ;
 
-insert_stmt: INSERT INTNUM STRING  {
+insert_stmt: INSERT INTNUM STRING INTNUM INTNUM INTNUM  {
       InsertStmt* ins = create_node(InsertStmt);
       ins->personId = $2;
       ins->name = str_strip_quotes($3);
+      ins->age = $4;
+      ins->dailySteps = $5;
+      ins->distanceFromHome = $6;
       $$ = (Node*)ins;
     }
   ;

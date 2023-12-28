@@ -25,17 +25,23 @@ Config* conf;
 #define RECORD_LEN  36  // 12-byte header + 4-byte Int + 20-byte Char(20)
 #define BUFPOOL_SLOTS  1
 
-static void populate_datum_array(Datum* data, int32_t person_id, char* name) {
+static void populate_datum_array(Datum* data, int32_t person_id, char* name, uint8_t age, int16_t dailySteps, int64_t distanceFromHome) {
   data[0] = int32GetDatum(person_id);
   data[1] = charGetDatum(name);
+  data[2] = uint8GetDatum(age);
+  data[3] = int16GetDatum(dailySteps);
+  data[4] = int64GetDatum(distanceFromHome);
 }
 
 static RecordDescriptor* construct_record_descriptor() {
-  RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (2 * sizeof(Column)));
-  rd->ncols = 2;
+  RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (5 * sizeof(Column)));
+  rd->ncols = 5;
 
   construct_column_desc(&rd->cols[0], "person_id", DT_INT, 0, 4);
   construct_column_desc(&rd->cols[1], "name", DT_CHAR, 1, 20);
+  construct_column_desc(&rd->cols[2], "age", DT_TINYINT, 2, 1);
+  construct_column_desc(&rd->cols[3], "daily_steps", DT_SMALLINT, 3, 2);
+  construct_column_desc(&rd->cols[4], "distance_from_home", DT_BIGINT, 4, 8);
 
   return rd;
 }
@@ -63,19 +69,19 @@ void free_record_desc(RecordDescriptor* rd) {
   free(rd);
 }
 
-static void serialize_data(RecordDescriptor* rd, Record r, int32_t person_id, char* name) {
+static void serialize_data(RecordDescriptor* rd, Record r, int32_t person_id, char* name, uint8_t age, int16_t dailySteps, int64_t distanceFromHome) {
   Datum* data = malloc(rd->ncols * sizeof(Datum));
-  populate_datum_array(data, person_id, name);
+  populate_datum_array(data, person_id, name, age, dailySteps, distanceFromHome);
   fill_record(rd, r + sizeof(RecordHeader), data);
   free(data);
 }
 
-static bool insert_record(BufPool* bp, int32_t person_id, char* name) {
+static bool insert_record(BufPool* bp, int32_t person_id, char* name, uint8_t age, int16_t dailySteps, int64_t distanceFromHome) {
   BufPoolSlot* slot = bufpool_read_page(bp, 1);
   if (slot == NULL) slot = bufpool_new_page(bp);
   RecordDescriptor* rd = construct_record_descriptor();
   Record r = record_init(RECORD_LEN);
-  serialize_data(rd, r, person_id, name);
+  serialize_data(rd, r, person_id, name, age, dailySteps, distanceFromHome);
   bool insertSuccessful = page_insert(slot->pg, r, RECORD_LEN);
 
   free_record_desc(rd);
@@ -87,7 +93,17 @@ static bool insert_record(BufPool* bp, int32_t person_id, char* name) {
 static bool analyze_selectstmt(SelectStmt* s) {
   for (int i = 0; i < s->targetList->length; i++) {
     ResTarget* r = (ResTarget*)s->targetList->elements[i].ptr;
-    if (!(strcasecmp(r->name, "person_id") == 0 || strcasecmp(r->name, "name") == 0)) return false;
+    if (
+      !(
+        strcasecmp(r->name, "person_id") == 0 ||
+        strcasecmp(r->name, "name") == 0 ||
+        strcasecmp(r->name, "age") == 0 ||
+        strcasecmp(r->name, "daily_steps") == 0 ||
+        strcasecmp(r->name, "distance_from_home") == 0
+      )
+    ) {
+      return false;
+    }
   }
   return true;
 }
@@ -145,7 +161,10 @@ int main(int argc, char** argv) {
       case T_InsertStmt: {
         int32_t person_id = ((InsertStmt*)n)->personId;
         char* name = ((InsertStmt*)n)->name;
-        if (!insert_record(bp, person_id, name)) {
+        uint8_t age = ((InsertStmt*)n)->age;
+        int16_t dailySteps = ((InsertStmt*)n)->dailySteps;
+        int64_t distanceFromHome = ((InsertStmt*)n)->distanceFromHome;
+        if (!insert_record(bp, person_id, name, age, dailySteps, distanceFromHome)) {
           printf("Unable to insert record\n");
         }
         break;
