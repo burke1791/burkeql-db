@@ -22,7 +22,7 @@ Config* conf;
 
 /* TEMPORARY CODE SECTION */
 
-#define RECORD_LEN  36  // 12-byte header + 4-byte Int + 20-byte Char(20)
+#define RECORD_LEN  47  // 12-byte header + 4-byte Int + 20-byte Char(20)
 #define BUFPOOL_SLOTS  1
 
 static void populate_datum_array(Datum* data, int32_t person_id, char* name, uint8_t age, int16_t dailySteps, int64_t distanceFromHome) {

@@ -27,10 +27,25 @@ static void fill_val(Column* col, char** dataP, Datum datum) {
   char* data = *dataP;
 
   switch (col->dataType) {
+    case DT_TINYINT:
+      dataLen = 1;
+      uint8_t valTinyInt = datumGetUInt8(datum);
+      memcpy(data, &valTinyInt, dataLen);
+      break;
+    case DT_SMALLINT:
+      dataLen = 2;
+      int16_t valSmallInt = datumGetInt16(datum);
+      memcpy(data, &valSmallInt, dataLen);
+      break;
     case DT_INT:
       dataLen = 4;
       int32_t valInt = datumGetInt32(datum);
       memcpy(data, &valInt, dataLen);
+      break;
+    case DT_BIGINT:
+      dataLen = 8;
+      int64_t valBigInt = datumGetInt64(datum);
+      memcpy(data, &valBigInt, dataLen);
       break;
     case DT_CHAR:
       dataLen = col->len;
