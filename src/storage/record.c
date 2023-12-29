@@ -72,11 +72,32 @@ void fill_record(RecordDescriptor* rd, Record r, Datum* data) {
   }
 }
 
+static Datum record_get_tinyint(Record r, int* offset) {
+  uint8_t tinyintVal;
+  memcpy(&tinyintVal, r + *offset, 1);
+  *offset += 1;
+  return uint8GetDatum(tinyintVal);
+}
+
+static Datum record_get_smallint(Record r, int* offset) {
+  int16_t smallintVal;
+  memcpy(&smallintVal, r + *offset, 2);
+  *offset += 2;
+  return int16GetDatum(smallintVal);
+}
+
 static Datum record_get_int(Record r, int* offset) {
   int32_t intVal;
   memcpy(&intVal, r + *offset, 4);
   *offset += 4;
   return int32GetDatum(intVal);
+}
+
+static Datum record_get_bigint(Record r, int* offset) {
+  int64_t bigintVal;
+  memcpy(&bigintVal, r + *offset, 8);
+  *offset += 8;
+  return int64GetDatum(bigintVal);
 }
 
 static Datum record_get_char(Record r, int* offset, int charLen) {
@@ -89,8 +110,14 @@ static Datum record_get_char(Record r, int* offset, int charLen) {
 
 static Datum record_get_col_value(Column* col, Record r, int* offset) {
   switch (col->dataType) {
+    case DT_TINYINT:
+      return record_get_tinyint(r, offset);
+    case DT_SMALLINT:
+      return record_get_smallint(r, offset);
     case DT_INT:
       return record_get_int(r, offset);
+    case DT_BIGINT:
+      return record_get_bigint(r, offset);
     case DT_CHAR:
       return record_get_char(r, offset, col->len);
     default:

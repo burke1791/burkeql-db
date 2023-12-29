@@ -281,6 +281,68 @@ bql > \quit
 Shutting down...
 ```
 
-We see that the lexer/parser successfully handled the large number.
+We can see that the lexer/parser successfully handled the large number.
 
-And that completes the section on `Int`'s. In the next section, we'll add the 1-byte `Bool` data type.
+## Defill
+
+Now, let's refactor the code required for defilling the new data types. The pattern is pretty simple, we just need to add more switch/case branches for the new `DT_*` types.
+
+`src/storage/record.c`
+
+```diff
+ static Datum record_get_col_value(Column* col, Record r, int* offset) {
+   switch (col->dataType) {
++    case DT_TINYINT:
++      return record_get_tinyint(r, offset);
++    case DT_SMALLINT:
++      return record_get_smallint(r, offset);
+     case DT_INT:
+       return record_get_int(r, offset);
++    case DT_BIGINT:
++      return record_get_bigint(r, offset);
+     case DT_CHAR:
+       return record_get_char(r, offset, col->len);
+     default:
+       printf("record_get_col_value() | Unknown data type!\n");
+       return (Datum)NULL;
+   }
+ }
+```
+
+This function is called in a loop by the `defill_record` function. We simple add our new data types to the switch/case block. But we also need to create new `record_get_*` functions for each of the new data types.
+
+`src/storage/record.c`
+
+```diff
++static Datum record_get_tinyint(Record r, int* offset) {
++  uint8_t tinyintVal;
++  memcpy(&tinyintVal, r + *offset, 1);
++  *offset += 1;
++  return uint8GetDatum(tinyintVal);
++}
++
++static Datum record_get_smallint(Record r, int* offset) {
++  int16_t smallintVal;
++  memcpy(&smallintVal, r + *offset, 2);
++  *offset += 2;
++  return int16GetDatum(smallintVal);
++}
+ 
+ static Datum record_get_int(Record r, int* offset) {
+   int32_t intVal;
+   memcpy(&intVal, r + *offset, 4);
+   *offset += 4;
+   return int32GetDatum(intVal);
+ }
+ 
++static Datum record_get_bigint(Record r, int* offset) {
++  int64_t bigintVal;
++  memcpy(&bigintVal, r + *offset, 8);
++  *offset += 8;
++  return int64GetDatum(bigintVal);
++}
+```
+
+We can see the pattern is the exact same as we already have for the `Int` type. The only differences are calling the correct datum conversion function and incrementing `offset` by the correct amount.
+
+We have one final thing to do before we can run select statements, but this page has gone on too long, so I'm going to move it to its own dedicated page.
