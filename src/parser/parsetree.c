@@ -92,8 +92,11 @@ void print_node(Node* n) {
       break;
     case T_InsertStmt:
       printf("=  Type: Insert\n");
-      printf("=  person_id: %d\n", ((InsertStmt*)n)->personId);
-      printf("=  name:      %s\n", ((InsertStmt*)n)->name);
+      printf("=  person_id:           %d\n", ((InsertStmt*)n)->personId);
+      printf("=  name:                %s\n", ((InsertStmt*)n)->name);
+      printf("=  age:                 %u\n", ((InsertStmt*)n)->age);
+      printf("=  daily_steps:         %d\n", ((InsertStmt*)n)->dailySteps);
+      printf("=  distance_from_home:  %ld\n", ((InsertStmt*)n)->distanceFromHome);
       break;
     case T_SelectStmt:
       print_selectstmt((SelectStmt*)n);

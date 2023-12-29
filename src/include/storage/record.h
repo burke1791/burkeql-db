@@ -8,8 +8,11 @@
 typedef char* Record;
 
 typedef enum DataType {
-  DT_INT,     /* 4-bytes, signed */
-  DT_CHAR,    /* Byte-size defined at table creation */
+  DT_TINYINT,     /* 1-byte, unsigned */
+  DT_SMALLINT,    /* 2-bytes, signed */
+  DT_INT,         /* 4-bytes, signed */
+  DT_BIGINT,      /* 8-bytes, signed */
+  DT_CHAR,        /* Byte-size defined at table creation */
   DT_UNKNOWN
 } DataType;
 

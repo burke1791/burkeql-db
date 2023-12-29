@@ -1,6 +1,8 @@
 #ifndef PARSETREE_H
 #define PARSETREE_H
 
+#include <stdint.h>
+
 /**
  * This file defines the interface for working with Abstract Syntax
  * Trees (AST) in BurkeQL.
@@ -42,8 +44,11 @@ typedef struct SysCmd {
 
 typedef struct InsertStmt {
   NodeTag type;
-  int personId;
+  int32_t personId;
   char* name;
+  uint8_t age;
+  int16_t dailySteps;
+  int64_t distanceFromHome;
 } InsertStmt;
 
 typedef struct ResTarget {

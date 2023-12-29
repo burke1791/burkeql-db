@@ -91,7 +91,7 @@ Create Table person (
 1. [Table Scan](../../05-selecting-data/04-table-scan)
 1. [Displaying Results](../../05-selecting-data/05-displaying-results)
 
-### Data Type - Ints (in progress)
+### Data Type - Ints (COMPLETE)
 
 - Write functions to support all of the `Int` class data types:
     - TinyInt
@@ -104,13 +104,18 @@ Use a new hard-coded table:
 ```sql
 Create Table person (
     person_id Int Not Null,
-    age_seconds BigInt Not Null,
-    age_days SmallInt Not Null,
-    age_years TinyInt Not Null
+    name Char(20) Not Null,
+    age TinyInt Not Null,
+    daily_steps SmallInt Not Null,
+    distance_from_home BigInt Not Null
 );
 ```
 
-### Data Type - Bool (planned)
+1. [Hard-Coded Table Refactor](../../06-data-types-ints/01-hard-coded-table-refactor)
+1. [Parser Refactor](../../06-data-types-ints/02-parser-refactor)
+1. [Fill and Defill](../../06-data-types-ints/03-fill-and-defill)
+
+### Data Type - Bool (in progress)
 
 - 1-byte
 - Essentially a TinyInt, but can only be 1 or 0 so requires extra code
@@ -174,6 +179,8 @@ Create Table person (
 
 - Same as above, but for columns
 - Refactor the retrieval code to use system catalogs for grabbing RecordDescriptors
+
+### Analyzer
 
 ### BQL - Select From (planned)
 

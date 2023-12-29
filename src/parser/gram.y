@@ -11,7 +11,7 @@
 
 %union {
   char* str;
-  int intval;
+  long long numval;
 
   struct Node* node;
   struct ParseList* list;
@@ -22,7 +22,7 @@
 
 %token <str> SYS_CMD STRING IDENT
 
-%token <intval> INTNUM
+%token <numval> NUMBER
 
 /* reserved keywords in alphabetical order */
 %token INSERT
@@ -82,10 +82,13 @@ target: IDENT {
     }
   ;
 
-insert_stmt: INSERT INTNUM STRING  {
+insert_stmt: INSERT NUMBER STRING NUMBER NUMBER NUMBER  {
       InsertStmt* ins = create_node(InsertStmt);
       ins->personId = $2;
       ins->name = str_strip_quotes($3);
+      ins->age = $4;
+      ins->dailySteps = $5;
+      ins->distanceFromHome = $6;
       $$ = (Node*)ins;
     }
   ;
