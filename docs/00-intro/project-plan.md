@@ -114,6 +114,7 @@ Create Table person (
 1. [Hard-Coded Table Refactor](../../06-data-types-ints/01-hard-coded-table-refactor)
 1. [Parser Refactor](../../06-data-types-ints/02-parser-refactor)
 1. [Fill and Defill](../../06-data-types-ints/03-fill-and-defill)
+1. [Select Updates](../../06-data-types-ints/04-select-updates)
 
 ### Data Type - Bool (in progress)
 

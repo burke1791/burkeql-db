@@ -26,8 +26,17 @@ static void compute_column_widths(RecordDescriptor* rd, RecordSet* rs, int* widt
       RecordSetRow* data = (RecordSetRow*)row->ptr;
 
       switch (col->dataType) {
+        case DT_TINYINT:
+          len = num_digits(datumGetUInt8(data->values[i]));
+          break;
+        case DT_SMALLINT:
+          len = num_digits(datumGetInt16(data->values[i]));
+          break;
         case DT_INT:
           len = num_digits(datumGetInt32(data->values[i]));
+          break;
+        case DT_BIGINT:
+          len = num_digits(datumGetInt64(data->values[i]));
           break;
         case DT_CHAR:
           len = strlen(datumGetString(data->values[i]));
@@ -92,10 +101,25 @@ static void print_cell_num(DataType dt, Datum d, int width) {
   char* cell;
 
   switch (dt) {
+    case DT_TINYINT:
+      numDigits = num_digits(datumGetUInt8(d));
+      cell = malloc(numDigits + 1);
+      sprintf(cell, "%u", datumGetUInt8(d));
+      break;
+    case DT_SMALLINT:
+      numDigits = num_digits(datumGetInt16(d));
+      cell = malloc(numDigits + 1);
+      sprintf(cell, "%d", datumGetInt16(d));
+      break;
     case DT_INT:
       numDigits = num_digits(datumGetInt32(d));
       cell = malloc(numDigits + 1);
       sprintf(cell, "%d", datumGetInt32(d));
+      break;
+    case DT_BIGINT:
+      numDigits = num_digits(datumGetInt64(d));
+      cell = malloc(numDigits + 1);
+      sprintf(cell, "%ld", datumGetInt64(d));
       break;
   }
 
@@ -125,7 +149,10 @@ void resultset_print(RecordDescriptor* rd, RecordSet* rs, RecordDescriptor* targ
       Column* col = &rd->cols[colIndex];
       
       switch (col->dataType) {
+        case DT_TINYINT:
+        case DT_SMALLINT:
         case DT_INT:
+        case DT_BIGINT:
           print_cell_num(col->dataType, values[colIndex], widths[colIndex]);
           break;
         case DT_CHAR:
