@@ -26,7 +26,7 @@ INSERT    { return INSERT; }
 SELECT    { return SELECT; }
 
   /* numbers */
--?[0-9]+    { yylval->intval = atoi(yytext); return INTNUM; }
+-?[0-9]+    { yylval->numval = strtoll(yytext, &yytext, 10); return NUMBER; }
 
   /* operators */
 [,;]   { return yytext[0]; }

@@ -91,7 +91,7 @@ Create Table person (
 1. [Table Scan](../../05-selecting-data/04-table-scan)
 1. [Displaying Results](../../05-selecting-data/05-displaying-results)
 
-### Data Type - Ints (in progress)
+### Data Type - Ints (COMPLETE)
 
 - Write functions to support all of the `Int` class data types:
     - TinyInt
@@ -115,7 +115,7 @@ Create Table person (
 1. [Parser Refactor](../../06-data-types-ints/02-parser-refactor)
 1. [Fill and Defill](../../06-data-types-ints/03-fill-and-defill)
 
-### Data Type - Bool (planned)
+### Data Type - Bool (in progress)
 
 - 1-byte
 - Essentially a TinyInt, but can only be 1 or 0 so requires extra code

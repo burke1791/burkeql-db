@@ -142,3 +142,145 @@ Since we've made several calls to the datum conversion functions for the new dat
    return (char*) d;
  }
 ```
+
+## Testing It Out
+
+That's everything we need for insert operations, let's test it out. Make sure you delete the `main.dbd` file before compiling and running the program because any existing data was built on the old table definition.
+
+```bash
+$ rm -f db_files/main.dbd
+$ make clean && make && ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql > insert 69 'Chris Burke' 45 12345 1234567890;
+======  Node  ======
+=  Type: Insert
+=  person_id:           69
+=  name:                Chris Burke
+=  age:                 45
+=  daily_steps:         12345
+=  distance_from_home:  1234567890
+Bytes read: 0
+bql > \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+```
+
+From the node print piece, you can see the values we parsed out of the insert statement. And `\quit` makes sure the data is written to disk. Let's check it out:
+
+`xxd db_files/main.dbd`
+
+![Ints Data Page](assets/ints_data_page.png)
+
+The orange and purple boxes are the page header and record header, respectively. Then the yellow and green boxes are the columns we're already used to: `person_id` and `name`. The new ones follow in the order we inserted them.
+
+`age` is the light blue box and represented in hex as 0x2d, which is the same as 45 in decimal. Check.
+
+`daily_steps` is the next two bytes. Remember, my machine is a little endian machine, so the bytes are stored in the opposite order you'd expect. So the actual hex representation of the number is 0x3039, which translates to 12,345 in decimal. Check.
+
+`distance_from_home` is the remaining 8 bytes in the record and is also stored in little endian. So the hex representation is 0x499602d2, which translates to 1,234,567,890.
+
+Everything checks out, right? Wrong. Let's revisit that edge case I mentioned a little while back.
+
+## BigInt Overflow?
+
+You may remember our lexer tokenizes numbers using the `atoi()` function. This will only work for numbers that fit inside a 4-byte int. What happens if we try to insert a number that overflows a 4-byte int, e.g. is greater than 2.1 billion? Let's find out:
+
+```shell
+$ make clean && make && ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql > insert 69 'Chris Burke' 45 12345 12345678900;
+======  Node  ======
+=  Type: Insert
+=  person_id:           69
+=  name:                Chris Burke
+=  age:                 45
+=  daily_steps:         12345
+=  distance_from_home:  -539222988
+bql > \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+```
+
+This time I inserted the same data, except for `distance_from_home` I added a zero to the end, making the total 12 billion. Turns out, our code wraps around to the negative regime of the 4-byte number space. Let's fix this.
+
+`src/parser/scan.l`
+
+```diff
+--?[0-9]+    { yylval->intval = atoi(yytext); return INTVAL; }
++-?[0-9]+    { yylval->numval = strtoll(yytext, &yytext, 10); return NUMBER; }
+```
+
+We changed our converter function to use `strtoll` from the C standard, which can handle up to the `long long` data type. We also changed the names of the tokens defined by bison:
+
+`src/parser/gram.y`
+
+```diff
+ %union {
+   char* str;
+-  int intval;
++  long long numval;
+ 
+   struct Node* node;
+   struct ParseList* list;
+ }
+ 
+ %parse-param { struct Node** n }
+ %param { void* scanner }
+ 
+ %token <str> SYS_CMD STRING IDENT
+ 
+-%token <intval> INTNUM
++%token <numval> NUMBER
+
+*** code omitted for brevity ***
+
+-insert_stmt: INSERT INTNUM STRING INTNUM INTNUM INTNUM  {
++insert_stmt: INSERT NUMBER STRING NUMBER NUMBER NUMBER  {
+       InsertStmt* ins = create_node(InsertStmt);
+       ins->personId = $2;
+       ins->name = str_strip_quotes($3);
+       ins->age = $4;
+       ins->dailySteps = $5;
+       ins->distanceFromHome = $6;
+       $$ = (Node*)ins;
+     }
+   ;
+```
+
+Here we just changed `INTNUM` to `NUMBER`.
+
+Now if we run it and try to insert the same large number...
+
+```shell
+$ rm -f db_files/main.dbd
+$ make clean && make && ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql > insert 69 'Chris Burke' 45 12345 12345678900;
+======  Node  ======
+=  Type: Insert
+=  person_id:           69
+=  name:                Chris Burke
+=  age:                 45
+=  daily_steps:         12345
+=  distance_from_home:  12345678900
+Bytes read: 0
+bql > \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+```
+
+We see that the lexer/parser successfully handled the large number.
+
+And that completes the section on `Int`'s. In the next section, we'll add the 1-byte `Bool` data type.
