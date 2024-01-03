@@ -27,6 +27,7 @@ static void fill_val(Column* col, char** dataP, Datum datum) {
   char* data = *dataP;
 
   switch (col->dataType) {
+    case DT_BOOL:     // Bools and TinyInts are the same C-type
     case DT_TINYINT:
       dataLen = 1;
       uint8_t valTinyInt = datumGetUInt8(datum);
@@ -110,6 +111,7 @@ static Datum record_get_char(Record r, int* offset, int charLen) {
 
 static Datum record_get_col_value(Column* col, Record r, int* offset) {
   switch (col->dataType) {
+    case DT_BOOL:     // Bools and TinyInts are the same C-type
     case DT_TINYINT:
       return record_get_tinyint(r, offset);
     case DT_SMALLINT:

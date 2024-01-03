@@ -26,6 +26,7 @@ static void compute_column_widths(RecordDescriptor* rd, RecordSet* rs, int* widt
       RecordSetRow* data = (RecordSetRow*)row->ptr;
 
       switch (col->dataType) {
+        case DT_BOOL:
         case DT_TINYINT:
           len = num_digits(datumGetUInt8(data->values[i]));
           break;
@@ -101,6 +102,7 @@ static void print_cell_num(DataType dt, Datum d, int width) {
   char* cell;
 
   switch (dt) {
+    case DT_BOOL:
     case DT_TINYINT:
       numDigits = num_digits(datumGetUInt8(d));
       cell = malloc(numDigits + 1);
@@ -149,6 +151,7 @@ void resultset_print(RecordDescriptor* rd, RecordSet* rs, RecordDescriptor* targ
       Column* col = &rd->cols[colIndex];
       
       switch (col->dataType) {
+        case DT_BOOL:
         case DT_TINYINT:
         case DT_SMALLINT:
         case DT_INT:

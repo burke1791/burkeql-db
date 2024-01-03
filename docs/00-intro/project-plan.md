@@ -116,7 +116,7 @@ Create Table person (
 1. [Fill and Defill](../../06-data-types-ints/03-fill-and-defill)
 1. [Select Updates](../../06-data-types-ints/04-select-updates)
 
-### Data Type - Bool (in progress)
+### Data Type - Bool (COMPLETE)
 
 - 1-byte
 - Essentially a TinyInt, but can only be 1 or 0 so requires extra code
@@ -126,11 +126,20 @@ Hard-coded table:
 ```sql
 Create Table person (
     person_id Int Not Null,
+    name Char(20) Not Null,
+    age TinyInt Not Null,
+    daily_steps SmallInt Not Null,
+    distance_from_home BigInt Not Null,
     is_alive Bool Not Null
 );
 ```
 
-### Data Type - Varchar (planned)
+1. [Hard-Coded Table Refactor](../../07-data-types-bool/01-hard-coded-table-refactor)
+1. [Parser Refactor](../../07-data-types-bool/02-parser-refactor)
+1. [Fill and Defill](../../07-data-types-bool/03-fill-and-defill)
+1. [Select Updates](../../07-data-types-bool/04-select-updates)
+
+### Data Type - Varchar (in progress)
 
 - 2-byte variable offset array
 - talk about how column order in the create statement can differ from how the engine stores columns on disk
