@@ -39,5 +39,10 @@ nav:
     - 'Parser Refactor': 06-data-types-ints/02-parser-refactor.md
     - 'Fill and Defill': 06-data-types-ints/03-fill-and-defill.md
     - 'Select Updates': 06-data-types-ints/04-select-updates.md
+  - 'Data Types: Bool':
+    - 'Hard-Coded Table Refactor': 07-data-types-bool/01-hard-coded-table-refactor.md
+    - 'Parser Refactor': 07-data-types-bool/02-parser-refactor.md
+    - 'Fill and Defill': 07-data-types-bool/03-fill-and-defill.md
+    - 'Select Updates': 07-data-types-bool/04-select-updates.md
 
 theme: readthedocs

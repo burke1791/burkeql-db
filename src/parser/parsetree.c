@@ -97,6 +97,7 @@ void print_node(Node* n) {
       printf("=  age:                 %u\n", ((InsertStmt*)n)->age);
       printf("=  daily_steps:         %d\n", ((InsertStmt*)n)->dailySteps);
       printf("=  distance_from_home:  %ld\n", ((InsertStmt*)n)->distanceFromHome);
+      printf("=  is_alive:            %u\n", ((InsertStmt*)n)->isAlive);
       break;
     case T_SelectStmt:
       print_selectstmt((SelectStmt*)n);

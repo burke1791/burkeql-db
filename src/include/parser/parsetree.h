@@ -49,6 +49,7 @@ typedef struct InsertStmt {
   uint8_t age;
   int16_t dailySteps;
   int64_t distanceFromHome;
+  uint8_t isAlive;
 } InsertStmt;
 
 typedef struct ResTarget {

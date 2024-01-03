@@ -13,6 +13,8 @@
   char* str;
   long long numval;
 
+  int i;
+
   struct Node* node;
   struct ParseList* list;
 }
@@ -25,13 +27,19 @@
 %token <numval> NUMBER
 
 /* reserved keywords in alphabetical order */
+%token KW_FALSE
+
 %token INSERT
 
 %token SELECT
 
+%token KW_TRUE
+
 %type <node> cmd stmt sys_cmd select_stmt insert_stmt target
 
 %type <list> target_list
+
+%type <i> bool
 
 %start query
 
@@ -82,14 +90,23 @@ target: IDENT {
     }
   ;
 
-insert_stmt: INSERT NUMBER STRING NUMBER NUMBER NUMBER  {
+insert_stmt: INSERT NUMBER STRING NUMBER NUMBER NUMBER bool  {
       InsertStmt* ins = create_node(InsertStmt);
       ins->personId = $2;
       ins->name = str_strip_quotes($3);
       ins->age = $4;
       ins->dailySteps = $5;
       ins->distanceFromHome = $6;
+      ins->isAlive = $7;
       $$ = (Node*)ins;
+    }
+  ;
+
+bool: KW_FALSE {
+      $$ = 0;
+    }
+  | KW_TRUE {
+      $$ = 1;
     }
   ;
 

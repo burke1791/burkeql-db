@@ -12,6 +12,7 @@ typedef enum DataType {
   DT_SMALLINT,    /* 2-bytes, signed */
   DT_INT,         /* 4-bytes, signed */
   DT_BIGINT,      /* 8-bytes, signed */
+  DT_BOOL,        /* 1-byte, unsigned | similar to DT_TINYINT, but always evaluates to 1 or 0 */
   DT_CHAR,        /* Byte-size defined at table creation */
   DT_UNKNOWN
 } DataType;
