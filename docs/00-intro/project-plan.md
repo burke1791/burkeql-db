@@ -149,11 +149,13 @@ Hard-coded table:
 ```sql
 Create Table person (
     person_id Int Not Null,
-    first_name Varchar(20) Not Null,
-    last_name Varchar(50) Not Null,
+    first_name Varchar(30) Not Null,
+    last_name Varchar(30) Not Null,
     age Int Not Null
 );
 ```
+
+1. [Intro](../../08-data-types-varchar/01-intro)
 
 ### Data Constraint - NULLs (planned)
 

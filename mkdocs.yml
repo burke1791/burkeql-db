@@ -44,5 +44,7 @@ nav:
     - 'Parser Refactor': 07-data-types-bool/02-parser-refactor.md
     - 'Fill and Defill': 07-data-types-bool/03-fill-and-defill.md
     - 'Select Updates': 07-data-types-bool/04-select-updates.md
+  - 'Data Types: Varchar':
+    - Intro: 08-data-types-varchar/01-intro.md
 
 theme: readthedocs
