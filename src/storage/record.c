@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "storage/record.h"
 
@@ -20,6 +21,24 @@ void construct_column_desc(Column* col, char* colname, DataType type, int colnum
   col->dataType = type;
   col->colnum = colnum;
   col->len = len;
+}
+
+static Column* get_nth_col(RecordDescriptor* rd, bool isFixed, int n) {
+  int nCol = 0;
+
+  for (int i = 0; i < rd->ncols; i++) {
+    if (rd->cols[i].dataType == DT_VARCHAR) {
+      // column is variable-length
+      if (!isFixed && nCol == n) return &rd->cols[i];
+      if (!isFixed) nCol++;
+    } else {
+      // column is fixed length
+      if (isFixed && nCol == n) return &rd->cols[i];
+      if (isFixed) nCol++;
+    }
+  }
+
+  return NULL;
 }
 
 static void fill_val(Column* col, char** dataP, Datum datum) {
@@ -65,7 +84,7 @@ static void fill_val(Column* col, char** dataP, Datum datum) {
 /**
  * Takes a Datum array and serializes the data into a Record
  */
-void fill_record(RecordDescriptor* rd, Record r, Datum* data) {
+void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen) {
   for (int i = 0; i < rd->ncols; i++) {
     Column* col = &rd->cols[i];
 

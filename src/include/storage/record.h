@@ -14,6 +14,8 @@ typedef enum DataType {
   DT_BIGINT,      /* 8-bytes, signed */
   DT_BOOL,        /* 1-byte, unsigned | similar to DT_TINYINT, but always evaluates to 1 or 0 */
   DT_CHAR,        /* Byte-size defined at table creation */
+  DT_VARCHAR,     /* Variable length. A 2-byte "header" stores the length of the column
+                     followed by the actual column bytes*/
   DT_UNKNOWN
 } DataType;
 
@@ -43,6 +45,7 @@ typedef struct RecordHeader {
 
 typedef struct RecordDescriptor {
   int ncols;        /* number of columns (defined by the Create Table DDL) */
+  int nfixed;       /* number of fixed-length columns */
   Column cols[];
 } RecordDescriptor;
 
@@ -53,7 +56,7 @@ void free_record_desc(RecordDescriptor* rd);
 
 void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len);
 
-void fill_record(RecordDescriptor* rd, Record r, Datum* data);
+void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen);
 void defill_record(RecordDescriptor* rd, Record r, Datum* values);
 
 #endif /* RECORD_H */

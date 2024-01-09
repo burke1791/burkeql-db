@@ -46,5 +46,6 @@ nav:
     - 'Select Updates': 07-data-types-bool/04-select-updates.md
   - 'Data Types: Varchar':
     - Intro: 08-data-types-varchar/01-intro.md
+    - 'Varchar Implementation': 08-data-types-varchar/02-varchar-implementation.md
 
 theme: readthedocs

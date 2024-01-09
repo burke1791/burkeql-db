@@ -25,25 +25,21 @@ Config* conf;
 #define RECORD_LEN  48
 #define BUFPOOL_SLOTS  1
 
-static void populate_datum_array(Datum* data, int32_t person_id, char* name, uint8_t age, int16_t dailySteps, int64_t distanceFromHome, uint8_t isAlive) {
-  data[0] = int32GetDatum(person_id);
-  data[1] = charGetDatum(name);
-  data[2] = uint8GetDatum(age);
-  data[3] = int16GetDatum(dailySteps);
-  data[4] = int64GetDatum(distanceFromHome);
-  data[5] = uint8GetDatum(isAlive);
+static void populate_datum_array(Datum* fixed, Datum* varlen, int32_t person_id, char* firstName, char* lastName, int32_t age) {
+  fixed[0] = int32GetDatum(person_id);
+  fixed[1] = int32GetDatum(age);
+
+  varlen[0] = charGetDatum(fir)
 }
 
 static RecordDescriptor* construct_record_descriptor() {
-  RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (6 * sizeof(Column)));
-  rd->ncols = 6;
+  RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (4 * sizeof(Column)));
+  rd->ncols = 4;
 
   construct_column_desc(&rd->cols[0], "person_id", DT_INT, 0, 4);
-  construct_column_desc(&rd->cols[1], "name", DT_CHAR, 1, 20);
-  construct_column_desc(&rd->cols[2], "age", DT_TINYINT, 2, 1);
-  construct_column_desc(&rd->cols[3], "daily_steps", DT_SMALLINT, 3, 2);
-  construct_column_desc(&rd->cols[4], "distance_from_home", DT_BIGINT, 4, 8);
-  construct_column_desc(&rd->cols[5], "is_alive", DT_BOOL, 5, 1);
+  construct_column_desc(&rd->cols[1], "first_name", DT_VARCHAR, 1, -1);
+  construct_column_desc(&rd->cols[2], "last_name", DT_TINYINT, 2, -1);
+  construct_column_desc(&rd->cols[3], "age", DT_INT, 3, 4);
 
   return rd;
 }

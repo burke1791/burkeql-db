@@ -156,6 +156,7 @@ Create Table person (
 ```
 
 1. [Intro](../../08-data-types-varchar/01-intro)
+1. [Varchar Implementation](../../08-data-types-varchar/02-varchar-implementation)
 
 ### Data Constraint - NULLs (planned)
 
