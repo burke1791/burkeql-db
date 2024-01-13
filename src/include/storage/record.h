@@ -15,7 +15,7 @@ typedef enum DataType {
   DT_BOOL,        /* 1-byte, unsigned | similar to DT_TINYINT, but always evaluates to 1 or 0 */
   DT_CHAR,        /* Byte-size defined at table creation */
   DT_VARCHAR,     /* Variable length. A 2-byte "header" stores the length of the column
-                     followed by the actual column bytes*/
+                     followed by the actual column bytes */
   DT_UNKNOWN
 } DataType;
 

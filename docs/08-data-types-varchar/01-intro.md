@@ -37,7 +37,7 @@ While `Varchar`'s do offer a big storage savings over `Char`'s, it's important t
 
 Different database systems implement the storage mechanism for variable-length columns differently, i.e. Postgres does it different from MS SQL Server does it different from MySQL. Our implementation will be somewhat similar to MS SQL Server.
 
-The unique thing about SQL Server is the storage engine will group all fixed-length columns at the beginning of the record, and all variable-length columns at the end. It doesn't matter what order we list the columns in our `Create Table` statement, the engine always places the variable-length columns at the end. Then we also store a 2-byte field prepended to the `Varchar` data that has the length of the data plus the 2-byte overhead for storing the length. So if we revisit the `Char` vs `Varchar` comparison from above, but this time include the `Varchar` overhead, we'll get:
+The unique thing about SQL Server is the storage engine will group all fixed-length columns at the beginning of the record, and all variable-length columns at the end. It doesn't matter what order we list the columns in our `Create Table` statement, the engine always places the variable-length columns at the end. Then we also store a 2-byte field prepended to the `Varchar` data that has the length of the data, including the 2-byte overhead. So if we revisit the `Char` vs `Varchar` comparison from above, but this time include the `Varchar` overhead, we'll get:
 
 | column | person_char | person_varchar |
 |--------|-------------|----------------|

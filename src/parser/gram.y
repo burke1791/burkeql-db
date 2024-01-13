@@ -90,14 +90,12 @@ target: IDENT {
     }
   ;
 
-insert_stmt: INSERT NUMBER STRING NUMBER NUMBER NUMBER bool  {
+insert_stmt: INSERT NUMBER STRING STRING NUMBER  {
       InsertStmt* ins = create_node(InsertStmt);
       ins->personId = $2;
-      ins->name = str_strip_quotes($3);
-      ins->age = $4;
-      ins->dailySteps = $5;
-      ins->distanceFromHome = $6;
-      ins->isAlive = $7;
+      ins->firstName = str_strip_quotes($3);
+      ins->lastName = str_strip_quotes($4);
+      ins->age = $5;
       $$ = (Node*)ins;
     }
   ;

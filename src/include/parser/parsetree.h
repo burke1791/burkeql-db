@@ -45,11 +45,9 @@ typedef struct SysCmd {
 typedef struct InsertStmt {
   NodeTag type;
   int32_t personId;
-  char* name;
-  uint8_t age;
-  int16_t dailySteps;
-  int64_t distanceFromHome;
-  uint8_t isAlive;
+  char* firstName;
+  char* lastName;
+  int32_t age;
 } InsertStmt;
 
 typedef struct ResTarget {

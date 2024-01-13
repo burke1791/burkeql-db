@@ -41,6 +41,19 @@ static Column* get_nth_col(RecordDescriptor* rd, bool isFixed, int n) {
   return NULL;
 }
 
+static void fill_varchar(Column* col, char* data, int16_t* dataLen, Datum value) {
+  int16_t charLen = strlen(datumGetString(value));
+  if (charLen > col->len) charLen = col->len;
+  charLen += 2; // account for the 2-byte length overhead
+  
+  // write the 2-byte length overhead
+  memcpy(data, &charLen, 2);
+
+  // write the actual data
+  memcpy(data + 2, datumGetString(value), charLen - 2);
+  *dataLen = charLen;
+}
+
 static void fill_val(Column* col, char** dataP, Datum datum) {
   int16_t dataLen;
   char* data = *dataP;
@@ -75,6 +88,9 @@ static void fill_val(Column* col, char** dataP, Datum datum) {
       memcpy(data, str, charLen);
       free(str);
       break;
+    case DT_VARCHAR:
+      fill_varchar(col, data, &dataLen, datum);
+      break;
   }
 
   data += dataLen;
@@ -85,10 +101,18 @@ static void fill_val(Column* col, char** dataP, Datum datum) {
  * Takes a Datum array and serializes the data into a Record
  */
 void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen) {
-  for (int i = 0; i < rd->ncols; i++) {
-    Column* col = &rd->cols[i];
+  // fill fixed-length columns
+  for (int i = 0; i < rd->nfixed; i++) {
+    Column* col = get_nth_col(rd, true, i);
 
-    fill_val(col, &r, data[i]);
+    fill_val(col, &r, fixed[i]);
+  }
+
+  // fill varlen columns
+  for (int i = 0; i < (rd->ncols - rd->nfixed); i++) {
+    Column* col = get_nth_col(rd, false, i);
+
+    fill_val(col, &r, varlen[i]);
   }
 }
 
@@ -128,6 +152,26 @@ static Datum record_get_char(Record r, int* offset, int charLen) {
   return charGetDatum(pChar);
 }
 
+static Datum record_get_varchar(Record r, int* offset) {
+  int16_t len;
+  memcpy(&len, r + *offset, 2);
+
+  /*
+    The `len - 1` expression is a combination of two steps:
+
+    We subtract 2 bytes because we don't need memory for
+    the 2-byte length overhead.
+
+    Then we add 1 byte to account for the null terminator we
+    need to append on the end of the string.
+  */
+  char* pChar = malloc(len - 1);
+  memcpy(pChar, r + *offset + 2, len - 2);
+  pChar[len - 2] = '\0';
+  *offset += len;
+  return charGetDatum(pChar);
+}
+
 static Datum record_get_col_value(Column* col, Record r, int* offset) {
   switch (col->dataType) {
     case DT_BOOL:     // Bools and TinyInts are the same C-type
@@ -141,6 +185,8 @@ static Datum record_get_col_value(Column* col, Record r, int* offset) {
       return record_get_bigint(r, offset);
     case DT_CHAR:
       return record_get_char(r, offset, col->len);
+    case DT_VARCHAR:
+      return record_get_varchar(r, offset);
     default:
       printf("record_get_col_value() | Unknown data type!\n");
       return (Datum)NULL;
@@ -152,8 +198,15 @@ static Datum record_get_col_value(Column* col, Record r, int* offset) {
  */
 void defill_record(RecordDescriptor* rd, Record r, Datum* values) {
   int offset = sizeof(RecordHeader);
+
+  Column* col;
   for (int i = 0; i < rd->ncols; i++) {
-    Column* col = &rd->cols[i];
-    values[i] = record_get_col_value(col, r, &offset);
+    if (i < rd->nfixed) {
+      col = get_nth_col(rd, true, i);
+    } else {
+      col = get_nth_col(rd, false, i - rd->nfixed);
+    }
+
+    values[col->colnum] = record_get_col_value(col, r, &offset);
   }
 }
