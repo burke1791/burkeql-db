@@ -141,7 +141,7 @@ Create Table person (
 
 ### Data Type - Varchar (COMPLETE)
 
-- 2-byte variable offset array
+- 2-byte variable length overhead
 - talk about how column order in the create statement can differ from how the engine stores columns on disk
 
 Hard-coded table:
@@ -197,7 +197,7 @@ Create Table person (
 - Same as above, but for columns
 - Refactor the retrieval code to use system catalogs for grabbing RecordDescriptors
 
-### Analyzer
+### Analyzer (planned)
 
 ### BQL - Select From (planned)
 
