@@ -13,7 +13,8 @@ static void free_syscmd(SysCmd* sc) {
 static void free_insert_stmt(InsertStmt* ins) {
   if (ins == NULL) return;
 
-  if (ins->name != NULL) free(ins->name);
+  free(ins->firstName);
+  free(ins->lastName);
 }
 
 static void free_selectstmt(SelectStmt* s) {
@@ -93,11 +94,9 @@ void print_node(Node* n) {
     case T_InsertStmt:
       printf("=  Type: Insert\n");
       printf("=  person_id:           %d\n", ((InsertStmt*)n)->personId);
-      printf("=  name:                %s\n", ((InsertStmt*)n)->name);
-      printf("=  age:                 %u\n", ((InsertStmt*)n)->age);
-      printf("=  daily_steps:         %d\n", ((InsertStmt*)n)->dailySteps);
-      printf("=  distance_from_home:  %ld\n", ((InsertStmt*)n)->distanceFromHome);
-      printf("=  is_alive:            %u\n", ((InsertStmt*)n)->isAlive);
+      printf("=  first_name:          %s\n", ((InsertStmt*)n)->firstName);
+      printf("=  last_name:           %s\n", ((InsertStmt*)n)->lastName);
+      printf("=  age:                 %d\n", ((InsertStmt*)n)->age);
       break;
     case T_SelectStmt:
       print_selectstmt((SelectStmt*)n);

@@ -12,7 +12,7 @@ RecordSet* new_recordset() {
 
 static void free_recordset_row_columns(RecordSetRow* row, RecordDescriptor* rd) {
   for (int i = 0; i < rd->ncols; i++) {
-    if (rd->cols[i].dataType == DT_CHAR) {
+    if (rd->cols[i].dataType == DT_CHAR || rd->cols[i].dataType == DT_VARCHAR) {
       free((void*)row->values[i]);
     }
   }

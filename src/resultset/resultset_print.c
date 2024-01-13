@@ -40,6 +40,7 @@ static void compute_column_widths(RecordDescriptor* rd, RecordSet* rs, int* widt
           len = num_digits(datumGetInt64(data->values[i]));
           break;
         case DT_CHAR:
+        case DT_VARCHAR:
           len = strlen(datumGetString(data->values[i]));
           break;
         default:
@@ -159,6 +160,7 @@ void resultset_print(RecordDescriptor* rd, RecordSet* rs, RecordDescriptor* targ
           print_cell_num(col->dataType, values[colIndex], widths[colIndex]);
           break;
         case DT_CHAR:
+        case DT_VARCHAR:
           print_cell_with_padding(datumGetString(values[colIndex]), widths[colIndex], false);
           break;
         default:
