@@ -5,14 +5,14 @@ The last data type we're going to add (for now) to our database system is the va
 ```sql
 Create Table person_char (
     person_id Not Null,
-    first_name Char(30) Not Null,
-    last_name Char(30) Not Null
+    first_name Char(20) Not Null,
+    last_name Char(20) Not Null
 );
 
 Create Table person_varchar (
     person_id Not Null,
-    first_name Varchar(30) Not Null,
-    last_name Varchar(30) Not Null
+    first_name Varchar(20) Not Null,
+    last_name Varchar(20) Not Null
 );
 ```
 

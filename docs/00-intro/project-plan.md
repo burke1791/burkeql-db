@@ -139,7 +139,7 @@ Create Table person (
 1. [Fill and Defill](../../07-data-types-bool/03-fill-and-defill)
 1. [Select Updates](../../07-data-types-bool/04-select-updates)
 
-### Data Type - Varchar (in progress)
+### Data Type - Varchar (COMPLETE)
 
 - 2-byte variable offset array
 - talk about how column order in the create statement can differ from how the engine stores columns on disk
@@ -156,9 +156,12 @@ Create Table person (
 ```
 
 1. [Intro](../../08-data-types-varchar/01-intro)
-1. [Varchar Implementation](../../08-data-types-varchar/02-varchar-implementation)
+1. [Storage and Fill](../../08-data-types-varchar/02-storage-and-fill)
+1. [Temporary Code Refactor](../../08-data-types-varchar/03-temporary-code-refactor)
+1. [Inserting Data](../../08-data-types-varchar/04-inserting-data)
+1. [Defill and Display](../../08-data-types-varchar/05-defill-and-display)
 
-### Data Constraint - NULLs (planned)
+### Data Constraint - NULLs (in progress)
 
 - Introduce the Null bitmap and explain why it's important
 - Implement the Null bitmap
@@ -169,7 +172,8 @@ Hard-coded table:
 Create Table person (
     person_id Int Not Null,
     first_name Varchar(20) Null,
-    last_name Varchar(50) Not Null
+    last_name Varchar(20) Not Null,
+    age Int Null
 );
 ```
 

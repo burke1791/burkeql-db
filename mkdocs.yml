@@ -46,6 +46,9 @@ nav:
     - 'Select Updates': 07-data-types-bool/04-select-updates.md
   - 'Data Types: Varchar':
     - Intro: 08-data-types-varchar/01-intro.md
-    - 'Varchar Implementation': 08-data-types-varchar/02-varchar-implementation.md
+    - 'Storage and Fill': 08-data-types-varchar/02-storage-and-fill.md
+    - 'Temporary Code Refactor': 08-data-types-varchar/03-temporary-code-refactor.md
+    - 'Inserting Data': 08-data-types-varchar/04-inserting-data.md
+    - 'Defill and Display': 08-data-types-varchar/05-defill-and-display.md
 
 theme: readthedocs
