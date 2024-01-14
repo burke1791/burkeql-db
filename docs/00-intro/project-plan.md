@@ -177,6 +177,8 @@ Create Table person (
 );
 ```
 
+1. [Intro](../../09-data-constraint-null/01-intro)
+
 ### Page Splits (planned)
 
 - Create a new page when an insert won't fit on an existing page
