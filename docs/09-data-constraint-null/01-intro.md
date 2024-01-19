@@ -8,4 +8,6 @@ Enter: the null bitmap.
 
 ## Null Bitmap
 
-The Null bitmap is exactly that, a bitmap indicating whether a given column is Null or not. It lives in the boundary between the fixed-length and variable-length columns, BUT it is only present when the table has nullable columns. If a table is defined such that all columns are `Not Null`, then the storage engine does not waste space on a Null bitmap because it would be redundant
+The Null bitmap is exactly that, a bitmap indicating whether a given column is Null or not. It lives in the boundary between the fixed-length and variable-length columns, BUT it is only present when the table has nullable columns. If a table is defined such that all columns are `Not Null`, then the storage engine does not waste space on a Null bitmap because it would be redundant.
+
+Moreover, the order of bits in the null bitmap correspond to the physical order of columns stored in the record. Meaning, all fixed-length columns are represented first, followed by all variable-length columns.
