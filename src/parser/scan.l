@@ -25,6 +25,8 @@ FALSE     { return KW_FALSE; }
 
 INSERT    { return INSERT; }
 
+NULL      { return KW_NULL; }
+
 SELECT    { return SELECT; }
 
 TRUE      { return KW_TRUE; }

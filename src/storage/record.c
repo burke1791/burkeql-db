@@ -16,11 +16,16 @@ void free_record(Record r) {
   if (r != NULL) free(r);
 }
 
-void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len) {
+bool col_isnull(int colnum, uint8_t* bitmap) {
+  return !(bitmap[colnum >> 3] & (1 << (colnum & 0x07)));
+}
+
+void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len, bool isNotNull) {
   col->colname = strdup(colname);
   col->dataType = type;
   col->colnum = colnum;
   col->len = len;
+  col->isNotNull = isNotNull;
 }
 
 static Column* get_nth_col(RecordDescriptor* rd, bool isFixed, int n) {
@@ -41,6 +46,52 @@ static Column* get_nth_col(RecordDescriptor* rd, bool isFixed, int n) {
   return NULL;
 }
 
+/**
+ * returns the number of bytes consumed by the null bitmap
+ * 
+ * Every 8 columns requires an additional byte for the null bitmap
+*/
+int compute_null_bitmap_length(RecordDescriptor* rd) {
+  if (!rd->hasNullableColumns) return 0;
+
+  return (rd->ncols) / 8 + 1;
+}
+
+int compute_record_fixed_length(RecordDescriptor* rd, bool* fixedNull) {
+  uint16_t fixedLen = 0;
+
+  if (rd->nfixed > 0) {
+    for (int i = 0; i < rd->nfixed; i++) {
+      if (!fixedNull[i]) {
+        Column* col = get_nth_col(rd, true, i);
+
+        switch (col->dataType) {
+          case DT_TINYINT:
+          case DT_BOOL:
+            fixedLen += 1;
+            break;
+          case DT_SMALLINT:
+            fixedLen += 2;
+            break;
+          case DT_INT:
+            fixedLen += 4;
+            break;
+          case DT_BIGINT:
+            fixedLen += 8;
+            break;
+          case DT_CHAR:
+            fixedLen += col->len;
+            break;
+          default:
+            printf("Unknown data type: compute_record_fixed_len\n");
+        }
+      }
+    }
+  }
+
+  return fixedLen;
+}
+
 static void fill_varchar(Column* col, char* data, int16_t* dataLen, Datum value) {
   int16_t charLen = strlen(datumGetString(value));
   if (charLen > col->len) charLen = col->len;
@@ -54,9 +105,22 @@ static void fill_varchar(Column* col, char* data, int16_t* dataLen, Datum value)
   *dataLen = charLen;
 }
 
-static void fill_val(Column* col, char** dataP, Datum datum) {
+static void fill_val(Column* col, uint8_t** bit, int* bitmask, char** dataP, Datum datum, bool isNull) {
   int16_t dataLen;
   char* data = *dataP;
+
+  if (*bitmask != 0x80) {
+    *bitmask <<= 1;
+  } else {
+    *bit += 1;
+    **bit = 0x0;
+    *bitmask = 1;
+  }
+
+  // column is null, nothing more to do
+  if (isNull) return;
+
+  **bit |= *bitmask;
 
   switch (col->dataType) {
     case DT_BOOL:     // Bools and TinyInts are the same C-type
@@ -100,19 +164,39 @@ static void fill_val(Column* col, char** dataP, Datum datum) {
 /**
  * Takes a Datum array and serializes the data into a Record
  */
-void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen) {
+void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, uint8_t* bitmap) {
+  uint8_t* bitP = &bitmap[-1];
+  int bitmask = 0x80;
+
   // fill fixed-length columns
   for (int i = 0; i < rd->nfixed; i++) {
     Column* col = get_nth_col(rd, true, i);
 
-    fill_val(col, &r, fixed[i]);
+    fill_val(
+      col,
+      &bitP,
+      &bitmask,
+      &r,
+      fixed[i],
+      fixedNull[i]
+    );
   }
+
+  // jump past the null bitmap
+  r += compute_null_bitmap_length(rd);
 
   // fill varlen columns
   for (int i = 0; i < (rd->ncols - rd->nfixed); i++) {
     Column* col = get_nth_col(rd, false, i);
 
-    fill_val(col, &r, varlen[i]);
+    fill_val(
+      col,
+      &bitP,
+      &bitmask,
+      &r,
+      varlen[i],
+      varlenNull[i]
+    );
   }
 }
 
@@ -196,17 +280,28 @@ static Datum record_get_col_value(Column* col, Record r, int* offset) {
 /**
  * Opposite of fill_record. Deserializes data from a Record into a Datum array
  */
-void defill_record(RecordDescriptor* rd, Record r, Datum* values) {
+void defill_record(RecordDescriptor* rd, Record r, Datum* values, bool* isnull) {
   int offset = sizeof(RecordHeader);
+  uint16_t bitmapOffset = ((RecordHeader*)r)->nullOffset;
+  uint8_t* bitmap = r + bitmapOffset;
 
   Column* col;
   for (int i = 0; i < rd->ncols; i++) {
+    // we've passed the fixed-length, so we skip over the null bitmap
+    if (i == rd->nfixed) offset += compute_null_bitmap_length(rd);
+
     if (i < rd->nfixed) {
       col = get_nth_col(rd, true, i);
     } else {
       col = get_nth_col(rd, false, i - rd->nfixed);
     }
 
-    values[col->colnum] = record_get_col_value(col, r, &offset);
+    if (col_isnull(i, bitmap)) {
+      values[col->colnum] = (Datum)NULL;
+      isnull[col->colnum] = true;
+    } else {
+      values[col->colnum] = record_get_col_value(col, r, &offset);
+      isnull[col->colnum] = false;
+    }
   }
 }

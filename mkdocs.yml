@@ -52,5 +52,6 @@ nav:
     - 'Defill and Display': 08-data-types-varchar/05-defill-and-display.md
   - 'Data Constraint: NULL':
     - Intro: 09-data-constraint-null/01-intro.md
+    - 'Temporary Code Refactor': 09-data-constraint-null/02-temporary-code-refactor.md
 
 theme: readthedocs

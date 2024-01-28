@@ -26,7 +26,7 @@ void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows) {
       RecordSetRow* row = new_recordset_row(td->rd->ncols);
       int slotPointerOffset = conf->pageSize - (sizeof(SlotPointer) * (i + 1));
       SlotPointer* sp = (SlotPointer*)(slot->pg + slotPointerOffset);
-      defill_record(td->rd, slot->pg + sp->offset, row->values);
+      defill_record(td->rd, slot->pg + sp->offset, row->values, row->isnull);
       linkedlist_append(rows, row);
     }
 

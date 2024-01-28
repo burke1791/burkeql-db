@@ -6,6 +6,7 @@
 
 typedef struct RecordSetRow {
   Datum* values;
+  bool* isnull;
 } RecordSetRow;
 
 typedef struct RecordSet {
