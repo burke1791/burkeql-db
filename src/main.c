@@ -103,8 +103,8 @@ static void serialize_data(RecordDescriptor* rd, Record r, ParseList* values) {
   int nullOffset = sizeof(RecordHeader) + compute_record_fixed_length(rd, fixedNull);
   ((RecordHeader*)r)->nullOffset = nullOffset;
 
-  uint8_t* bitmap = r + 12 + compute_record_fixed_length(rd, fixedNull);
-  fill_record(rd, r + sizeof(RecordHeader), fixed, varlen, fixedNull, varlenNull, bitmap);
+  uint8_t* nullBitmap = r + nullOffset;
+  fill_record(rd, r + sizeof(RecordHeader), fixed, varlen, fixedNull, varlenNull, nullBitmap);
 
   free(fixed);
   free(varlen);
@@ -114,6 +114,8 @@ static void serialize_data(RecordDescriptor* rd, Record r, ParseList* values) {
 
 static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
   int len = 12; // start with the 12-byte header
+  len += compute_null_bitmap_length(rd);
+
   len += 4; // person_id
 
   Literal* firstName = (Literal*)values->elements[1].ptr;
@@ -129,8 +131,6 @@ static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
   } else {
     len += (strlen(firstName->str) + 2);
   }
-
-  len += compute_null_bitmap_length(rd);
 
   // We don't need a null check because this column is constrained to be Not Null
   if (strlen(lastName->str) > rd->cols[2].len) {

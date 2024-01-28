@@ -132,6 +132,7 @@ literal: NUMBER {
       Literal* l = create_node(Literal);
       l->str = NULL;
       l->boolVal = false;
+      l->isNull = false;
 
       $$ = (Node*)l;
     }
@@ -139,6 +140,7 @@ literal: NUMBER {
       Literal* l = create_node(Literal);
       l->str = NULL;
       l->boolVal = true;
+      l->isNull = false;
 
       $$ = (Node*)l;
     }

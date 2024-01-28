@@ -1,5 +1,7 @@
 # Null Constraints
 
+Note: in this section I we talk about `Null` data in the database. This is not to be consued with the `NULL` C-type. So in these next few sections, and probably for the entirety of this writeup, I will use proper-case `Null` to refer to the database null, and all-caps `NULL` to refer to the C null pointer.
+
 Null data is an extremely important feature of relational databases. Sometimes an entity doesn't have any data to store for a given field. For example, you might have a table that stores data for sporting events. And in that table there would be columns for `start_date` and `end_date` that store the exact times the event started and ended. While the event is in progress, the `end_date` field would necessarily be `Null`.
 
 Since `Null` literally means "nothing", we will need a mechanism to store "nothing" in a way that doesn't interfere with the storage engine's ability to read data from a record. In our current implementation, we take advantage of strictly-defined data lengths while stepping through a record and reading data. If any given field were missing, it would throw off all subsequent reads in that record. So we need the ability to signify to the storage engine that a certain field exists or not.

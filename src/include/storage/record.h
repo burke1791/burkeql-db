@@ -59,12 +59,12 @@ void free_record_desc(RecordDescriptor* rd);
 
 void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len, bool isNotNull);
 
-void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, uint8_t* bitmap);
+void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, uint8_t* nullBitmap);
 void defill_record(RecordDescriptor* rd, Record r, Datum* values, bool* isnull);
 
 int compute_null_bitmap_length(RecordDescriptor* rd);
 int compute_record_fixed_length(RecordDescriptor* rd, bool* fixedNull);
 
-bool col_isnull(int colnum, uint8_t* bitmap);
+bool col_isnull(int colnum, uint8_t* nullBitmap);
 
 #endif /* RECORD_H */

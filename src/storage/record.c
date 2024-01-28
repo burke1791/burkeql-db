@@ -16,8 +16,8 @@ void free_record(Record r) {
   if (r != NULL) free(r);
 }
 
-bool col_isnull(int colnum, uint8_t* bitmap) {
-  return !(bitmap[colnum >> 3] & (1 << (colnum & 0x07)));
+bool col_isnull(int colnum, uint8_t* nullBitmap) {
+  return !(nullBitmap[colnum >> 3] & (1 << (colnum & 0x07)));
 }
 
 void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len, bool isNotNull) {
@@ -164,8 +164,8 @@ static void fill_val(Column* col, uint8_t** bit, int* bitmask, char** dataP, Dat
 /**
  * Takes a Datum array and serializes the data into a Record
  */
-void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, uint8_t* bitmap) {
-  uint8_t* bitP = &bitmap[-1];
+void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, uint8_t* nullBitmap) {
+  uint8_t* bitP = &nullBitmap[-1];
   int bitmask = 0x80;
 
   // fill fixed-length columns
@@ -282,8 +282,8 @@ static Datum record_get_col_value(Column* col, Record r, int* offset) {
  */
 void defill_record(RecordDescriptor* rd, Record r, Datum* values, bool* isnull) {
   int offset = sizeof(RecordHeader);
-  uint16_t bitmapOffset = ((RecordHeader*)r)->nullOffset;
-  uint8_t* bitmap = r + bitmapOffset;
+  uint16_t nullOffset = ((RecordHeader*)r)->nullOffset;
+  uint8_t* nullBitmap = r + nullOffset;
 
   Column* col;
   for (int i = 0; i < rd->ncols; i++) {
@@ -296,7 +296,7 @@ void defill_record(RecordDescriptor* rd, Record r, Datum* values, bool* isnull) 
       col = get_nth_col(rd, false, i - rd->nfixed);
     }
 
-    if (col_isnull(i, bitmap)) {
+    if (col_isnull(i, nullBitmap)) {
       values[col->colnum] = (Datum)NULL;
       isnull[col->colnum] = true;
     } else {

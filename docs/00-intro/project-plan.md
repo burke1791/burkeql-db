@@ -178,7 +178,8 @@ Create Table person (
 ```
 
 1. [Intro](../../09-data-constraint-null/01-intro)
-1. [Temporary Code Refactor](../../09-data-constraint-null/02-temporary-code-refactor)
+1. [Parser Refactor](../../09-data-constraint-null/02-parser-refactor)
+1. [Writing Data](../../09-data-constraint-null/03-writing-data)
 
 ### Page Splits (planned)
 
