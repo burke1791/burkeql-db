@@ -172,3 +172,94 @@ Next, we have a refactored version of the `fill_record` function. We need to pas
 
 Finally, we need to free the memory consumed by the two new `bool` arrays.
 
+As for the refactored `populate_datum_array` function, it is now going to populate the two null arrays alongside the values arrays. And the function is changing so much, we're just going to scrap it and write a new one from scratch.
+
+`src/main.c`
+
+```c
+static void populate_datum_array(Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, ParseList* values) {
+  Literal* personId = (Literal*)values->elements[0].ptr;
+  Literal* firstName = (Literal*)values->elements[1].ptr;
+  Literal* lastName = (Literal*)values->elements[2].ptr;
+  Literal* age = (Literal*)values->elements[3].ptr;
+
+  fixed[0] = int32GetDatum(personId->intVal);
+  fixedNull[0] = false;
+
+  if (age->isNull) {
+    fixed[1] = (Datum)NULL;
+    fixedNull[1] = true;
+  } else {
+    fixed[1] = int32GetDatum(age->intVal);
+    fixedNull[1] = false;
+  }
+  
+  if (firstName->isNull) {
+    varlen[0] = (Datum)NULL;
+    varlenNull[0] = true;
+  } else {
+    varlen[0] = charGetDatum(firstName->str);
+    varlenNull[0] = false;
+  }
+  
+  varlen[1] = charGetDatum(lastName->str);
+  varlenNull[1] = false;
+}
+```
+
+First we parse out the `Literal`'s for each of our four hard-coded columns. Then we start filling in the value and null arrays. Since `person_id` is `Not Null`, we don't need a null check and can assign the values directly. `age`, on the other hand, can be `Null`, so we perform a null check before populating the arrays. Notice for the null case we cast `NULL` to a `Datum`. Why? Because our array expects a `Datum` type and the compiler will yell at us otherwise.
+
+We follow similar logic for the variable-length columns. `first_name` is `Null`able, so we need a null check, whereas `last_name` is not.
+
+Jumping back up to the `serialize_data` function, the next change we come across is `fill_record`. We have three additional parameters to pass in to the new version of the function: both null arrays and a pointer to the null bitmap. Let's update the header file first, then get to the code.
+
+`src/include/storage.record.h`
+
+```diff
+-void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen);
++void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, uint8_t* bitmap);
+```
+
+`src/storage/record.c`
+
+```diff
+-void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen) {
++void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, uint8_t* nullBitmap) {
++  uint8_t* bitP = &nullBitmap[-1];
++  int bitmask = 0x80;
+ 
+   // fill fixed-length columns
+   for (int i = 0; i < rd->nfixed; i++) {
+     Column* col = get_nth_col(rd, true, i);
+ 
+-    fill_val(col, &r, fixed[i]);
++    fill_val(
++      col,
++      &bitP,
++      &bitmask,
++      &r,
++      fixed[i],
++      fixedNull[i]
++    );
+   }
+ 
++  // jump past the null bitmap
++  r += compute_null_bitmap_length(rd);
+ 
+   // fill varlen columns
+   for (int i = 0; i < (rd->ncols - rd->nfixed); i++) {
+     Column* col = get_nth_col(rd, false, i);
+-    fill_val(col, &r, varlen[i]);
++    fill_val(
++      col,
++      &bitP,
++      &bitmask,
++      &r,
++      varlen[i],
++      varlenNull[i]
++    );
+   }
+ }
+```
+
+Since we're introducing the null bitmap, we'll need to start writing some bitwise operations. That's where these first two lines of the function come in. The actual bitwise operations will happen in `fill_val`, but we need to pass in a 
