@@ -108,6 +108,8 @@ Lastly, we have a null check on the `age` column. If `Null`, the length is 0. If
 
 How do we determine the size of the null bitmap? Simple, each column corresponds to a single bit in the null bitmap. For table with 1 to 8 columns, the null bitmap consumes 1 byte of space. If the table has 9 to 16 columns, the null bitmap consumes 2 bytes. And so on.
 
+## Record Data
+
 `src/include/storage/record.h`
 
 ```diff
@@ -262,4 +264,73 @@ Jumping back up to the `serialize_data` function, the next change we come across
  }
 ```
 
-Since we're introducing the null bitmap, we'll need to start writing some bitwise operations. That's where these first two lines of the function come in. The actual bitwise operations will happen in `fill_val`, but we need to pass in a 
+Since we're introducing the null bitmap, we'll need to start writing some bitwise operations. That's where these first two lines of the function come in. The actual bitwise operations will happen in `fill_val`, but we need to pass in a pointer to the null bitmap that it can operate on, as well as a bitmask to use for populating bits in the null bitmap.
+
+Why do we assign `bitP` to the -1 index? Is that legal? Although it looks like an invalid address, it technically is because the null bitmap is inside the `Record` chunk of memory. The -1 index just means it's pointing to the byte immediately preceeding the null bitmap. We'll go over the "why" below when we walk through an example.
+
+`src/storage/record.c`
+
+```diff
+-static void fill_val(Column* col, char** dataP, Datum datum) {
++static void fill_val(Column* col, uint8_t** bit, int* bitmask, char** dataP, Datum datum, bool  isNull) {
+   int16_t dataLen;
+   char* data = *dataP;
+ 
++  if (*bitmask != 0x80) {
++    *bitmask <<= 1;
++  } else {
++    *bit += 1;
++    **bit = 0x0;
++    *bitmask = 1;
++  }
++
++  // column is null, nothing more to do
++  if (isNull) return;
++
++  **bit |= *bitmask;
+ 
+   switch (col->dataType) {
+     case DT_BOOL:     // Bools and TinyInts are the same C-type
+     case DT_TINYINT:
+ 
+*** omitted for brevity ***
+ 
+ }
+```
+
+Working with the actual data remains the same as before. The only difference is we added some logic to populate the bitfields in the null bitmap and short-circuit the function if the value to insert is `Null`. So how and why does this work?
+
+## Step-by-Step Example
+
+Let's walk through an example line by line. Pretend we're the computer and we're trying to insert the following record:
+
+| person_id | first_name | last_name | age |
+|-----------|------------|-----------|-----|
+| 1 | Null | Burke | Null |
+
+Ignoring the row header, how many bytes do we need to store this record? In physical order of the data:
+
+- 4-byte `person_id`
+- 0-byte `age` (Null)
+- 1-byte null bitmap
+- 0-byte `first_name` (Null)
+- 7-byte `last_name` (2-byte overhead plus 5-bytes for data)
+- **Total**: 12 bytes
+
+We start with a blank chunk of memory that represents the `Record` we're going to fill. Again, I'm ignoring the header portion in this example. Here's what we're working with:
+
+```
+person_id | bitmap   | last_name
+0000 0000 | 00000000 | 0000 0000 0000 00
+```
+
+**IMPORTANT**: I'm representing `person_id` and `last_name` in hex like the `xxd` command shows, but I'm showing all 8 individual bits for the null bitmap portion.
+
+### fill_record
+
+Starting at the top, we initialize two variables:
+
+```
+uint8_t* bitP: points to the last byte of the person_id data
+int bitmask: 
+```
