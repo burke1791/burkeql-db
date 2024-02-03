@@ -54,5 +54,6 @@ nav:
     - Intro: 09-data-constraint-null/01-intro.md
     - 'Parser Refactor': 09-data-constraint-null/02-parser-refactor.md
     - 'Writing Data': 09-data-constraint-null/03-writing-data.md
+    - 'Reading Data': 09-data-constraint-null/04-reading-data.md
 
 theme: readthedocs

@@ -180,6 +180,7 @@ Create Table person (
 1. [Intro](../../09-data-constraint-null/01-intro)
 1. [Parser Refactor](../../09-data-constraint-null/02-parser-refactor)
 1. [Writing Data](../../09-data-constraint-null/03-writing-data)
+1. [Reading Data](../../09-data-constraint-null/04-reading-data)
 
 ### Page Splits (planned)
 

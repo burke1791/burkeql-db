@@ -332,5 +332,280 @@ Starting at the top, we initialize two variables:
 
 ```
 uint8_t* bitP: points to the last byte of the person_id data
-int bitmask: 
+int bitmask: 10000000 (binary) only showing the first byte
 ```
+
+Note: although `bitmask` is a 4-byte int, I'm only going to show the first byte throughout this example because that's the only part of it that's relevant.
+
+Next, we go into the loop where we `fill_val` all of the fixed-length columns. Our table has two fixed-length columns, so we start with `person_id` and pass in the appropriate parameters. Relevant to this example, we supply `&bitP` - a pointer to the pointer that currently points to the byte preceeding the null bitmap. And `&bitmask` - a pointer to the `bitmask` variable.
+
+### fill_val - person_id
+
+Since we already know how this function writes data to our `Record`, I'm just going to focus on the new null bitmap operations. At the top, we're immediately confronted with this if/else statement:
+
+```c
+if (*bitmask != 0x80) {
+  *bitmask <<= 1;
+} else {
+  *bit += 1;
+  **bit = 0x0;
+  *bitmask = 1;
+}
+```
+
+If `bitmask` is not equal to `0x80` (`10000000`), then we left shift `bitmask` by one. If you remember in `fill_record`, we explicitly initialized `bitmask` to `0x80`, so we can proceed to the `else` block.
+
+`*bit += 1;`
+
+Here, we advance the bitmap pointer by one. Remember how we started out by pointing to the byte preceeding the null bitmap? This is where we course-correct by pointing to the actual beginning of the null bitmap.
+
+`**bit = 0x0;`
+
+Next, we set the entire byte of the null bitmap to 0s. It doesn't matter how large the null bitmap is, this instruction will only set a single byte to 0s.
+
+`*bitmask = 1;`
+
+Reset the bitmask to 1 (`00000001`).
+
+Here's the current state of our variables:
+
+```
+uint8_t* bitP: pointing to the beginning of the null bitmap
+int bitmask: 00000001 (binary)
+
+person_id | bitmap   | last_name
+0000 0000 | 00000000 | 0000 0000 0000 00
+```
+
+Why the convoluted mess with the if/else block and bitwise operations? Its purpose is to reset the bitmask back to 1 each time we hit a byte boundary. That situation won't come into play during this example because we only have four columns to worry about. Since each byte in the null bitmap can cover 8 columns, that logic is only important for tables with more than 8 columns.
+
+Now, why do we need to reset the bitmask at byte boundaries? Because the bitmap pointer (`bitP`) always points to the byte we're currently working with. We have a bitwise OR operation coming up between the bitmap byte and the bitmask. In order for this to work properly, we need to make sure we're only using the first byte of the bitmask variable.
+
+Final question: why do we need to advance the `bitP` pointer? Can't we just keep it pointing to the first byte in the null bitmap so that left-shifting the bitmask after 8 columns will still work? Short answer: no. What if we have a table with more than 32 columns? Left-shifting the bitmask after that would move it outside of its 4-byte range and the bitwise OR operation would no longer work.
+
+Moving on, we have two more lines before we write data to `Record`:
+
+```c
+  // column is null, nothing more to do
+  if (isNull) return;
+
+  **bit |= *bitmask;
+```
+
+In this example `person_id` has a value, so we do not need to return early. Now, we bitwise OR the current null bitmap byte with the first byte of `bitmask`, then assign the result to the null bitmap byte. It looks like this:
+
+```
+00000000  <-- bitmap
+00000001  <-- bitmask
+--------
+00000001  <-- result
+```
+
+Then we continue to write `person_id` to the `Record`. Now, our variables look like this:
+
+```
+uint8_t* bitP: pointing to the beginning of the null bitmap
+int bitmask: 00000001 (binary)
+
+person_id | bitmap   | last_name
+0100 0000 | 00000001 | 0000 0000 0000 00
+```
+
+Remember, we're dealing with a little endian machine, so the first byte of `person_id` is what's populated. And the first bit in the null bitmap signifies that a value is present for the first column. `1` means the column has a value, `0` means the column is `Null`.
+
+### fill_val - age
+
+Now let's see how we handle a Null value. Current state:
+
+```
+uint8_t* bitP: pointing to the beginning of the null bitmap
+int bitmask: 00000001 (binary)
+
+person_id | bitmap   | last_name
+0100 0000 | 00000001 | 0000 0000 0000 00
+```
+
+And our if/else block of code:
+
+```c
+if (*bitmask != 0x80) {
+  *bitmask <<= 1;
+} else {
+  *bit += 1;
+  **bit = 0x0;
+  *bitmask = 1;
+}
+```
+
+Since `bitmask` is not equal to `0x80` (i.e. we're not at a byte boundary), we get to perform the left-shift operation this time.
+
+```
+uint8_t* bitP: pointing to the beginning of the null bitmap
+int bitmask: 00000010 (binary)  <------ THIS CHANGED
+
+person_id | bitmap   | last_name
+0100 0000 | 00000001 | 0000 0000 0000 00
+```
+
+The value of `bitmask` went from 1 to 2 as a result of the left-shift.
+
+Next, we have:
+
+```c
+  // column is null, nothing more to do
+  if (isNull) return;
+
+  **bit |= *bitmask;
+```
+
+Since `age` is Null, we exit the function and proceed to the variable-length columns.
+
+### fill_val - first_name
+
+Current state:
+
+```
+uint8_t* bitP: pointing to the beginning of the null bitmap
+int bitmask: 00000010 (binary)
+
+person_id | bitmap   | last_name
+0100 0000 | 00000001 | 0000 0000 0000 00
+```
+
+Since `first_name` is also Null, we perform the exact same actions we did for `age`: left-shift `bitmask` then `return`.
+
+### fill_val - last_name
+
+Current state:
+
+```
+uint8_t* bitP: pointing to the beginning of the null bitmap
+int bitmask: 00000100 (binary)
+
+person_id | bitmap   | last_name
+0100 0000 | 00000001 | 0000 0000 0000 00
+```
+
+First up, we have our if/else block:
+
+```c
+if (*bitmask != 0x80) {
+  *bitmask <<= 1;
+} else {
+  *bit += 1;
+  **bit = 0x0;
+  *bitmask = 1;
+}
+```
+
+Our current state satisfies the condition check, so we left-shift `bitmask`.
+
+New state:
+
+```
+uint8_t* bitP: pointing to the beginning of the null bitmap
+int bitmask: 00001000 (binary)
+
+person_id | bitmap   | last_name
+0100 0000 | 00000001 | 0000 0000 0000 00
+```
+
+```c
+  // column is null, nothing more to do
+  if (isNull) return;
+
+  **bit |= *bitmask;
+```
+
+And because `last_name` has a value, we perform the bitwise OR then proceed to writing data to `Record`. The bitwise OR operation looks like this:
+
+```
+00000001  <-- bitmap
+00001000  <-- bitmask
+--------
+00001001  <-- result
+```
+
+This results in the final state of our record looking like:
+
+```
+uint8_t* bitP: pointing to the beginning of the null bitmap
+int bitmask: 00001000 (binary)
+
+person_id | bitmap   | last_name
+0100 0000 | 00001001 | 0700 4275 726b 65 
+                         ^   B u  r k  e
+                         |
+                         |----  2-byte variable-length header 
+```
+
+To recap, we have a null bitmap that looks like `00001001`. Reading right to left, it tells us the first and fourth columns are Not Null, while the 2nd and 3rd columns are Null.
+
+## Finishing Up
+
+The last two changes I need to highlight are all the way back in the `serialize_data` function. We need to free the memory for used by our two new `fixedNull` and `varlenNull` arrays.
+
+Now we're ready to run some inserts and inspect the data file. Remember to delete your existing data file before running the program with our new code.
+
+```shell
+$ rm -f db_files/main.dbd
+$ make clean && make && ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql > insert 1 Null 'Burke' 33;
+======  Node  ======
+=  Type: Insert
+=  person_id           1
+=  first_name          NULL
+=  last_name           Burke
+=  age                 33
+Bytes read: 0
+bql >
+```
+
+I run `insert 1 Null 'Burke' 33;` to insert some data with the `first_name` column being Null. Let's take a look at the data file.
+
+```shell
+$ xxd db_files/main.dbd
+00000000: 0100 0000 0000 0000 0000 0000 0000 0100  ................
+00000010: 4c00 4c00 0000 0000 0000 0000 0000 1400  L.L.............
+00000020: 0100 0000 2100 0000 0b07 0042 7572 6b65  ....!......Burke
+00000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000040: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000050: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000060: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000070: 0000 0000 0000 0000 0000 0000 1400 1c00  ................
+```
+
+Not particularly interesting since we can't see the bits in the null bitmap. Let's look at the 1s and 0s by using the `-b` flag:
+
+```shell
+$ xxd -b db_files/main.dbd
+00000000: 00000001 00000000 00000000 00000000 00000000 00000000  ......
+00000006: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+0000000c: 00000000 00000000 00000001 00000000 01001100 00000000  ....L.
+00000012: 01001100 00000000 00000000 00000000 00000000 00000000  L.....
+00000018: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+0000001e: 00010100 00000000 00000001 00000000 00000000 00000000  ......
+00000024: 00100001 00000000 00000000 00000000 00001011 00000111  !.....  <-- Null bitmap is second to last byte
+0000002a: 00000000 01000010 01110101 01110010 01101011 01100101  .Burke
+00000030: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+00000036: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+0000003c: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+00000042: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+00000048: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+0000004e: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+00000054: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+0000005a: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+00000060: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+00000066: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+0000006c: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+00000072: 00000000 00000000 00000000 00000000 00000000 00000000  ......
+00000078: 00000000 00000000 00000000 00000000 00010100 00000000  ......
+0000007e: 00011100 00000000                                      ..
+```
+
+I'm feeling lazy and don't want to draw colorful boxes around a screenshot this time, so I'll describe it. The interesting piece here is the null bitmap. It's on the line that starts with `00000024:` and is the second to last byte on the row. Its bitfields are `00001011`. Reading right to left, it tells us the 1st, 3rd, and 4th columns are Not Null, and the 2nd column is Null.
+
+And that's all there is to incorporating the null bitmap in our "write data" operations. In the next section we'll go through the "read data" code.
