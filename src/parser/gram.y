@@ -31,15 +31,15 @@
 
 %token INSERT
 
+%token KW_NULL
+
 %token SELECT
 
 %token KW_TRUE
 
-%type <node> cmd stmt sys_cmd select_stmt insert_stmt target
+%type <node> cmd stmt sys_cmd select_stmt insert_stmt target literal
 
-%type <list> target_list
-
-%type <i> bool
+%type <list> target_list literal_values_list
 
 %start query
 
@@ -90,21 +90,59 @@ target: IDENT {
     }
   ;
 
-insert_stmt: INSERT NUMBER STRING STRING NUMBER  {
+insert_stmt: INSERT literal_values_list  {
       InsertStmt* ins = create_node(InsertStmt);
-      ins->personId = $2;
-      ins->firstName = str_strip_quotes($3);
-      ins->lastName = str_strip_quotes($4);
-      ins->age = $5;
+      ins->values = $2;
+      
       $$ = (Node*)ins;
     }
   ;
 
-bool: KW_FALSE {
-      $$ = 0;
+literal_values_list: literal {
+      $$ = create_parselist($1);
+    }
+  | literal_values_list literal {
+      $$ = parselist_append($1, $2);
+    }
+  ;
+
+literal: NUMBER {
+      Literal* l = create_node(Literal);
+      l->str = NULL;
+      l->intVal = $1;
+      l->isNull = false;
+      
+      $$ = (Node*)l;
+    }
+  | STRING {
+      Literal* l = create_node(Literal);
+      l->str = str_strip_quotes($1);
+      l->isNull = false;
+
+      $$ = (Node*)l;
+    }
+  | KW_NULL {
+      Literal* l = create_node(Literal);
+      l->str = NULL;
+      l->isNull = true;
+
+      $$ = (Node*)l;
+    }
+  | KW_FALSE {
+      Literal* l = create_node(Literal);
+      l->str = NULL;
+      l->boolVal = false;
+      l->isNull = false;
+
+      $$ = (Node*)l;
     }
   | KW_TRUE {
-      $$ = 1;
+      Literal* l = create_node(Literal);
+      l->str = NULL;
+      l->boolVal = true;
+      l->isNull = false;
+
+      $$ = (Node*)l;
     }
   ;
 

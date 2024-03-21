@@ -25,26 +25,30 @@ static void compute_column_widths(RecordDescriptor* rd, RecordSet* rs, int* widt
       int len;
       RecordSetRow* data = (RecordSetRow*)row->ptr;
 
-      switch (col->dataType) {
-        case DT_BOOL:
-        case DT_TINYINT:
-          len = num_digits(datumGetUInt8(data->values[i]));
-          break;
-        case DT_SMALLINT:
-          len = num_digits(datumGetInt16(data->values[i]));
-          break;
-        case DT_INT:
-          len = num_digits(datumGetInt32(data->values[i]));
-          break;
-        case DT_BIGINT:
-          len = num_digits(datumGetInt64(data->values[i]));
-          break;
-        case DT_CHAR:
-        case DT_VARCHAR:
-          len = strlen(datumGetString(data->values[i]));
-          break;
-        default:
-          printf("compute_column_widths() | Unknown data type\n");
+      if (data->isnull[i] == true) {
+        len = 4;
+      } else {
+        switch (col->dataType) {
+          case DT_BOOL:
+          case DT_TINYINT:
+            len = num_digits(datumGetUInt8(data->values[i]));
+            break;
+          case DT_SMALLINT:
+            len = num_digits(datumGetInt16(data->values[i]));
+            break;
+          case DT_INT:
+            len = num_digits(datumGetInt32(data->values[i]));
+            break;
+          case DT_BIGINT:
+            len = num_digits(datumGetInt64(data->values[i]));
+            break;
+          case DT_CHAR:
+          case DT_VARCHAR:
+            len = strlen(datumGetString(data->values[i]));
+            break;
+          default:
+            printf("compute_column_widths() | Unknown data type\n");
+        }
       }
 
       if (len > maxLen) maxLen = len;
@@ -147,24 +151,30 @@ void resultset_print(RecordDescriptor* rd, RecordSet* rs, RecordDescriptor* targ
   while (row != NULL) {
     printf("|");
     Datum* values = (Datum*)(((RecordSetRow*)row->ptr)->values);
+    bool* isnull = (bool*)(((RecordSetRow*)row->ptr)->isnull);
     for (int i = 0; i < targets->ncols; i++) {
       int colIndex = get_col_index(rd, targets->cols[i].colname);
-      Column* col = &rd->cols[colIndex];
+
+      if (isnull[colIndex] == true) {
+        print_cell_with_padding("NULL", widths[colIndex], false);
+      } else {
+        Column* col = &rd->cols[colIndex];
       
-      switch (col->dataType) {
-        case DT_BOOL:
-        case DT_TINYINT:
-        case DT_SMALLINT:
-        case DT_INT:
-        case DT_BIGINT:
-          print_cell_num(col->dataType, values[colIndex], widths[colIndex]);
-          break;
-        case DT_CHAR:
-        case DT_VARCHAR:
-          print_cell_with_padding(datumGetString(values[colIndex]), widths[colIndex], false);
-          break;
-        default:
-          printf("resultset_print() | Unknown data type\n");
+        switch (col->dataType) {
+          case DT_BOOL:
+          case DT_TINYINT:
+          case DT_SMALLINT:
+          case DT_INT:
+          case DT_BIGINT:
+            print_cell_num(col->dataType, values[colIndex], widths[colIndex]);
+            break;
+          case DT_CHAR:
+          case DT_VARCHAR:
+            print_cell_with_padding(datumGetString(values[colIndex]), widths[colIndex], false);
+            break;
+          default:
+            printf("resultset_print() | Unknown data type\n");
+        }
       }
     }
     printf("\n");

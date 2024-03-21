@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "parser/parsetree.h"
+#include "storage/record.h"
 
 static void free_syscmd(SysCmd* sc) {
   if (sc == NULL) return;
@@ -13,8 +14,8 @@ static void free_syscmd(SysCmd* sc) {
 static void free_insert_stmt(InsertStmt* ins) {
   if (ins == NULL) return;
 
-  free(ins->firstName);
-  free(ins->lastName);
+  free_parselist(ins->values);
+  free(ins->values);
 }
 
 static void free_selectstmt(SelectStmt* s) {
@@ -30,6 +31,12 @@ static void free_restarget(ResTarget* r) {
   if (r == NULL) return;
 
   if (r->name != NULL) free(r->name);
+}
+
+static void free_literal(Literal* l) {
+  if (l->str != NULL) {
+    free(l->str);
+  }
 }
 
 void free_node(Node* n) {
@@ -50,6 +57,9 @@ void free_node(Node* n) {
       break;
     case T_ResTarget:
       free_restarget((ResTarget*)n);
+      break;
+    case T_Literal:
+      free_literal((Literal*)n);
       break;
     default:
       printf("Unknown node type\n");
@@ -78,6 +88,24 @@ static void print_selectstmt(SelectStmt* s) {
   }
 }
 
+// Probably a temporary function
+static void print_insertstmt_literal(Literal* l, char* colname, DataType dt) {
+  int padLen = 20 - strlen(colname);
+
+  if (l->isNull) {
+    printf("=  %s%*sNULL\n", colname, padLen, " ");
+  } else {
+    switch (dt) {
+      case DT_VARCHAR:
+        printf("=  %s%*s%s\n", colname, padLen, " ", l->str);
+        break;
+      case DT_INT:
+        printf("=  %s%*s%d\n", colname, padLen, " ", (int32_t)l->intVal);
+        break;
+    }
+  }
+}
+
 void print_node(Node* n) {
   if (n == NULL) {
     printf("print_node() | Node is NULL\n");
@@ -91,13 +119,15 @@ void print_node(Node* n) {
       printf("=  Type: SysCmd\n");
       printf("=  Cmd: %s\n", ((SysCmd*)n)->cmd);
       break;
-    case T_InsertStmt:
+    case T_InsertStmt: {
+      InsertStmt* i = (InsertStmt*)n;
       printf("=  Type: Insert\n");
-      printf("=  person_id:           %d\n", ((InsertStmt*)n)->personId);
-      printf("=  first_name:          %s\n", ((InsertStmt*)n)->firstName);
-      printf("=  last_name:           %s\n", ((InsertStmt*)n)->lastName);
-      printf("=  age:                 %d\n", ((InsertStmt*)n)->age);
+      print_insertstmt_literal((Literal*)i->values->elements[0].ptr, "person_id", DT_INT);
+      print_insertstmt_literal((Literal*)i->values->elements[1].ptr, "first_name", DT_VARCHAR);
+      print_insertstmt_literal((Literal*)i->values->elements[2].ptr, "last_name", DT_VARCHAR);
+      print_insertstmt_literal((Literal*)i->values->elements[3].ptr, "age", DT_INT);
       break;
+    }
     case T_SelectStmt:
       print_selectstmt((SelectStmt*)n);
       break;

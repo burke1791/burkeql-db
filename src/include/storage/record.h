@@ -2,6 +2,7 @@
 #define RECORD_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "storage/datum.h"
 
@@ -25,6 +26,7 @@ typedef struct Column {
   DataType dataType;
   int colnum;     /* 0-based col index */
   int len;
+  bool isNotNull;
 } Column;
 
 /**
@@ -46,6 +48,7 @@ typedef struct RecordHeader {
 typedef struct RecordDescriptor {
   int ncols;        /* number of columns (defined by the Create Table DDL) */
   int nfixed;       /* number of fixed-length columns */
+  bool hasNullableColumns;
   Column cols[];
 } RecordDescriptor;
 
@@ -54,9 +57,14 @@ void free_record(Record r);
 
 void free_record_desc(RecordDescriptor* rd);
 
-void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len);
+void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len, bool isNotNull);
 
-void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen);
-void defill_record(RecordDescriptor* rd, Record r, Datum* values);
+void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, uint8_t* nullBitmap);
+void defill_record(RecordDescriptor* rd, Record r, Datum* values, bool* isnull);
+
+int compute_null_bitmap_length(RecordDescriptor* rd);
+int compute_record_fixed_length(RecordDescriptor* rd, bool* fixedNull);
+
+bool col_isnull(int colnum, uint8_t* nullBitmap);
 
 #endif /* RECORD_H */
