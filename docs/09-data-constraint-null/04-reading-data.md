@@ -263,4 +263,113 @@ THe last set of changes involves logic to set the `isnull` array appropriately. 
 +}
 ```
 
-This function takes two parameters: the column number in the table (counting from left to right as the data are physically stored), and a pointer to the null bitmap. 
+This function takes two parameters: the column number in the table (counting from left to right as the data are physically stored), and a pointer to the null bitmap. It returns true if the column corresponding to `colnum` is `Null`, false if there is data stored in the column. At first glance this function may look a little funky due to the weird-looking bitwise operations, but it will make a lot of sense as we work through some examples.
+
+Recall the bitwise logic in the `fill_val` function from the previous section. The entire purpose of the bit-shift and bitwise OR operations were to reset the the bitmask to 1 each time we hit a byte boundary. The bitwise operations in this function serve a very similar purpose. Let's run through some examples to see how it works.
+
+## col_isnull examples
+
+Let's say we have a table with 16 columns; meaning we'll need a 2-byte null bitmap.
+
+```
+Bitmap: 0010 1110   1101 1100
+```
+
+### col_isnull - colnum = 3
+
+```
+colnum: 0000 0010
+```
+
+Remember `colnum` is a zero-based index, so `colnum = 3` is referring to the fourth column in this record. Reading right to left, the fourth column is a binary `1`, which means the column is not null.
+
+Let's evaluate the function step-by-step.
+
+```
+colnum >> 3
+
+0000 0010 >> 3 = 0000 0000
+```
+
+Left-shifting colnum by 3 bits results in a decimal value of 0. Using that, we access the `nullBitmap` as if it were an array; meaning we want the 0th `uint8_t` block in the array - the first byte of the null bitmap.
+
+```
+nullBitmap[0] = 1101 1100
+```
+
+Now on the right side, we left-shift decimal 1 by the result of `colnum & 0x07`
+
+```
+colnum & 0x07 = 3 & 0x07
+
+0000 0010  <-- 3
+0000 0111  <-- 0x07
+--------- &
+0000 0010  <-- bitwise & result
+= 3
+```
+
+So we left-shift decimal 1 by 3 bits.
+
+```
+0000 0001 << 3 = 0000 1000
+```
+
+Finally, we bitwise & the left side with the right side
+
+```
+1101 1100  <-- 0th byte of the null bitmap
+0000 1000  <-- result of the right side
+--------- &
+0000 1000
+= 8
+```
+
+So the function will return `!(8)`. In C, `false` is defined as exactly 0; `true` is defined as "not false". Since 8 is not zero, it evaluates to `true` and we return the NOT of `true`. So our function will return `false`, meaning our column has data.
+
+### col_isnull - colnum = 8
+
+This time, we'll pick a `colnum` representing a column in the first bit of the second byte in the null bitmap. This example will really show the purpose of these bitwise operations.
+
+```
+colnum: 0000 1000
+
+colnum >> 3
+0000 1000 >> 3 = 0000 0001
+= 1
+```
+
+Meaning we want the 1st (0-based) `uint8_t` block in the `nullBitmap` array.
+
+```
+nullBitmap[1] = 0010 1110
+```
+
+On the right side we evaluate the following:
+
+```
+colnum & 0x07 = 8 & 0x07
+
+0000 1000  <-- 8
+0000 0111  <-- 0x07
+--------- &
+0000 0000
+= 0
+```
+
+Left-shift decimal 1 by 0 bits yeilds decimal 1. So our final operation:
+
+```
+0010 1110  <-- 1st (0-based) byte of the null bitmap
+0000 0000  <-- result of the right side
+--------- &
+0000 0000
+= 0
+```
+
+We return the opposite of `false`, which is `true`. Our column is `Null`.
+
+Hopefully the above made it clear how these operations keep our nullBitmap inspection coordinated. I.e. the purpose of the bit-shift in `nullBitmap[colnum >> 3]` is to access the next block of 8-bits for every 8 values of `colnum`.
+
+The purpose of `colnum & 0x07` is to effectively normalize `colnum` to a value between 0 and 7. Then the `1 << (...)` piece maps that normalized 0-7 value to the correct bit.
+
