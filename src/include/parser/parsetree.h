@@ -2,6 +2,7 @@
 #define PARSETREE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /**
  * This file defines the interface for working with Abstract Syntax
@@ -19,7 +20,8 @@ typedef enum NodeTag {
   T_InsertStmt,
   T_SelectStmt,
   T_ParseList,
-  T_ResTarget
+  T_ResTarget,
+  T_Literal
 } NodeTag;
 
 typedef struct Node {
@@ -44,10 +46,7 @@ typedef struct SysCmd {
 
 typedef struct InsertStmt {
   NodeTag type;
-  int32_t personId;
-  char* firstName;
-  char* lastName;
-  int32_t age;
+  ParseList* values;
 } InsertStmt;
 
 typedef struct ResTarget {
@@ -59,6 +58,14 @@ typedef struct SelectStmt {
   NodeTag type;
   ParseList* targetList;
 } SelectStmt;
+
+typedef struct Literal {
+  NodeTag type;
+  bool isNull;
+  int64_t intVal;
+  char* str;
+  bool boolVal;
+} Literal;
 
 
 /**

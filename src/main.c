@@ -25,12 +25,33 @@ Config* conf;
 #define RECORD_LEN  48
 #define BUFPOOL_SLOTS  1
 
-static void populate_datum_array(Datum* fixed, Datum* varlen, int32_t person_id, char* firstName, char* lastName, int32_t age) {
-  fixed[0] = int32GetDatum(person_id);
-  fixed[1] = int32GetDatum(age);
+static void populate_datum_array(Datum* fixed, Datum* varlen, bool* fixedNull, bool* varlenNull, ParseList* values) {
+  Literal* personId = (Literal*)values->elements[0].ptr;
+  Literal* firstName = (Literal*)values->elements[1].ptr;
+  Literal* lastName = (Literal*)values->elements[2].ptr;
+  Literal* age = (Literal*)values->elements[3].ptr;
 
-  varlen[0] = charGetDatum(firstName);
-  varlen[1] = charGetDatum(lastName);
+  fixed[0] = int32GetDatum(personId->intVal);
+  fixedNull[0] = false;
+
+  if (age->isNull) {
+    fixed[1] = (Datum)NULL;
+    fixedNull[1] = true;
+  } else {
+    fixed[1] = int32GetDatum(age->intVal);
+    fixedNull[1] = false;
+  }
+  
+  if (firstName->isNull) {
+    varlen[0] = (Datum)NULL;
+    varlenNull[0] = true;
+  } else {
+    varlen[0] = charGetDatum(firstName->str);
+    varlenNull[0] = false;
+  }
+  
+  varlen[1] = charGetDatum(lastName->str);
+  varlenNull[1] = false;
 }
 
 static RecordDescriptor* construct_record_descriptor() {
@@ -38,10 +59,12 @@ static RecordDescriptor* construct_record_descriptor() {
   rd->ncols = 4;
   rd->nfixed = 2;
 
-  construct_column_desc(&rd->cols[0], "person_id", DT_INT, 0, 4);
-  construct_column_desc(&rd->cols[1], "first_name", DT_VARCHAR, 1, 20);
-  construct_column_desc(&rd->cols[2], "last_name", DT_VARCHAR, 2, 20);
-  construct_column_desc(&rd->cols[3], "age", DT_INT, 3, 4);
+  construct_column_desc(&rd->cols[0], "person_id", DT_INT, 0, 4, true);
+  construct_column_desc(&rd->cols[1], "first_name", DT_VARCHAR, 1, 20, false);
+  construct_column_desc(&rd->cols[2], "last_name", DT_VARCHAR, 2, 20, true);
+  construct_column_desc(&rd->cols[3], "age", DT_INT, 3, 4, false);
+
+  rd->hasNullableColumns = true;
 
   return rd;
 }
@@ -53,8 +76,8 @@ static RecordDescriptor* construct_record_descriptor_from_target_list(ParseList*
   for (int i = 0; i < rd->ncols; i++) {
     ResTarget* t = (ResTarget*)targetList->elements[i].ptr;
 
-    // we don't care about the data type or length here
-    construct_column_desc(&rd->cols[i], t->name, DT_UNKNOWN, i, 0);
+    // we don't care about the data type, length, or nullability here
+    construct_column_desc(&rd->cols[i], t->name, DT_UNKNOWN, i, 0, true);
   }
 
   return rd;
@@ -69,48 +92,71 @@ void free_record_desc(RecordDescriptor* rd) {
   free(rd);
 }
 
-static void serialize_data(RecordDescriptor* rd, Record r, int32_t person_id, char* firstName, char* lastName, int32_t age) {
+static void serialize_data(RecordDescriptor* rd, Record r, ParseList* values) {
   Datum* fixed = malloc(rd->nfixed * sizeof(Datum));
   Datum* varlen = malloc((rd->ncols - rd->nfixed) * sizeof(Datum));
+  bool* fixedNull = malloc(rd->nfixed * sizeof(bool));
+  bool* varlenNull = malloc((rd->ncols - rd->nfixed) * sizeof(bool));
 
-  populate_datum_array(fixed, varlen, person_id, firstName, lastName, age);
-  fill_record(rd, r + sizeof(RecordHeader), fixed, varlen);
+  populate_datum_array(fixed, varlen, fixedNull, varlenNull, values);
+
+  int nullOffset = sizeof(RecordHeader) + compute_record_fixed_length(rd, fixedNull);
+  ((RecordHeader*)r)->nullOffset = nullOffset;
+
+  uint8_t* nullBitmap = r + nullOffset;
+  fill_record(rd, r + sizeof(RecordHeader), fixed, varlen, fixedNull, varlenNull, nullBitmap);
+
   free(fixed);
   free(varlen);
+  free(fixedNull);
+  free(varlenNull);
 }
 
-static int compute_record_length(RecordDescriptor* rd, int32_t person_id, char* firstName, char* lastName, int32_t age) {
+static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
   int len = 12; // start with the 12-byte header
+  len += compute_null_bitmap_length(rd);
+
   len += 4; // person_id
+
+  Literal* firstName = (Literal*)values->elements[1].ptr;
+  Literal* lastName = (Literal*)values->elements[2].ptr;
+  Literal* age = (Literal*)values->elements[3].ptr;
 
   /* for the varlen columns, we default to their max length if the values
      we're trying to insert would overflow them (they'll get truncated later) */
-  if (strlen(firstName) > rd->cols[1].len) {
+  if (firstName->isNull) {
+    len += 0; // Nulls do not consume any space
+  } else if (strlen(firstName->str) > rd->cols[1].len) {
     len += (rd->cols[1].len + 2);
   } else {
-    len += (strlen(firstName) + 2);
+    len += (strlen(firstName->str) + 2);
   }
 
-  if (strlen(lastName) > rd->cols[2].len) {
+  // We don't need a null check because this column is constrained to be Not Null
+  if (strlen(lastName->str) > rd->cols[2].len) {
     len += (rd->cols[2].len + 2);
   } else {
-    len += (strlen(lastName) + 2);
+    len += (strlen(lastName->str) + 2);
   }
 
-  len += 4; // age
+  if (age->isNull) {
+    len += 0; // Nulls do not consume any space
+  } else {
+    len += 4; // age
+  }
 
   return len;
 }
 
-static bool insert_record(BufPool* bp, int32_t person_id, char* firstName, char* lastName, int32_t age) {
+static bool insert_record(BufPool* bp, ParseList* values) {
   BufPoolSlot* slot = bufpool_read_page(bp, 1);
   if (slot == NULL) slot = bufpool_new_page(bp);
   RecordDescriptor* rd = construct_record_descriptor();
 
-  int recordLength = compute_record_length(rd, person_id, firstName, lastName, age);
+  int recordLength = compute_record_length(rd, values);
   Record r = record_init(recordLength);
 
-  serialize_data(rd, r, person_id, firstName, lastName, age);
+  serialize_data(rd, r, values);
   bool insertSuccessful = page_insert(slot->pg, r, recordLength);
 
   free_record_desc(rd);
@@ -133,6 +179,16 @@ static bool analyze_selectstmt(SelectStmt* s) {
       return false;
     }
   }
+  return true;
+}
+
+static bool analyze_insertstmt(InsertStmt* i) {
+  Literal* personId = (Literal*)i->values->elements[0].ptr;
+  Literal* lastName = (Literal*)i->values->elements[2].ptr;
+
+  if (personId->isNull) return false;
+  if (lastName->isNull) return false;
+
   return true;
 }
 
@@ -187,11 +243,8 @@ int main(int argc, char** argv) {
         }
         break;
       case T_InsertStmt: {
-        int32_t person_id = ((InsertStmt*)n)->personId;
-        char* firstName = ((InsertStmt*)n)->firstName;
-        char* lastName = ((InsertStmt*)n)->lastName;
-        int32_t age = ((InsertStmt*)n)->age;
-        if (!insert_record(bp, person_id, firstName, lastName, age)) {
+        InsertStmt* i = (InsertStmt*)n;
+        if (!insert_record(bp, i->values)) {
           printf("Unable to insert record\n");
         }
         break;

@@ -5,21 +5,21 @@ repo_url: https://github.com/burke1791/burkeql-db/
 nav:
   - Home: index.md
   - 'Project Roadmap': 00-intro/project-plan.md
-  - 'Basic CLI':
+  - '1. Basic CLI':
     - Intro: 01-basic-cli/intro.md
     - Flex: 01-basic-cli/flex.md
     - Bison: 01-basic-cli/bison.md
     - 'Putting It Together': 01-basic-cli/putting-it-together.md
-  - 'Abstract Syntax Trees':
+  - '2. Abstract Syntax Trees':
     - Intro: 02-ast/intro.md
     - 'AST Interface': 02-ast/ast-interface.md
     - 'AST Implementation': 02-ast/ast-implementation.md
     - 'Parser Refactor': 02-ast/parser-refactor.md
     - 'Parser Interface': 02-ast/parser-interface.md
     - 'Putting It Together': 02-ast/putting-it-together.md
-  - 'The Database Page':
+  - '3. The Database Page':
     - 'Page Structure': 03-db-page/page-structure.md
-  - 'Data Persistence':
+  - '4. Data Persistence':
     - Intro: 04-data-persistence/01-intro.md
     - 'Config File': 04-data-persistence/02-config-file.md
     - 'Loading Config': 04-data-persistence/03-loading-config.md
@@ -28,27 +28,32 @@ nav:
     - 'DB Page Implementation': 04-data-persistence/06-page-implementation.md
     - 'Parser Refactor - Insert': 04-data-persistence/07-parser-refactor-insert.md
     - 'Serializing and Inserting Data': 04-data-persistence/08-serializing-and-inserting-data.md
-  - 'Selecting Data':
+  - '5. Selecting Data':
     - 'Parser Refactor - Select': 05-selecting-data/01-parser-refactor-select.md
     - 'The SQL Analyzer': 05-selecting-data/02-the-sql-analyzer.md
     - 'Buffer Pool': 05-selecting-data/03-buffer-pool.md
     - 'Table Scan': 05-selecting-data/04-table-scan.md
     - 'Displaying Results': 05-selecting-data/05-displaying-results.md
-  - 'Data Types: Ints':
+  - '6. Data Types: Ints':
     - 'Hard-Coded Table Refactor': 06-data-types-ints/01-hard-coded-table-refactor.md
     - 'Parser Refactor': 06-data-types-ints/02-parser-refactor.md
     - 'Fill and Defill': 06-data-types-ints/03-fill-and-defill.md
     - 'Select Updates': 06-data-types-ints/04-select-updates.md
-  - 'Data Types: Bool':
+  - '7. Data Types: Bool':
     - 'Hard-Coded Table Refactor': 07-data-types-bool/01-hard-coded-table-refactor.md
     - 'Parser Refactor': 07-data-types-bool/02-parser-refactor.md
     - 'Fill and Defill': 07-data-types-bool/03-fill-and-defill.md
     - 'Select Updates': 07-data-types-bool/04-select-updates.md
-  - 'Data Types: Varchar':
+  - '8. Data Types: Varchar':
     - Intro: 08-data-types-varchar/01-intro.md
     - 'Storage and Fill': 08-data-types-varchar/02-storage-and-fill.md
     - 'Temporary Code Refactor': 08-data-types-varchar/03-temporary-code-refactor.md
     - 'Inserting Data': 08-data-types-varchar/04-inserting-data.md
     - 'Defill and Display': 08-data-types-varchar/05-defill-and-display.md
+  - '9. Data Constraint: NULL':
+    - Intro: 09-data-constraint-null/01-intro.md
+    - 'Parser Refactor': 09-data-constraint-null/02-parser-refactor.md
+    - 'Writing Data': 09-data-constraint-null/03-writing-data.md
+    - 'Reading Data': 09-data-constraint-null/04-reading-data.md
 
 theme: readthedocs
