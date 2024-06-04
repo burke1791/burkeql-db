@@ -196,6 +196,8 @@ static bool analyze_node(Node* n) {
   switch (n->type) {
     case T_SelectStmt:
       return analyze_selectstmt((SelectStmt*)n);
+    case T_InsertStmt:
+      return analyze_insertstmt((InsertStmt*)n);
     default:
       printf("analyze_node() | unhandled node type");
   }
@@ -243,9 +245,13 @@ int main(int argc, char** argv) {
         }
         break;
       case T_InsertStmt: {
-        InsertStmt* i = (InsertStmt*)n;
-        if (!insert_record(bp, i->values)) {
-          printf("Unable to insert record\n");
+        if (!analyze_node(n)) {
+          printf("Semantic analysis failed\n");
+        } else {
+          InsertStmt* i = (InsertStmt*)n;
+          if (!insert_record(bp, i->values)) {
+            printf("Unable to insert record\n");
+          }
         }
         break;
       }
