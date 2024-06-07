@@ -15,10 +15,11 @@ extern Config* conf;
  * 3. Append the Datum array to RecordSet->rows
  * 4. Repeat until the PgHdr->nextPageId = 0
  */
-void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows) {
-  BufPoolSlot* slot = bufpool_read_page(bp, 1);
+void tableam_fullscan(BufMgr* buf, TableDesc* td, LinkedList* rows) {
+  int32_t bufId = bufmgr_request_bufId(buf, 1);
 
-  while (slot != NULL) {
+  while (bufId >= 0) {
+    BufPoolSlot* slot = &buf->bp->slots[bufId];
     PageHeader* pgHdr = (PageHeader*)slot->pg;
     int numRecords = pgHdr->numRecords;
 
@@ -30,6 +31,36 @@ void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows) {
       linkedlist_append(rows, row);
     }
 
-    slot = bufpool_read_page(bp, pgHdr->nextPageId);
+    bufId = bufmgr_request_bufId(buf, pgHdr->nextPageId);
   }
+}
+
+/**
+ * @brief Inserts a record into a table
+ * 
+ * Loops through all pages until it finds enough empty space to insert the record
+ * 
+ * @hardcode - we're hard-coding pageId = 1 for now
+ * 
+ * @param buf 
+ * @param td (currently unused)
+ * @param values 
+ * @return true 
+ * @return false 
+ */
+bool tableam_insert(BufMgr* buf, TableDesc* td, Record r, uint16_t recordLen) {
+  int32_t bufId = bufmgr_request_bufId(buf, 1);
+
+  if (bufId < 0) return false;
+
+  while (bufId >= 0) {
+    Page pg = buf->bp->slots[bufId].pg;
+    if (page_insert(pg, r, recordLen)) {
+      return true;
+    }
+
+    bufId = bufmgr_request_bufId(buf, ((PageHeader*)pg)->nextPageId);
+  }
+
+  return false;
 }

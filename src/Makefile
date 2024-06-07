@@ -8,18 +8,21 @@ TARGET_EXEC = burkeql
 BUILD_DIR = ..
 
 SRC_FILES = main.c \
+						access/tableam.c \
+						buffer/bufmgr.c \
+						buffer/bufpool.c \
+						buffer/bufdesc.c \
+						global/config.c \
 						parser/parse.c \
 						parser/parsetree.c \
-						global/config.c \
+						resultset/recordset.c \
+						resultset/resultset_print.c \
 						storage/file.c \
 						storage/page.c \
 						storage/record.c \
 						storage/datum.c \
 						storage/table.c \
-						buffer/bufpool.c \
-						access/tableam.c \
-						resultset/recordset.c \
-						resultset/resultset_print.c \
+						system/syscmd.c \
 						utility/linkedlist.c
 
 

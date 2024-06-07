@@ -9,24 +9,15 @@
 
 extern Config* conf;
 
-BufPool* bufpool_init(FileDesc* fdesc, int numSlots) {
+BufPool* bufpool_init(int size) {
   BufPool* bp = malloc(sizeof(BufPool));
-  bp->fdesc = fdesc;
-  bp->size = numSlots;
-  bp->slots = calloc(numSlots, sizeof(BufPoolSlot));
+  bp->size = size;
+  bp->slots = calloc(size, sizeof(BufPoolSlot));
 
   // initialize each slot with a blank page
-  for (int i = 0; i < numSlots; i++) {
+  for (int i = 0; i < size; i++) {
     bp->slots[i].pg = new_page();
     bp->slots[i].pageId = 0;
-  }
-
-  int offset = lseek(fdesc->fd, -(conf->pageSize), SEEK_END);
-  
-  if (offset == -1) {
-    bp->nextPageId = 1;
-  } else {
-    bp->nextPageId = (offset / conf->pageSize) + 1;
   }
 
   return bp;
@@ -62,41 +53,34 @@ static BufPoolSlot* bufpool_find_slot_by_page_id(BufPool* bp, uint32_t pageId) {
   return NULL;
 }
 
-static BufPoolSlot* bufpool_evict_page(BufPool* bp) {
-  // just evict the first page for now
-  uint32_t pageId = bp->slots[0].pageId;
-  bufpool_flush_page(bp, pageId);
-  bp->slots[0].pageId = 0;
-  return &bp->slots[0];
-}
+// static BufPoolSlot* bufpool_evict_page(BufPool* bp) {
+//   // just evict the first page for now
+//   uint32_t pageId = bp->slots[0].pageId;
+//   bufpool_flush_page(bp, pageId);
+//   bp->slots[0].pageId = 0;
+//   return &bp->slots[0];
+// }
 
-BufPoolSlot* bufpool_read_page(BufPool* bp, uint32_t pageId) {
-  if (pageId == 0) return NULL;
-  BufPoolSlot* slot = bufpool_find_empty_slot(bp);
+bool bufpool_read_page(int fd, BufPool* bp, int32_t bufId, uint32_t pageId) {
+  BufPoolSlot* slot = &bp->slots[bufId];
 
-  if (slot == NULL) {
-    // evict a page and return the empty slot
-    slot = bufpool_evict_page(bp);
-  }
-
-  lseek(bp->fdesc->fd, (pageId - 1) * conf->pageSize, SEEK_SET);
-  int bytes_read = read(bp->fdesc->fd, slot->pg, conf->pageSize);
+  lseek(fd, (pageId - 1) * conf->pageSize, SEEK_SET);
+  int bytes_read = read(fd, slot->pg, conf->pageSize);
 
   if (bytes_read != conf->pageSize) {
     printf("Bytes read: %d\n", bytes_read);
-    return NULL;
+    return false;
   }
 
   slot->pageId = pageId;
 
-  return slot;
+  return true;
 }
 
-BufPoolSlot* bufpool_new_page(BufPool* bp) {
+BufPoolSlot* bufpool_new_page(BufPool* bp, uint32_t pageId) {
   BufPoolSlot* slot = bufpool_find_empty_slot(bp);
 
-  slot->pageId = bp->nextPageId;
-  bp->nextPageId++;
+  slot->pageId = pageId;
 
   memset(slot->pg, 0, conf->pageSize);
 
@@ -127,7 +111,7 @@ static bool flush_page(int fd, Page pg, uint32_t pageId) {
   return true;
 }
 
-void bufpool_flush_page(BufPool* bp, uint32_t pageId) {
+void bufpool_flush_page(int fd, BufPool* bp, uint32_t pageId) {
   BufPoolSlot* slot = bufpool_find_slot_by_page_id(bp, pageId);
 
   if (slot == NULL) {
@@ -135,7 +119,7 @@ void bufpool_flush_page(BufPool* bp, uint32_t pageId) {
     return;
   }
 
-  if (!flush_page(bp->fdesc->fd, slot->pg, pageId)) {
+  if (!flush_page(fd, slot->pg, pageId)) {
     printf("Flush page failure\n");
     return;
   }
@@ -143,9 +127,9 @@ void bufpool_flush_page(BufPool* bp, uint32_t pageId) {
   slot->pageId = 0;
 }
 
-void bufpool_flush_all(BufPool* bp) {
+void bufpool_flush_all(int fd, BufPool* bp) {
   for (int i = 0; i < bp->size; i++) {
     BufPoolSlot* slot = &bp->slots[i];
-    flush_page(bp->fdesc->fd, slot->pg, slot->pageId);
+    flush_page(fd, slot->pg, slot->pageId);
   }
 }

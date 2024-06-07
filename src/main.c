@@ -11,12 +11,14 @@
 #include "storage/file.h"
 #include "storage/page.h"
 #include "storage/table.h"
-#include "buffer/bufpool.h"
+#include "buffer/bufmgr.h"
 #include "storage/table.h"
 #include "resultset/recordset.h"
 #include "resultset/resultset_print.h"
 #include "access/tableam.h"
 #include "utility/linkedlist.h"
+#include "system/syscmd.h"
+#include "system/initdb.h"
 
 Config* conf;
 
@@ -148,16 +150,15 @@ static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
   return len;
 }
 
-static bool insert_record(BufPool* bp, ParseList* values) {
-  BufPoolSlot* slot = bufpool_read_page(bp, 1);
-  if (slot == NULL) slot = bufpool_new_page(bp);
+static bool insert_record(BufMgr* buf, ParseList* values) {
   RecordDescriptor* rd = construct_record_descriptor();
 
   int recordLength = compute_record_length(rd, values);
   Record r = record_init(recordLength);
 
   serialize_data(rd, r, values);
-  bool insertSuccessful = page_insert(slot->pg, r, recordLength);
+
+  bool insertSuccessful = tableam_insert(buf, NULL, r, recordLength);
 
   free_record_desc(rd);
   free(r);
@@ -205,6 +206,16 @@ static bool analyze_node(Node* n) {
   return false;
 }
 
+static void run_syscmd(const char* cmd, BufMgr* buf) {
+  switch (parse_syscmd(cmd)) {
+    case SYSCMD_BUFFER_SUMMARY:
+      bufmgr_diag_summary(buf);
+      break;
+    case SYSCMD_UNRECOGNIZED:
+      printf("Unrecognized system command\n");
+  }
+}
+
 /* END TEMPORARY CODE */
 
 static void print_prompt() {
@@ -223,7 +234,9 @@ int main(int argc, char** argv) {
   print_config(conf);
 
   FileDesc* fdesc = file_open(conf->dataFile);
-  BufPool* bp = bufpool_init(fdesc, BUFPOOL_SLOTS);
+  BufMgr* buf = bufmgr_init(fdesc);
+
+  initdb(buf);
 
   while(true) {
     print_prompt();
@@ -235,13 +248,15 @@ int main(int argc, char** argv) {
 
     switch (n->type) {
       case T_SysCmd:
-        if (strcmp(((SysCmd*)n)->cmd, "quit") == 0) {
+        if (parse_syscmd(((SysCmd*)n)->cmd) == SYSCMD_QUIT) {
           free_node(n);
           printf("Shutting down...\n");
-          bufpool_flush_all(bp);
-          bufpool_destroy(bp);
+          bufpool_flush_all(buf->fdesc->fd, buf->bp);
+          bufmgr_destroy(buf);
           file_close(fdesc);
           return EXIT_SUCCESS;
+        } else {
+          run_syscmd(((SysCmd*)n)->cmd, buf);
         }
         break;
       case T_InsertStmt: {
@@ -249,7 +264,7 @@ int main(int argc, char** argv) {
           printf("Semantic analysis failed\n");
         } else {
           InsertStmt* i = (InsertStmt*)n;
-          if (!insert_record(bp, i->values)) {
+          if (!insert_record(buf, i->values)) {
             printf("Unable to insert record\n");
           }
         }
@@ -265,7 +280,7 @@ int main(int argc, char** argv) {
           rs->rows = new_linkedlist();
           RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)->targetList);
           
-          tableam_fullscan(bp, td, rs->rows);
+          tableam_fullscan(buf, td, rs->rows);
           resultset_print(td->rd, rs, targets);
 
           free_recordset(rs, td->rd);
