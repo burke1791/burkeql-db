@@ -12,12 +12,12 @@ SRC_FILES = main.c \
 						buffer/bufmgr.c \
 						buffer/bufpool.c \
 						buffer/bufdesc.c \
+						buffer/buffile.c \
 						global/config.c \
 						parser/parse.c \
 						parser/parsetree.c \
 						resultset/recordset.c \
 						resultset/resultset_print.c \
-						storage/file.c \
 						storage/page.c \
 						storage/record.c \
 						storage/datum.c \

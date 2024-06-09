@@ -8,7 +8,6 @@
 #include "parser/parsetree.h"
 #include "parser/parse.h"
 #include "global/config.h"
-#include "storage/file.h"
 #include "storage/page.h"
 #include "storage/table.h"
 #include "buffer/bufmgr.h"
@@ -233,10 +232,9 @@ int main(int argc, char** argv) {
   // print config
   print_config(conf);
 
-  FileDesc* fdesc = file_open(conf->dataFile);
-  BufMgr* buf = bufmgr_init(fdesc);
+  BufMgr* buf = bufmgr_init();
 
-  initdb(buf);
+  // initdb(buf);
 
   while(true) {
     print_prompt();
@@ -251,9 +249,8 @@ int main(int argc, char** argv) {
         if (parse_syscmd(((SysCmd*)n)->cmd) == SYSCMD_QUIT) {
           free_node(n);
           printf("Shutting down...\n");
-          bufpool_flush_all(buf->fdesc->fd, buf->bp);
+          bufmgr_flush_all(buf);
           bufmgr_destroy(buf);
-          file_close(fdesc);
           return EXIT_SUCCESS;
         } else {
           run_syscmd(((SysCmd*)n)->cmd, buf);

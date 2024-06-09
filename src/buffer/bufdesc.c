@@ -9,7 +9,9 @@ BufDescArr* bufdesc_init(int size) {
 
   for (int i = 0; i < size; i++) {
     bd->descArr[i] = malloc(sizeof(BufDesc));
-    bd->descArr[i]->pageId = 0;
+    bd->descArr[i]->tag = malloc(sizeof(BufTag));
+    bd->descArr[i]->tag->fileId = 0;
+    bd->descArr[i]->tag->pageId = 0;
     bd->descArr[i]->pinCount = 0;
     bd->descArr[i]->useCount = 0;
     bd->descArr[i]->isDirty = false;
@@ -21,6 +23,7 @@ BufDescArr* bufdesc_init(int size) {
 
 void bufdesc_destroy(BufDescArr* bd) {
   for (int i = 0; i < bd->size; i++) {
+    free(bd->descArr[i]->tag);
     free(bd->descArr[i]);
   }
 
@@ -28,8 +31,20 @@ void bufdesc_destroy(BufDescArr* bd) {
   free(bd);
 }
 
+BufTag* bufdesc_new_buftag(uint32_t fileId, int32_t pageId) {
+  BufTag* tag = malloc(sizeof(BufTag));
+  tag->fileId = fileId;
+  tag->pageId = pageId;
+
+  return tag;
+}
+
+void bufdesc_free_buftag(BufTag* tag) {
+  free(tag);
+}
+
 static bool bufdesc_is_unused(BufDesc* desc) {
-  if (desc->pageId == 0) return true;
+  if (desc->tag->fileId == 0 || desc->tag->pageId == 0) return true;
 
   return false;
 }
@@ -47,9 +62,24 @@ void bufdesc_pin(BufDesc* desc) {
   desc->useCount++;
 }
 
-int32_t bufdesc_find_slot(BufDescArr* bd, uint32_t pageId) {
+void bufdesc_set_tag(BufDesc* desc, BufTag* tag) {
+  desc->tag->fileId = tag->fileId;
+  desc->tag->pageId = tag->pageId;
+}
+
+static bool bufdesc_tag_comparison(BufTag* tag1, BufTag* tag2) {
+  if (tag1 == NULL || tag2 == NULL) return false;
+
+  if (tag1->fileId == tag2->fileId && tag1->pageId == tag2->pageId) return true;
+
+  return false;
+}
+
+int32_t bufdesc_find_slot(BufDescArr* bd, BufTag* tag) {
   for (int i = 0; i < bd->size; i++) {
-    if (pageId == bd->descArr[i]->pageId) return i;
+    if (bufdesc_tag_comparison(bd->descArr[i]->tag, tag)) {
+      return i;
+    }
   }
 
   return -1;

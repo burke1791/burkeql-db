@@ -14,25 +14,19 @@
 
 #include <stdbool.h>
 
-#include "storage/file.h"
 #include "storage/page.h"
-
-typedef struct BufPoolSlot {
-  uint32_t pageId;
-  Page pg;
-} BufPoolSlot;
+#include "buffer/bufdesc.h"
+#include "buffer/buffile.h"
 
 typedef struct BufPool {
   int size;
-  BufPoolSlot* slots;
+  Page* pages;
 } BufPool;
 
 BufPool* bufpool_init(int size);
 void bufpool_destroy(BufPool* bp);
 
-bool bufpool_read_page(int fd, BufPool* bp, int32_t bufId, uint32_t pageId);
-BufPoolSlot* bufpool_new_page(BufPool* bp, uint32_t pageId);
-void bufpool_flush_page(int fd, BufPool* bp, uint32_t pageId);
-void bufpool_flush_all(int fd, BufPool* bp);
+bool bufpool_read_page(FileDescList* fdl, BufPool* bp, int32_t bufId, BufTag* tag);
+bool bufpool_flush_page(FileDescList* fdl, BufDescArr* bd, BufPool* bp, int32_t bufId);
 
 #endif /* BUFPOOL_H */

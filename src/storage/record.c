@@ -57,6 +57,16 @@ int compute_null_bitmap_length(RecordDescriptor* rd) {
   return (rd->ncols) / 8 + 1;
 }
 
+int compute_record_length(
+  RecordDescriptor* rd,
+  Datum* fixed,
+  bool* fixedNull,
+  Datum* varlen,
+  bool* varlenNull
+) {
+  
+}
+
 int compute_record_fixed_length(RecordDescriptor* rd, bool* fixedNull) {
   uint16_t fixedLen = 0;
 

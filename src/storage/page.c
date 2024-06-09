@@ -18,6 +18,25 @@ void free_page(Page pg) {
   if (pg != NULL) free(pg);
 }
 
+void page_zero(Page pg) {
+  memset(pg, 0, conf->pageSize);
+}
+
+void pageheader_set_pageid(Page pg, uint32_t pageId) {
+  PageHeader* pgHdr = (PageHeader*)pg;
+  pgHdr->pageId = pageId;
+}
+
+void pageheader_set_prevpageid(Page pg, uint32_t pageId) {
+  PageHeader* pgHdr = (PageHeader*)pg;
+  pgHdr->prevPageId = pageId;
+}
+
+void pageheader_set_nextpageid(Page pg, uint32_t pageId) {
+  PageHeader* pgHdr = (PageHeader*)pg;
+  pgHdr->nextPageId = pageId;
+}
+
 static bool page_has_space(Page pg, int length) {
   int availableSpace = ((PageHeader*)pg)->freeData;
   return availableSpace >= length;

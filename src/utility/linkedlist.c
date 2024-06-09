@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "utility/linkedlist.h"
 
@@ -12,19 +13,16 @@ LinkedList* new_linkedlist() {
   return l;
 }
 
-/**
- * Since this is a generic linked list, the caller is responsible for
- * freeing everything contained within the list. This function simply
- * traverses the list and frees the ListItem pointers and the LinkedList
- * itself. 
- */
-void free_linkedlist(LinkedList* l) {
+void free_linkedlist(LinkedList* l, void (*cleanup)(void*)) {
   if (l == NULL) return;
 
   if (l->head != NULL) {
     ListItem* li = l->head;
     while (li != NULL) {
       ListItem* curr = li;
+      if (*cleanup != NULL) {
+        (*cleanup)(li->ptr);
+      }
       li = curr->next;
       free(curr);
     }
@@ -54,4 +52,15 @@ void linkedlist_append(LinkedList* l, void* ptr) {
 
   l->tail = new;
   l->numItems++;
+}
+
+ListItem* linkedlist_search(LinkedList* l, void* ptr, bool (*comparison)(void*, void*)) {
+  ListItem* li = l->head;
+
+  while (li != NULL) {
+    if ((*comparison)(li->ptr, ptr)) return li;
+    li = li->next;
+  }
+
+  return NULL;
 }

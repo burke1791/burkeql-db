@@ -32,7 +32,7 @@ void free_recordset(RecordSet* rs, RecordDescriptor* rd) {
 
   if (rs->rows != NULL) {
     free_recordset_row_list(rs->rows, rd);
-    free_linkedlist(rs->rows);
+    free_linkedlist(rs->rows, NULL);
   }
 
   free(rs);

@@ -63,6 +63,13 @@ void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen, bo
 void defill_record(RecordDescriptor* rd, Record r, Datum* values, bool* isnull);
 
 int compute_null_bitmap_length(RecordDescriptor* rd);
+int compute_record_length(
+  RecordDescriptor* rd,
+  Datum* fixed,
+  bool* fixedNull,
+  Datum* varlen,
+  bool* varlenNull
+);
 int compute_record_fixed_length(RecordDescriptor* rd, bool* fixedNull);
 
 bool col_isnull(int colnum, uint8_t* nullBitmap);

@@ -15,9 +15,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef struct BufTag {
+  uint32_t fileId;
+  int32_t pageId;
+} BufTag;
+
 #pragma pack(push, 1) /* disabling memory alignment because I don't want to deal with it */
 typedef struct BufDesc {
-  uint32_t pageId;
+  BufTag* tag;
   int pinCount;   /* number of processes currently accessing the page */
   int useCount;   /* number of times the page has been accessed since being loaded into memory */
   bool isDirty;   /* page contents have changed since it was loaded from disk */
@@ -34,11 +39,16 @@ typedef struct BufDescArr {
 BufDescArr* bufdesc_init(int size);
 void bufdesc_destroy(BufDescArr* bd);
 
+BufTag* bufdesc_new_buftag(uint32_t fileId, int32_t pageId);
+void bufdesc_free_buftag(BufTag* tag);
+
 void bufdesc_start_io(BufDesc* desc);
 void bufdesc_end_io(BufDesc* desc);
 void bufdesc_pin(BufDesc* desc);
 
-int32_t bufdesc_find_slot(BufDescArr* bd, uint32_t pageId);
+void bufdesc_set_tag(BufDesc* desc, BufTag* tag);
+
+int32_t bufdesc_find_slot(BufDescArr* bd, BufTag* tag);
 int32_t bufdesc_find_empty_slot(BufDescArr* bd);
 
 #endif /* BUFDESC_H */

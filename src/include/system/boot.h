@@ -12,15 +12,22 @@
  * 
  * The fields stored in the boot page are as follows:
  * 
- * Field              Byte Pos      Byte Size
- * ------------------------------------------
- * major_version      0             2
- * minor_version      2             4
- * patch_num          6             4
- * page_size          10            2
+ * Field                    Byte Pos      Byte Size
+ * ------------------------------------------------
+ * major_version            0             2
+ * minor_version            2             4
+ * patch_num                6             4
+ * page_size                10            2
  */
 
 #define BOOT_PAGE_ID 1
+
+/**
+ * hard-coding these values for now
+ */
+#define MAJOR_VERSION 1
+#define MINOR_VERSION 2
+#define PATCH_NUM 69
 
 #define MAJOR_VERSION_BYTE_POS 0
 #define MINOR_VERSION_BYTE_POS 2
@@ -31,6 +38,8 @@
 #define MINOR_VERSION_BYTE_SIZE 4
 #define PATCH_NUM_BYTE_SIZE 4
 #define PAGE_SIZE_BYTE_SIZE 2
+
+bool init_boot_page(BufMgr* buf, BufTag* tag);
 
 /**
  * These setter functions should ONLY be called at the

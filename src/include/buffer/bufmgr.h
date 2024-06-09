@@ -31,26 +31,49 @@
 
 #include <stdbool.h>
 
-#include "storage/file.h"
 #include "buffer/bufpool.h"
 #include "buffer/bufdesc.h"
+#include "buffer/buffile.h"
 
 typedef struct BufGlobal {
-  uint32_t nextPageId;
+  int64_t nextObjectId;
 } BufGlobal;
 
 typedef struct BufMgr {
-  FileDesc* fdesc;
+  FileDescList* fdl;
   int size;
   BufGlobal* global;
   BufDescArr* bd;
   BufPool* bp;
 } BufMgr;
 
-BufMgr* bufmgr_init(FileDesc* fdesc);
+BufMgr* bufmgr_init();
 void bufmgr_destroy(BufMgr* buf);
 
-int32_t bufmgr_request_bufId(BufMgr* buf, uint32_t pageId);
+int32_t bufmgr_request_bufId(BufMgr* buf, BufTag* tag);
+int32_t bufmgr_allocate_new_page(BufMgr* buf, uint32_t fileId);
+
+/**
+ * @brief Allocates a new page at the end of a linkedlist of pages
+ * 
+ * @param buf 
+ * @param prev 
+ * @return int32_t 
+ */
+int32_t bufmgr_pagesplit_append(BufMgr* buf, BufTag* prev);
+
+/**
+ * @brief Allocates a new page in the middle of a linked list of pages
+ * 
+ * @param buf 
+ * @param prev 
+ * @param next 
+ * @return int32_t 
+ */
+int32_t bufmgr_pagesplit_insert(BufMgr* buf, BufTag* prev, BufTag* next);
+
+void bufmgr_flush_page(BufMgr* buf, BufTag* tag);
+void bufmgr_flush_all(BufMgr* buf);
 
 /**
  * @brief System command functions for printing diagnostic information to the terminal

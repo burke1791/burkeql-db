@@ -16,23 +16,29 @@ extern Config* conf;
  * 4. Repeat until the PgHdr->nextPageId = 0
  */
 void tableam_fullscan(BufMgr* buf, TableDesc* td, LinkedList* rows) {
-  int32_t bufId = bufmgr_request_bufId(buf, 1);
+  BufTag* tag = malloc(sizeof(BufTag));
+  tag->fileId = FILE_DATA;
+  tag->pageId = 1;
+  int32_t bufId = bufmgr_request_bufId(buf, tag);
 
   while (bufId >= 0) {
-    BufPoolSlot* slot = &buf->bp->slots[bufId];
-    PageHeader* pgHdr = (PageHeader*)slot->pg;
+    Page pg = (Page)buf->bp->pages[bufId];
+    PageHeader* pgHdr = (PageHeader*)pg;
     int numRecords = pgHdr->numRecords;
 
     for (int i = 0; i < numRecords; i++) {
       RecordSetRow* row = new_recordset_row(td->rd->ncols);
       int slotPointerOffset = conf->pageSize - (sizeof(SlotPointer) * (i + 1));
-      SlotPointer* sp = (SlotPointer*)(slot->pg + slotPointerOffset);
-      defill_record(td->rd, slot->pg + sp->offset, row->values, row->isnull);
+      SlotPointer* sp = (SlotPointer*)(pg + slotPointerOffset);
+      defill_record(td->rd, pg + sp->offset, row->values, row->isnull);
       linkedlist_append(rows, row);
     }
 
-    bufId = bufmgr_request_bufId(buf, pgHdr->nextPageId);
+    tag->pageId = pgHdr->nextPageId;
+    bufId = bufmgr_request_bufId(buf, tag);
   }
+
+  free(tag);
 }
 
 /**
@@ -49,18 +55,25 @@ void tableam_fullscan(BufMgr* buf, TableDesc* td, LinkedList* rows) {
  * @return false 
  */
 bool tableam_insert(BufMgr* buf, TableDesc* td, Record r, uint16_t recordLen) {
-  int32_t bufId = bufmgr_request_bufId(buf, 1);
+  BufTag* tag = malloc(sizeof(BufTag));
+  tag->fileId = FILE_DATA;
+  tag->pageId = 1;
+  int32_t bufId = bufmgr_request_bufId(buf, tag);
 
   if (bufId < 0) return false;
 
   while (bufId >= 0) {
-    Page pg = buf->bp->slots[bufId].pg;
+    Page pg = buf->bp->pages[bufId];
     if (page_insert(pg, r, recordLen)) {
+      free(tag);
       return true;
     }
 
-    bufId = bufmgr_request_bufId(buf, ((PageHeader*)pg)->nextPageId);
+    tag->pageId = ((PageHeader*)pg)->nextPageId;
+    bufId = bufmgr_request_bufId(buf, tag);
   }
+
+  free(tag);
 
   return false;
 }

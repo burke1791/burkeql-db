@@ -3,6 +3,6 @@
 
 #include "buffer/bufmgr.h"
 
-void initdb(BufMgr* buf);
+bool initdb(BufMgr* buf);
 
 #endif /* INITDB_H */
