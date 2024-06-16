@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/04-data-persistence/03-loading-config/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Loading Config - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Loading Config";
+        var mkdocs_page_input_path = "04-data-persistence/03-loading-config.md";
+        var mkdocs_page_url = "/burkeql-db/04-data-persistence/03-loading-config/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Loading Config</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#implementation">Implementation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#updating-main">Updating main()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#makefile">Makefile</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-the-program">Running the Program</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#full-files">Full Files</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">4. Data Persistence</li>
+      <li class="breadcrumb-item active">Loading Config</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/04-data-persistence/03-loading-config.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="loading-config">Loading Config</h1>
+<p>With the config file format defined, we need to write the code that reads the config file line-by-line and sets the valid values in a global <code>Config</code> object. Let's begin by writing the header file for our config code:</p>
+<pre><code class="language-c">typedef enum ConfigParameter {
+  CONF_DATA_FILE,
+  CONF_UNRECOGNIZED
+} ConfigParameter;
+
+typedef struct Config {
+  char* dataFile;
+} Config;
+</code></pre>
+<p>The <code>ConfigParameter</code> enum is going to be the list of valid config options to put in our <code>burkeql.conf</code> file. This list will grow as we add more to the database system, but for now all we need is the data file location and a value for an unrecognized parameter.</p>
+<p>The <code>Config</code> struct is going to be a global object initialized at the beginning of the <code>main</code> function, and populated shortly thereafter. Except for <code>CONF_UNRECOGNIZED</code>, the properties in the <code>Config</code> struct will correspond one-to-one with the enum values.</p>
+<p>Next, we need to define functions we want to expose to the rest of our program.</p>
+<pre><code class="language-c">Config* new_config();
+void free_config(Config* conf);
+
+bool set_global_config(Config* conf);
+
+void print_config(Config* conf);
+</code></pre>
+<p>The first two are just responsible for allocating and freeing memory associated with the <code>Config</code> object.</p>
+<p><code>set_global_config</code> is the workhorse. It will be called towards the beginning of <code>main()</code> and is responsible for opening the config file, reading its contents, and setting the provided values in the <code>Config</code> object. Returns <code>true</code> if it succeeds, and <code>false</code> otherwise.</p>
+<p><code>print_config</code> is just there for debugging. After we set the config values, we'll want to print them to the terminal just to make sure everything went as expected.</p>
+<h2 id="implementation">Implementation</h2>
+<p>First up, let's start with basic opening and closing of files.</p>
+<pre><code class="language-c">static FILE* read_config_file() {
+  FILE* fp = fopen(&quot;burkeql.conf&quot;, &quot;r&quot;);
+
+  return fp;
+}
+
+static void close_config_file(FILE* fp) {
+  fclose(fp);
+}
+</code></pre>
+<p>Next up, we need memory management functions and a debugging function that prints info to the console, <code>new_config</code>, <code>free_config</code>, and <code>print_config</code>:</p>
+<pre><code class="language-c">Config* new_config() {
+  Config* conf = malloc(sizeof(Config));
+  return conf;
+}
+
+void free_config(Config* conf) {
+  if (conf-&gt;dataFile != NULL) free(conf-&gt;dataFile);
+  free(conf);
+}
+
+void print_config(Config* conf) {
+  printf(&quot;======   BurkeQL Config   ======\n&quot;);
+  printf(&quot;= DATA_FILE: %s\n&quot;, conf-&gt;dataFile);
+}
+</code></pre>
+<p>Very straightforward. Allocate the memory we need. Free everything that was allocated. And print the only config property we currently have.</p>
+<p>Now we can write our primary worker function, which has a lot more going on by comparison, and even utilizes some <code>static</code> helper functions:</p>
+<pre><code class="language-c">bool set_global_config(Config* conf) {
+  FILE* fp = read_config_file();
+  char* line = NULL;
+  size_t len = 0;
+  ssize_t read;
+  ConfigParameter p;
+
+  if (fp == NULL) {
+    printf(&quot;Unable to read config file: burkeql.conf\n&quot;);
+    return false;
+  }
+</code></pre>
+<p>We start by declaring/initializing the variables we'll need when we loop through the config file. Then we have a simple error check that bails out early if there's an issue.</p>
+<pre><code class="language-c">  /**
+   * loops through the config file and sets values in the
+   * global Config object
+   */
+  while ((read = getline(&amp;line, &amp;len, fp)) != -1) {
+    // skip comment lines or empty lines
+    if (strncmp(line, &quot;#&quot;, 1) == 0 || read &lt;= 1) continue;
+
+    // parse out the key and value
+    char* param = strtok(line, &quot;=&quot;);
+    char* value = strtok(NULL, &quot;=&quot;);
+
+    p = parse_config_param(param);
+
+    if (p == CONF_UNRECOGNIZED) continue;
+
+    set_config_value(conf, p, value);
+  }
+</code></pre>
+<p>This is the meat of our <code>set_global_config</code> function. We use a fairly common loop condition to read through a file one line at a time until it hits an <code>EOF</code>. We then check if the line begins with a <code>#</code> character, indicating a comment line, or if the length of the line is 0, indicating an empty line. If either of those conditions is met, then we skip to the next line.</p>
+<p>Next, we use the <code>strtok</code> function to split the parameter name and its value into separate variables. Since we know they are separated by an "=" symbol, we pass that as the second argument to the function. Then we use one of our helper functions to match the value of <code>param</code> to one of the enum values in <code>ConfigParameter</code>. If it's a valid parameter, we call our second helper function to set the value in our global object.</p>
+<p>Finally, we free up any memory we allocated for this function:</p>
+<pre><code class="language-c">  if (line) free(line);
+
+  close_config_file(fp);
+
+  return true;
+}
+</code></pre>
+<p><code>parse_config_param</code> is a really simple function. Just a bunch of <code>if(strcmp(...</code> statements to determine the correct enum value:</p>
+<pre><code class="language-c">static ConfigParameter parse_config_param(char* p) {
+  if (strcmp(p, &quot;DATA_FILE&quot;) == 0) return CONF_DATA_FILE;
+
+  return CONF_UNRECOGNIZED;
+}
+</code></pre>
+<p><code>set_config_value</code> follows a similar pattern, except we run a <code>switch</code> statement on the enum value returned by the above function:</p>
+<pre><code class="language-c">static void set_config_value(Config* conf, ConfigParameter p, char* v) {
+  switch (p) {
+    case CONF_DATA_FILE:
+      v[strcspn(v, &quot;\r\n&quot;)] = 0; // remove trailing newline character if it exists
+      conf-&gt;dataFile = strdup(v);
+      break;
+  }
+}
+</code></pre>
+<h2 id="updating-main">Updating <code>main()</code></h2>
+<p>The change to <code>main.c</code> is pretty simple. We just need to include the new <code>config.h</code> header and write the code to load config values into the global <code>Config</code> object.</p>
+<pre><code class="language-diff"> #include &quot;parser/parsetree.h&quot;
+ #include &quot;parser/parse.h&quot;
++#include &quot;global/config.h&quot;
++
++Config* conf;
+
+ static void print_prompt() {
+   printf(&quot;bql &gt; &quot;);
+ }
+
+ int main(int argc, char** argv) {
++  // initialize global config
++  conf = new_config();
++
++  if (!set_global_config(conf)) {
++    return EXIT_FAILURE;
++  }
++
++  // print config
++  print_config(conf);
+
+   while(true) {
+     print_prompt();
+</code></pre>
+<h2 id="makefile">Makefile</h2>
+<p>Lastly, we need to update the <code>Makefile</code> by adding the new c files to the <code>SRC_FILES</code> variable.</p>
+<pre><code class="language-diff">SRC_FILES = main.c \
+                        parser/parse.c \
++                       parser/parsetree.c \
++                       global/config.c
+</code></pre>
+<h2 id="running-the-program">Running the Program</h2>
+<p>Before you run the program, make sure you create a <code>burkeql.conf</code> file in whatever directory you'll execute the program from. I do everything at the root level of the code repository to keep it simple. My config file looks like this:</p>
+<p><code>burkeql.conf</code></p>
+<pre><code class="language-conf"># Config file for the BurkeQL database
+
+# Absolute location of the data file
+DATA_FILE=/home/burke/source_control/burkeql-db/db_files/main.dbd
+</code></pre>
+<p>Now we can compile and run the program to see if our config file is properly parsed. Remember, you can safely ignore warnings about functions produced by flex and bison (e.g. <code>yylex</code>, <code>yyerror</code>, etc.).</p>
+<pre><code class="language-shell">$ ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+bql &gt; \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+$ 
+</code></pre>
+<p>As you can see, our code correctly reads and parses the config file and stores the value in the global config object. Keep in mind the parser we wrote for the config file is extremely basic. That means it's easy to break it. However, we do kill the program if there's an issue parsing the config file, so it shouldn't be too dangerous to leave it as is.</p>
+<h2 id="full-files">Full Files</h2>
+<p>Here's the folder layout I have at this point:</p>
+<pre><code class="language-shell">├── Makefile
+├── burkeql.conf
+├── db_files       &lt;-- Not necessary yet, but will be in the next section
+└── src
+    ├── Makefile
+    ├── global
+    │   └── config.c
+    ├── include
+    │   ├── global
+    │   │   └── config.h
+    │   ├── parser
+    │   │   ├── parse.h
+    │   │   └── parsetree.h
+    ├── main.c
+    ├── parser
+    │   ├── gram.y
+    │   ├── parse.c
+    │   ├── parsetree.c
+    │   └── scan.l
+</code></pre>
+<p>And the current state of all the files we changed.</p>
+<p><code>src/Makefile</code></p>
+<pre><code class="language-shell">CC = gcc
+LEX = flex
+YACC = bison
+CFLAGS = -I./ -I./include -fsanitize=address -fsanitize=undefined -static-libasan -g
+
+TARGET_EXEC = burkeql
+
+BUILD_DIR = ..
+
+SRC_FILES = main.c \
+                        parser/parse.c \
+                        parser/parsetree.c \
+                        global/config.c
+
+
+$(BUILD_DIR)/$(TARGET_EXEC): gram.tab.o lex.yy.o ${SRC_FILES}
+    ${CC} ${CFLAGS} -o $@ $?
+
+gram.tab.c gram.tab.h: parser/gram.y
+    ${YACC} -vd $?
+
+lex.yy.c: parser/scan.l
+    ${LEX} -o $*.c $&lt;
+
+lex.yy.o: gram.tab.h lex.yy.c
+
+clean:
+    rm -f $(wildcard *.o)
+    rm -f $(wildcard *.output)
+    rm -f $(wildcard *.tab.*)
+    rm -f lex.yy.c
+    rm -f $(wildcard *.lex.*)
+    rm -f $(BUILD_DIR)/$(TARGET_EXEC)
+</code></pre>
+<p><code>src/include/global/config.h</code></p>
+<pre><code class="language-c">#ifndef CONFIG_H
+#define CONFIG_H
+
+#include &lt;stdbool.h&gt;
+
+typedef enum ConfigParameter {
+  CONF_DATA_FILE,
+  CONF_UNRECOGNIZED
+} ConfigParameter;
+
+typedef struct Config {
+  char* dataFile;
+} Config;
+
+Config* new_config();
+void free_config(Config* conf);
+
+bool set_global_config(Config* conf);
+
+void print_config(Config* conf);
+
+#endif /* CONFIG_H */
+</code></pre>
+<p><code>src/global/config.c</code></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;string.h&gt;
+
+#include &quot;global/config.h&quot;
+
+Config* new_config() {
+  Config* conf = malloc(sizeof(Config));
+  return conf;
+}
+
+void free_config(Config* conf) {
+  if (conf-&gt;dataFile != NULL) free(conf-&gt;dataFile);
+  free(conf);
+}
+
+void print_config(Config* conf) {
+  printf(&quot;======   BurkeQL Config   ======\n&quot;);
+  printf(&quot;= DATA_FILE: %s\n&quot;, conf-&gt;dataFile);
+}
+
+static ConfigParameter parse_config_param(char* p) {
+  if (strcmp(p, &quot;DATA_FILE&quot;) == 0) return CONF_DATA_FILE;
+
+  return CONF_UNRECOGNIZED;
+}
+
+static void set_config_value(Config* conf, ConfigParameter p, char* v) {
+  switch (p) {
+    case CONF_DATA_FILE:
+      v[strcspn(v, &quot;\r\n&quot;)] = 0; // remove trailing newline character if it exists
+      conf-&gt;dataFile = strdup(v);
+      break;
+  }
+}
+
+static FILE* read_config_file() {
+  FILE* fp = fopen(&quot;burkeql.conf&quot;, &quot;r&quot;);
+
+  return fp;
+}
+
+static void close_config_file(FILE* fp) {
+  fclose(fp);
+}
+
+bool set_global_config(Config* conf) {
+  FILE* fp = read_config_file();
+  char* line = NULL;
+  size_t len = 0;
+  ssize_t read;
+  ConfigParameter p;
+
+  if (fp == NULL) {
+    printf(&quot;Unable to read config file: burkeql.conf\n&quot;);
+    return false;
+  }
+
+  /**
+   * loops through the config file and sets values in the
+   * global Config object
+   */
+  while ((read = getline(&amp;line, &amp;len, fp)) != -1) {
+    // skip comment lines or empty lines
+    if (strncmp(line, &quot;#&quot;, 1) == 0 || read &lt;= 1) continue;
+
+    // parse out the key and value
+    char* param = strtok(line, &quot;=&quot;);
+    char* value = strtok(NULL, &quot;=&quot;);
+
+    p = parse_config_param(param);
+
+    if (p == CONF_UNRECOGNIZED) continue;
+
+    set_config_value(conf, p, value);
+  }
+
+  if (line) free(line);
+
+  close_config_file(fp);
+
+  return true;
+}
+</code></pre>
+<p><code>src/main.c</code></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;string.h&gt;
+
+#include &quot;gram.tab.h&quot;
+#include &quot;parser/parsetree.h&quot;
+#include &quot;parser/parse.h&quot;
+#include &quot;global/config.h&quot;
+
+Config* conf;
+
+static void print_prompt() {
+  printf(&quot;bql &gt; &quot;);
+}
+
+int main(int argc, char** argv) {
+  // initialize global config
+  conf = new_config();
+
+  if (!set_global_config(conf)) {
+    return EXIT_FAILURE;
+  }
+
+  // print config
+  print_config(conf);
+
+  while(true) {
+    print_prompt();
+    Node* n = parse_sql();
+
+    if (n == NULL) continue;
+
+    switch (n-&gt;type) {
+      case T_SysCmd:
+        if (strcmp(((SysCmd*)n)-&gt;cmd, &quot;quit&quot;) == 0) {
+          print_node(n);
+          free_node(n);
+          printf(&quot;Shutting down...\n&quot;);
+          return EXIT_SUCCESS;
+        }
+      default:
+        print_node(n);
+        free_node(n);
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../02-config-file/" class="btn btn-neutral float-left" title="Config File"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../04-file-interface/" class="btn btn-neutral float-right" title="DB File Interface">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../02-config-file/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../04-file-interface/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/02-ast/parser-refactor/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Parser Refactor - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Parser Refactor";
+        var mkdocs_page_input_path = "02-ast/parser-refactor.md";
+        var mkdocs_page_url = "/burkeql-db/02-ast/parser-refactor/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Parser Refactor</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#flex">Flex</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bison">Bison</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#config">Config</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-types">Data Types</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#grammar">Grammar</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#flex-to-bison-walkthrough">Flex to Bison Walkthrough</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">2. Abstract Syntax Trees</li>
+      <li class="breadcrumb-item active">Parser Refactor</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/02-ast/parser-refactor.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="parser-refactor">Parser Refactor</h1>
+<p>Now we've come to the potentially confusing part where we reconfigure flex and bison. Again, I will not be thoroughly explaining how these changes affect what flex and bison do under the hood. However, I will explain how it changes how we interact with the parser.</p>
+<p>You may have noticed the parser we built in the first section consumed our input and printed out a message. Our call to <code>yyparse</code> did not return anything, so there was nothing for us to send along to a downstream process. We need to reconfigure the parser to be able to return an AST to the caller.</p>
+<h2 id="flex">Flex</h2>
+<p>The changes to our scanner are small, but they do introduce a new flex concept that I didn't cover in the last section: start states.</p>
+<pre><code class="language-diff"> %option noyywrap nodefault case-insensitive
++%option bison-bridge reentrant
++%option header-file=&quot;scan.lex.h&quot;
++
++%x SYSCMD
+
+ %{
+</code></pre>
+<p>Simply put, two new options <code>bison-bridge</code> and <code>reentrant</code> work with the bison changes to allow it to work with our own custom structs and return them to us. The second new option line tells flex to generate a header file for us, which will be important when we refactor the code that calls the parser.</p>
+<p>Finally, the <code>%x SYSCMD</code> is what flex calls a start state, more specifically, an exclusive start state. This allows us to control which regex patters can be matched and when.</p>
+<pre><code class="language-diff"> %%
+
++  /* beginning a system command */
++[\\]      { BEGIN SYSCMD; }
++
++  /* valid system command inputs */
++&lt;SYSCMD&gt;[A-Za-z]+   { yylval-&gt;str = strdup(yytext); return SYS_CMD; }
++
+   /* keywords */
+ INSERT    { return INSERT; }
+
+-QUIT      { return QUIT; }
+</code></pre>
+<p>The first regex pattern, <code>[\\]</code> tells flex what to look for in order to enter the <code>SYSCMD</code> state. The second new pattern is tagged with the start state and means flex is only allowed to match this pattern if it is already in the <code>SYSCMD</code> state.</p>
+<p>Once matched, we <code>strdup</code> the text into the <code>yylval</code> union and send it along to bison. The <code>yylval</code> union matches exactly the union we'll define in our grammar file. How all of this interplay works between flex and bison is not something I'll cover, so if you're interested you should read the documentation for each tool.</p>
+<p>And since we're changing how system commands are parsed, we no longer need the <code>QUIT</code> token.</p>
+<h2 id="bison">Bison</h2>
+<p>The changes to our grammar are a lot more involved because we're essentially rewriting how it parses tokens from scratch.</p>
+<h3 id="config">Config</h3>
+<pre><code class="language-diff">+%define api.pure true
+
+ %{
+
+ #include &lt;stdio.h&gt;
+ #include &lt;stdarg.h&gt;
++#include &quot;include/parser/parsetree.h&quot;
+
+ %}
+</code></pre>
+<p>The new <code>%define</code> turns bison into a pure parser, which for us means we're able to pass in a struct when we call it. This is absolutely necessary since we want bison to build an AST for us. The struct we send to bison is the root node of our AST.</p>
+<p>We also need to include the AST header file so bison has access to the necessary structs and functions.</p>
+<h3 id="data-types">Data Types</h3>
+<p>This next set of changes defines the data interface between flex and bison.</p>
+<pre><code class="language-diff"> %}
+
++%union {
++  char* str;
++
++  struct Node* node;
++}
++
++%parse-param { struct Node** n }
++%param { void* scanner }
+</code></pre>
+<p>As I mentioned above, the <code>%union</code> determines how the <code>yylval</code> union available to flex is defined. Anything we put in this union is settable by flex during the lexing stage.</p>
+<p>The <code>%parse-param</code> and <code>%param</code> add arguments to the <code>yyparse</code> function. <code>%parse-param</code> allows us to send our struct to bison so that it can build the AST for us. <code>%param</code> also lets us send data, but in this case bison forwards it along to <code>yylex</code> from flex. This is necessary because we are now setting up our own scanner instead of letting flex do it for us.</p>
+<p>Next, we need to define our new tokens and types:</p>
+<pre><code class="language-diff">+%token &lt;str&gt; SYS_CMD
++
+ /* reserved keywords in alphabetical order */
+ %token INSERT
+-
+-%token QUIT
+
+ %token SELECT
+
++%type &lt;node&gt; cmd stmt sys_cmd select_stmt insert_stmt
++
+-%start cmd
++%start query
+
+ %%
+</code></pre>
+<p>Since we added a way for flex to tokenize a <code>SYS_CMD</code>, we need to define that token in our grammar file. And since we actually care WHAT it is that flex matched, we define a <code>SYS_CMD</code> as a <code>str</code> type. Note, type definitions like this MUST be defined in the <code>%union</code> before we can use them in the <code>%token</code> and <code>%type</code> tags.</p>
+<p>Now that we have our AST defined in the parsetree header file, we know that every node in the tree is going to be a <code>Node</code> struct. So we tell bison that all of our rules defined below are <code>&lt;node&gt;</code> types.</p>
+<p>And finally, I'm changing the <code>%start</code> from <code>cmd</code> to a new rule called <code>query</code>. This means I only need to write the termination code once.</p>
+<h3 id="grammar">Grammar</h3>
+<p>And finally we get to the rules. We're rewriting everything from scratch, so you can start by deleting everything in the second section of your grammar file (between the two <code>%%</code> symbols). This chunk of code is the entirety of our grammar at this point.</p>
+<pre><code class="language-c">%%
+
+query: cmd  { 
+      *n = $1;
+      YYACCEPT;
+    }
+  ;
+
+cmd: stmt
+  | sys_cmd 
+  ;
+
+sys_cmd: SYS_CMD {
+      SysCmd* sc = create_node(SysCmd);
+
+      sc-&gt;cmd = $1;
+
+      $$ = (Node*)sc;
+    }
+  ;
+
+stmt: select_stmt
+  | insert_stmt
+  ;
+
+select_stmt: SELECT {
+      printf(&quot;SELECT command received\n&quot;);
+      $$ = NULL;
+    }
+  ;
+
+insert_stmt: INSERT {
+      printf(&quot;INSERT command received\n&quot;);
+      $$ = NULL;
+    }
+  ;
+
+%%
+</code></pre>
+<p>I've added some bison functionality that wasn't necessary in the first iteration, so it might be a little confusing right now, but stay with me.</p>
+<p>Starting at the bottom with the <code>select_stmt</code> and <code>insert_stmt</code> rules. You'll notice they're largely the same as before, but we added a <code>$$ = NULL;</code> line. <code>$$</code> is special bison syntax. In this case <code>$$</code> represents the left side of our grammar rule definition. So in the <code>insert_stmt</code> rule, when we write <code>$$ = NULL;</code>, we're saying <code>insert_stmt = NULL</code> and in any other rules that <code>insert_stmt</code> bubbles up to its value will be <code>NULL</code>.</p>
+<p>Moving up to the <code>stmt</code> rule, we see it's defined as either a <code>select_stmt</code> or <code>insert_stmt</code>, but there's no code attached to it. Bison actually injects default code to all rules we don't specify them for. The default action is <code>{ $$ = $1; }</code>. Just like <code>$$</code> represents the left side of a rule, <code>$1</code> corresponds to the right side of a rule - specifically, the first term of the right side of the rule. This will come in to play more when we start defining rules with multiple terms.</p>
+<p>Note: in the <code>stmt</code> rule, <code>select_stmt</code> and <code>insert_stmt</code> are separated by a pipe (<code>|</code>), meaning they're independent. Bison injects the default code for BOTH of them. This means they're both the first term on the right side of the rule. It's the same as writing this:</p>
+<pre><code class="language-c">stmt: select_stmt { $$ = $1; }
+  | insert_stmt { $$ = $1; }
+  ;
+</code></pre>
+<p>Writing a rule like this is just a way to group similar rules together so that upstream rules only need to write a single code block instead of separate identical code blocks.</p>
+<p>Next, we get to the <code>sys_cmd</code> rule. When we have a more robust parser, this is what a lot of our grammar will look like.</p>
+<pre><code class="language-c">sys_cmd: SYS_CMD {
+      SysCmd* sc = create_node(SysCmd);
+
+      sc-&gt;cmd = $1;
+
+      $$ = (Node*)sc;
+    }
+  ;
+</code></pre>
+<p>We start by creating a new <code>Node</code> with the helper macro we wrote in the parsetree header. Then we set the <code>cmd</code> property to whatever flex tokenized and sent to bison - <code>$1</code>. And finally we set the value of the left-hand side of the rule to the <code>SysCmd</code> node. Since we defined the <code>sys_cmd</code> rule to be a node type, we have to cast <code>SysCmd*</code> to <code>Node*</code>.</p>
+<p>Moving up the rules section, we see the <code>cmd</code> rule is similar to the <code>stmt</code> rule - just grouping things together.</p>
+<p>Finally, we get to the top of the tree: the <code>query</code> rule, which has some code we haven't seen before. When we get to this point, we set <code>*n = $1;</code>. We know <code>$1</code> is equal to whatever previous processing stored in the result of the <code>cmd</code> rule, but what is <code>*n</code>?</p>
+<p>Remember in the first section of the grammar file, we defined <code>%parse-param { struct Node** n }</code>. That's what <code>n</code> is referring to, and <code>*n</code> just means we're dereferencing it. This is important because the <code>%parse-param</code> is one of the arguments we supply to <code>yyparse</code> when we call it, and setting <code>*n = $1</code> is how bison returns the AST back to the caller.</p>
+<p>The next line, <code>YYACCEPT;</code>, just tells bison we've hit the end of our parsing journey and are happy with the result.</p>
+<h2 id="flex-to-bison-walkthrough">Flex to Bison Walkthrough</h2>
+<p>Let's take a step back and walk through how we get from user input to the <code>sys_cmd</code> code block.</p>
+<p>When a user types <code>\quit</code> in the terminal, flex starts reading one character at a time. It sees the <code>\</code> character and immediately recognizes this as matching the <code>SYSCMD</code> start state pattern, i.e.</p>
+<pre><code class="language-c">  /* beginning a system command */
+[\\]      { BEGIN SYSCMD; }
+</code></pre>
+<p>Now everything following the <code>\</code> is matched by the exclusive <code>SYSCMD</code> patterns, which in our case is any number of alphabet characters, i.e.</p>
+<pre><code class="language-c">  /* valid system command inputs */
+&lt;SYSCMD&gt;[A-Za-z]+   { yylval-&gt;str = strdup(yytext); return SYS_CMD; }
+</code></pre>
+<p>Flex tries to match the longest chunk of input it can, so the entirety of the word <code>quit</code> is matched and stored in the <code>yytext</code> variable. This variable does not stick around, so we need to <code>strdup</code> it and store it in <code>yylval-&gt;str</code> and return the <code>SYS_CMD</code> token.</p>
+<p>Bison then consumes the token and finds the applicable grammar rule for it, <code>sys_cmd: SYS_CMD</code>. Since we defined <code>%token &lt;str&gt; SYS_CMD</code> as corresponding to the <code>char* str;</code> property of the <code>%union</code>, that's what becomes available in the <code>$1</code> value. That's a lot to keep track of, I know, but here are the applicable pieces of the grammar file:</p>
+<pre><code class="language-c">%union {
+  char* str;
+  ...
+}
+
+%token &lt;str&gt; SYS_CMD
+
+%%
+
+sys_cmd: SYS_CMD {
+      SysCmd* sc = create_node(SysCmd);
+
+      sc-&gt;cmd = $1;
+
+      $$ = (Node*)sc;
+    }
+  ;
+</code></pre>
+<p>When flex sets <code>yylval-&gt;str = "quit";</code>, bison does some magic behind the scenes and essentially sets <code>$1 = "quit";</code>. Which means we can set <code>sc-&gt;cmd = $1;</code> and that stores the <code>"quit"</code> string in the <code>cmd</code> property.</p>
+<p>It's a lot to wrap your head around, but as we continue to add rules to our grammar it will begin to make a lot more sense.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ast-implementation/" class="btn btn-neutral float-left" title="AST Implementation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../parser-interface/" class="btn btn-neutral float-right" title="Parser Interface">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../ast-implementation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../parser-interface/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

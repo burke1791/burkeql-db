@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/08-data-types-varchar/05-defill-and-display/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Defill and Display - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Defill and Display";
+        var mkdocs_page_input_path = "08-data-types-varchar/05-defill-and-display.md";
+        var mkdocs_page_url = "/burkeql-db/08-data-types-varchar/05-defill-and-display/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Defill and Display</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#defill">Defill</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#display">Display</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-select-statements">Running Select Statements</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">8. Data Types: Varchar</li>
+      <li class="breadcrumb-item active">Defill and Display</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/08-data-types-varchar/05-defill-and-display.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="defill-and-display">Defill and Display</h1>
+<p>The final piece to our <code>Varchar</code> journey is updating our defill and display code so we can run select statements.</p>
+<h2 id="defill">Defill</h2>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff"> void defill_record(RecordDescriptor* rd, Record r, Datum* values) {
+   int offset = sizeof(RecordHeader);
+
++  Column* col;
+   for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+-    Column* col = &amp;rd-&gt;cols[i];
+-    values[i] = record_get_col_value(col, r, &amp;offset);
++    if (i &lt; rd-&gt;nfixed) {
++      col = get_nth_col(rd, true, i);
++    } else {
++      col = get_nth_col(rd, false, i - rd-&gt;nfixed);
++    }
++
++    values[col-&gt;colnum] = record_get_col_value(col, r, &amp;offset);
+   }
+ }
+</code></pre>
+<p>We're essentially fully rewriting the logic to gracefully work with the fixed/varlen column separation on disk. We loop through each column and utilize our <code>get_nth_col</code> function to make sure we're grabbing the correct information.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff"> static Datum record_get_col_value(Column* col, Record r, int* offset) {
+   switch (col-&gt;dataType) {
+     case DT_BOOL:     // Bools and TinyInts are the same C-type
+     case DT_TINYINT:
+       return record_get_tinyint(r, offset);
+     case DT_SMALLINT:
+       return record_get_smallint(r, offset);
+     case DT_INT:
+       return record_get_int(r, offset);
+     case DT_BIGINT:
+       return record_get_bigint(r, offset);
+     case DT_CHAR:
+       return record_get_char(r, offset, col-&gt;len);
++    case DT_VARCHAR:
++      return record_get_varchar(r, offset);
+     default:
+       printf(&quot;record_get_col_value() | Unknown data type!\n&quot;);
+       return (Datum)NULL;
+   }
+ }
+</code></pre>
+<p>Add a new case statement for the <code>Varchar</code> type.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-c">static Datum record_get_varchar(Record r, int* offset) {
+  int16_t len;
+  memcpy(&amp;len, r + *offset, 2);
+
+  /*
+    The `len - 1` expression is a combination of two steps:
+
+    We subtract 2 bytes because we don't need memory for
+    the 2-byte length overhead.
+
+    Then we add 1 byte to account for the null terminator we
+    need to append on the end of the string.
+  */
+  char* pChar = malloc(len - 1);
+  memcpy(pChar, r + *offset + 2, len - 2);
+  pChar[len - 2] = '\0';
+  *offset += len;
+  return charGetDatum(pChar);
+}
+</code></pre>
+<p>Create a new function to extract the varchar data.</p>
+<h2 id="display">Display</h2>
+<p><code>src/resultset/resultset_print.c</code></p>
+<pre><code class="language-diff"> static void compute_column_widths(RecordDescriptor* rd, RecordSet* rs, int* widths) {
+   int maxLen;
+
+   for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+     maxLen = strlen(rd-&gt;cols[i].colname);
+     Column* col = &amp;rd-&gt;cols[i];
+     ListItem* row = rs-&gt;rows-&gt;head;
+
+     while (row != NULL) {
+       int len;
+       RecordSetRow* data = (RecordSetRow*)row-&gt;ptr;
+
+       switch (col-&gt;dataType) {
+         case DT_BOOL:
+         case DT_TINYINT:
+           len = num_digits(datumGetUInt8(data-&gt;values[i]));
+           break;
+         case DT_SMALLINT:
+           len = num_digits(datumGetInt16(data-&gt;values[i]));
+           break;
+         case DT_INT:
+           len = num_digits(datumGetInt32(data-&gt;values[i]));
+           break;
+         case DT_BIGINT:
+           len = num_digits(datumGetInt64(data-&gt;values[i]));
+           break;
+         case DT_CHAR:
++        case DT_VARCHAR:
+           len = strlen(datumGetString(data-&gt;values[i]));
+           break;
+         default:
+           printf(&quot;compute_column_widths() | Unknown data type\n&quot;);
+       }
+
+       if (len &gt; maxLen) maxLen = len;
+       row = row-&gt;next;
+     }
+
+     widths[i] = maxLen + 1;
+   }
+ }
+</code></pre>
+<p><code>src/resultset/resultset_print.c</code></p>
+<pre><code class="language-diff"> void resultset_print(RecordDescriptor* rd, RecordSet* rs, RecordDescriptor* targets) {
+   printf(&quot;--------\n&quot;);
+   printf(&quot;*** Rows: %d\n&quot;, rs-&gt;rows-&gt;numItems);
+   printf(&quot;--------\n&quot;);
+
+   if (rs-&gt;rows-&gt;numItems == 0) return;
+
+   int* widths = malloc(sizeof(int) * rd-&gt;ncols);
+   compute_column_widths(rd, rs, widths);
+   print_column_headers(rd, targets, widths);
+
+   ListItem* row = rs-&gt;rows-&gt;head;
+   while (row != NULL) {
+     printf(&quot;|&quot;);
+     Datum* values = (Datum*)(((RecordSetRow*)row-&gt;ptr)-&gt;values);
+     for (int i = 0; i &lt; targets-&gt;ncols; i++) {
+       int colIndex = get_col_index(rd, targets-&gt;cols[i].colname);
+       Column* col = &amp;rd-&gt;cols[colIndex];
+
+       switch (col-&gt;dataType) {
+         case DT_BOOL:
+         case DT_TINYINT:
+         case DT_SMALLINT:
+         case DT_INT:
+         case DT_BIGINT:
+           print_cell_num(col-&gt;dataType, values[colIndex], widths[colIndex]);
+           break;
+         case DT_CHAR:
++        case DT_VARCHAR:
+           print_cell_with_padding(datumGetString(values[colIndex]), widths[colIndex], false);
+           break;
+         default:
+           printf(&quot;resultset_print() | Unknown data type\n&quot;);
+       }
+     }
+     printf(&quot;\n&quot;);
+     row = row-&gt;next;
+   }
+
+   printf(&quot;(Rows: %d)\n\n&quot;, rs-&gt;rows-&gt;numItems);
+
+   free(widths);
+ }
+</code></pre>
+<p>No new logic necessary, we just need to add <code>DT_VARCHAR</code> to the switch/case blocks and piggy back off of the <code>DT_CHAR</code> logic.</p>
+<p><code>src/resultset/recordset.c</code></p>
+<pre><code class="language-diff"> static void free_recordset_row_columns(RecordSetRow* row, RecordDescriptor* rd) {
+   for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+-    if (rd-&gt;cols[i].dataType == DT_CHAR) {
++    if (rd-&gt;cols[i].dataType == DT_CHAR || rd-&gt;cols[i].dataType == DT_VARCHAR) {
+       free((void*)row-&gt;values[i]);
+     }
+   }
+ }
+</code></pre>
+<p>Lastly, we just need to make sure we free the memory associated with <code>DT_VARCHAR</code> values.</p>
+<h2 id="running-select-statements">Running Select Statements</h2>
+<p>Now we can test our changes by running select statements:</p>
+<pre><code class="language-shell">$ ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; select person_id, first_name, last_name, age;
+======  Node  ======
+=  Type: Select
+=  Targets:
+=    person_id
+=    first_name
+=    last_name
+=    age
+--------
+*** Rows: 2
+--------
+|person_id |first_name           |last_name         |age |
+----------------------------------------------------------
+|         1|Chris                |Burke             |  33|
+|         2|I am longer than twe |was it truncated? |  69|
+(Rows: 2)
+
+bql &gt;
+</code></pre>
+<p>Success! Our resultset display is functioning properly.</p>
+<p>In the next section, we're going to introduce <code>Null</code> columns to our database. Don't worry though, the columns in our table will stay the same so the temporary code refactor will be minimal.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../04-inserting-data/" class="btn btn-neutral float-left" title="Inserting Data"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../09-data-constraint-null/01-intro/" class="btn btn-neutral float-right" title="Intro">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../04-inserting-data/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../09-data-constraint-null/01-intro/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

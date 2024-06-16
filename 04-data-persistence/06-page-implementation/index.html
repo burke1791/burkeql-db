@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/04-data-persistence/06-page-implementation/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>DB Page Implementation - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "DB Page Implementation";
+        var mkdocs_page_input_path = "04-data-persistence/06-page-implementation.md";
+        var mkdocs_page_url = "/burkeql-db/04-data-persistence/06-page-implementation/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">DB Page Implementation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#page-api">Page API</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#updating-mainc-and-makefile">Updating main.c and Makefile</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-the-program">Running the Program</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">4. Data Persistence</li>
+      <li class="breadcrumb-item active">DB Page Implementation</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/04-data-persistence/06-page-implementation.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="db-page-implementation">DB Page Implementation</h1>
+<p>Before we write the code that implements our <code>Page</code> API, we need to add a new global config parameter that tells the DB engine how many bytes a data page consumes.</p>
+<p>I'm going to start with an absurdly small value: 128 bytes. Add this to the <code>burkeql.conf</code> file:</p>
+<pre><code class="language-conf"># Byte size of a data page
+PAGE_SIZE=128
+</code></pre>
+<p>Next, we need to update the <code>config.h</code> header file to inform it of our new config parameter:</p>
+<pre><code class="language-diff"> typedef enum ConfigParameter {
+   CONF_DATA_FILE,
++  CONF_PAGE_SIZE,
+   CONF_UNRECOGNIZED
+ } ConfigParameter;
+
+ typedef struct Config {
+   char* dataFile;
++  int pageSize;
+ } Config;
+</code></pre>
+<p>And finally, we need to make the associated updates to our functions in <code>config.c</code>:</p>
+<pre><code class="language-diff"> void print_config(Config* conf) {
+   printf(&quot;======   BurkeQL Config   ======\n&quot;);
+   printf(&quot;= DATA_FILE: %s\n&quot;, conf-&gt;dataFile);
++  printf(&quot;= PAGE_SIZE: %d\n&quot;, conf-&gt;pageSize);
+ }
+
+ static ConfigParameter parse_config_param(char* p) {
+   if (strcmp(p, &quot;DATA_FILE&quot;) == 0) return CONF_DATA_FILE;
++  if (strcmp(p, &quot;PAGE_SIZE&quot;) == 0) return CONF_PAGE_SIZE;
+
+   return CONF_UNRECOGNIZED;
+ }
+
+ static void set_config_value(Config* conf, ConfigParameter p, char* v) {
+   switch (p) {
+     case CONF_DATA_FILE:
+       v[strcspn(v, &quot;\r\n&quot;)] = 0; // remove trailing newline character if it exists
+       conf-&gt;dataFile = strdup(v);
+       break;
++    case CONF_PAGE_SIZE:
++      conf-&gt;pageSize = atoi(v);
++      break;
+   }
+ }
+</code></pre>
+<h2 id="page-api">Page API</h2>
+<p>Using the header file we wrote in the previous section, let's dive straight into the code. First, the easy ones: allocating and freeing the page block:</p>
+<pre><code class="language-c">extern Config* conf;
+
+Page new_page() {
+  Page pg = malloc(conf-&gt;pageSize);
+  memset(pg, 0, conf-&gt;pageSize);
+  return pg;
+}
+
+void free_page(Page pg) {
+  if (pg != NULL) free(pg);
+}
+</code></pre>
+<p>It's about as straightforward as you can get. We simply allocate enough memory for a fixed-size data page and return the pointer. And we pair it with a function that frees the memory.</p>
+<p>Now let's read a page block from disk into a <code>Page</code> object:</p>
+<pre><code class="language-c">Page read_page(int fd, uint32_t pageId) {
+  Page pg = new_page();
+  lseek(fd, (pageId - 1) * conf-&gt;pageSize, SEEK_SET);
+  int bytes_read = read(fd, pg, conf-&gt;pageSize);
+
+  if (bytes_read != conf-&gt;pageSize) {
+    printf(&quot;Bytes read: %d\n&quot;, bytes_read);
+    PageHeader* pgHdr = (PageHeader*)pg;
+    /* Since this is a brand new page, we need to set the header fields appropriately */
+    pgHdr-&gt;pageId = pageId;
+    pgHdr-&gt;freeBytes = conf-&gt;pageSize - sizeof(PageHeader);
+    pgHdr-&gt;freeData = conf-&gt;pageSize - sizeof(PageHeader);
+  }
+
+  return pg;
+}
+</code></pre>
+<p>Our function takes two inputs: a file descriptor and a <code>pageId</code>. This implies the caller will already have an open file, and it knows exactly which page block it wants to pull from disk.</p>
+<p>First, we need to allocate memory as a landing spot for the data we intend to pull from disk. Then we tell the file pointer to move to offset <code>(pageId - 1) * conf-&gt;pageSize</code> bytes from the beginning of the file (<code>SEEK_SET</code>). It's important to note that OUR <code>pageId</code>s are 1-based, but the math required to get the byte offset operates on 0-based pageIds.</p>
+<p>Next we read <code>conf-&gt;pageSize</code> bytes into our <code>Page</code> memory block. The <code>read</code> function returns the number of bytes read from disk. If the value is not equal to the size of a page block, then there was an error, or the page does not exist in the file. If the page doesn't exist, then we need to set the <code>PageHeader</code> fields to values that represent a blank data page.</p>
+<p>We're currently not using <code>pageType</code>, <code>indexLevel</code>, <code>prevPageId</code>, and <code>nextPageId</code> so we don't need to set any values. As for the rest, we do need to set some values. The <code>pageId</code> is pretty straightforward; the caller asked for a specific <code>pageId</code>, so we need to make sure that's what we return. <code>freeBytes</code> and <code>freeData</code> are always the same value for an empty page - just a count of empty bytes on the page. The page header is the only space being used, so we just subtract 20-bytes from the size of a full page. And the last field, <code>numRecords</code>, does not need to be explicitly set because it is already zero.</p>
+<p>Next up, we need to write a function to flush data pages to disk.</p>
+<pre><code class="language-c">void flush_page(int fd, Page pg) {
+  int pageId = ((PageHeader*)pg)-&gt;pageId;
+  lseek(fd, (pageId - 1) * conf-&gt;pageSize, SEEK_SET);
+  int bytes_written = write(fd, pg, conf-&gt;pageSize);
+
+  if (bytes_written != conf-&gt;pageSize) {
+    printf(&quot;Page flush unsuccessful\n&quot;);
+  }
+}
+</code></pre>
+<p>This one is comparatively a lot simpler. First we just need to extract the <code>pageId</code> from the header, then we tell the file pointer to move to the beginning of the spot where this page should be written. Then we <code>write</code> the page to disk.</p>
+<p>The last piece is just an informational console log to tell us if something unexpected happened. We'll implement error handling later.</p>
+<h2 id="updating-mainc-and-makefile">Updating <code>main.c</code> and <code>Makefile</code></h2>
+<p>Before we can demonstrate reading and writing pages to disk, we need to make some small updates to our main function and the Makefile.</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-diff"> #include &quot;global/config.h&quot;
++#include &quot;storage/file.h&quot;
++#include &quot;storage/page.h&quot;
+
+ Config* conf;
+</code></pre>
+<pre><code class="language-diff">   print_config(conf);
+
++  FileDesc* fdesc = file_open(conf-&gt;dataFile);
++  Page pg = read_page(fdesc-&gt;fd, 1);
++
+   while(true) {
+     print_prompt();
+</code></pre>
+<p>At the very beginning of our program, we want to open the data file and attempt to read the first page into memory.</p>
+<pre><code class="language-diff">     switch (n-&gt;type) {
+       case T_SysCmd:
+         if (strcmp(((SysCmd*)n)-&gt;cmd, &quot;quit&quot;) == 0) {
+           print_node(n);
+           free_node(n);
+           printf(&quot;Shutting down...\n&quot;);
++          flush_page(fdesc-&gt;fd, pg);
++          free_page(pg);
++          file_close(fdesc);
+           return EXIT_SUCCESS;
+         }
+       default:
+</code></pre>
+<p>When the database receives the quit command, we want to flush the data page that's currently in memory to disk, close the file, then shut down.</p>
+<p><code>src/Makefile</code></p>
+<pre><code class="language-diff"> SRC_FILES = main.c \
+                        parser/parse.c \
+                        parser/parsetree.c \
+                        global/config.c \
+                        storage/file.c \
++                       storage/page.c
+</code></pre>
+<h2 id="running-the-program">Running the Program</h2>
+<p>Now we can compile and run our program to test out these changes.</p>
+<pre><code class="language-shell">$ ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+$
+</code></pre>
+<p>We didn't change anything with the parser, so the interesting stuff doesn't happen here. We just needed to run and quit the program so that it would write a page to our data file for us. Let's take a look at its contents:</p>
+<p><img alt="Page Contents" src="../assets/empty_page.png" /></p>
+<p>Using the <code>xxd</code> command, we can inspect the contents of our binary data file. <code>xxd [filename]</code> shows the hex representation of each byte in the file. Every pair of characters represents a single byte. The orange box I highlighted contains the 4-byte <code>pageId</code> header field, which we set to a value of 1 when we created the empty page.</p>
+<p>Note: my machine is a Little-endian machine, which means it stores the "little-end" of a byte sequence first. As an example, say we have a two-byte (<code>uint16_t</code>) integer 38,924 represented in binary. As humans, we would show the binary value as:</p>
+<p><code>10011000 00011110</code></p>
+<p>This is the same as Big-endian in the machine world. A Little-endian machine would represent it in reverse order:</p>
+<p><code>00011110 10011000</code></p>
+<p>This is why we see the <code>pageId</code> field with the smallest byte first instead of <code>0000 0001</code> &lt;-- hex representation.</p>
+<p>Also, note that endian-ness only affects the order of bytes, it DOES NOT affect the order of the individual bits within the bytes.</p>
+<p>The green box contains the 12-bytes of the header that are uninteresting to us right now. And the two blue boxes represent the 2-byte <code>freeBytes</code> and <code>freeData</code> fields. The "human readable" way to represent this hex value would be <code>0x006c</code>, which translates to 108 in decimal. And this is exactly what we want; the page is empty except for the 20-byte header, and we set the page size to 128 bytes in our config file, so there are 108 unused bytes on the page right now.</p>
+<p>And that covers it. In the next section, we're going to update our lexer and parser to prepare for inserting data into our data page.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../05-page-interface/" class="btn btn-neutral float-left" title="DB Page Interface"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../07-parser-refactor-insert/" class="btn btn-neutral float-right" title="Parser Refactor - Insert">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../05-page-interface/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../07-parser-refactor-insert/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

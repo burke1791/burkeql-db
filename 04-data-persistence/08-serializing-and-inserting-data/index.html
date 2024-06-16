@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/04-data-persistence/08-serializing-and-inserting-data/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Serializing and Inserting Data - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Serializing and Inserting Data";
+        var mkdocs_page_input_path = "04-data-persistence/08-serializing-and-inserting-data.md";
+        var mkdocs_page_url = "/burkeql-db/04-data-persistence/08-serializing-and-inserting-data/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Serializing and Inserting Data</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#recorddescriptor">RecordDescriptor</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#datum">Datum</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#recordh">record.h</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#serializing-and-inserting-data">Serializing and Inserting Data</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructing-a-recorddescriptor">Constructing a RecordDescriptor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#allocate-a-record">Allocate a Record</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-datum-array-and-serializing-data">The Datum Array and Serializing Data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#inserting-a-record">Inserting a Record</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#lets-try-it-out">Let's Try It Out</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">4. Data Persistence</li>
+      <li class="breadcrumb-item active">Serializing and Inserting Data</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/04-data-persistence/08-serializing-and-inserting-data.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="serializing-data">Serializing Data</h1>
+<p>In this section, we are going to take the data from our insert statement and serialize it into a data Record that can then be inserted into the data page. The serializer needs to know a few things about our table/columns in order to process the data we give to it. Specifically, it needs to know how many columns are in the table and information about each column, such as the column's name, data type, its position in the record, and the byte-length.</p>
+<p>As for the data, we need a convenient format to stuff our data into and pass it to the serializer - something that can take any kind of data type and trojan horse it into the serializer.</p>
+<p>In order to do this, we're going to work with two new concepts: the <code>RecordDescriptor</code> and the <code>Datum</code>. These two concepts might not make a ton of sense right now, but they will be essential when we start working tables/columns that aren't hard-coded.</p>
+<h2 id="recorddescriptor">RecordDescriptor</h2>
+<p>A <code>RecordDescriptor</code> is very appropriately named - it contains information that describes a table record. We'll use it to store information like the number of columns and a list of the columns with info about each one. Right now, our is actually quite simple:</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-c">typedef struct RecordDescriptor {
+  int ncols;
+  Column cols[];
+} RecordDescriptor;
+</code></pre>
+<p>We have a property, <code>ncols</code>, that contains the number of columns stored in the data record. Currently, we're working with a hard-coded table definition that contains two columns.</p>
+<p>There is also a flexible array member that contains a list of <code>Column</code> objects, which are defined as follows:</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-c">#pragma pack(push, 1) /* disabling memory alignment because I don't want to deal with it */
+typedef struct Column {
+  char* colname;
+  DataType dataType;
+  int colnum;     /* 0-based col index */
+  int len;        /* byte-length of the column */
+} Column;
+</code></pre>
+<p>You can think of this as a "ColumnDescriptor". We're storing some metadata about the column so that our serializer knows what to do with the data it receives.</p>
+<p><code>DataType</code> is an enum containing all supported data types by our database program:</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-c">typedef enum DataType {
+  DT_INT,     /* 4-bytes, signed */
+  DT_CHAR     /* Byte-size defined at table creation */
+} DataType;
+</code></pre>
+<p>As we add support for more data types, we'll need to an entry in this enum.</p>
+<h2 id="datum">Datum</h2>
+<p>The singular form of the word "data," this is meant to be a super generic wrapper around any value that flows to and from a data page. We use something like a <code>Datum</code> so that we can stuff multiple different data types into an array when reading or writing column values from a data record.</p>
+<p>Say we have a table with two columns, an <code>Int</code> and a <code>Char(20)</code>. It's much easier to convert each of them to a <code>Datum</code> before sending it through a serializer than it would be to write a million switch/case statements for all of the different supported data types in all of the intermediate functions between the client and the serializer. Instead, we only need to write one switch/case inside the serializer. Everything else just has to deal with a <code>Datum</code>.</p>
+<p>Fortunately implementing this logic is pretty simple:</p>
+<p><code>src/include/storage/datum.h</code></p>
+<pre><code class="language-c">typedef unsigned long Datum;
+
+Datum int32GetDatum(int32_t i);
+Datum charGetDatum(char* c);
+
+int32_t datumGetInt32(Datum d);
+char* datumGetString(Datum d);
+</code></pre>
+<p>We define a <code>Datum</code> as an <code>unsigned long</code>, and a pair of conversion functions for each data type we support. Right now we support the <code>Int</code> and <code>Char</code> database data types, so we need a function to convert them from their C-types to the <code>Datum</code>, and another to convert from the <code>Datum</code> back to the C-type.</p>
+<p>And those functions could not be simpler, we're simply casting pointers back and forth:</p>
+<p><code>src/storage/datum.c</code></p>
+<pre><code class="language-c">Datum int32GetDatum(int32_t i) {
+  return (Datum) i;
+}
+
+Datum charGetDatum(char* c) {
+  return (Datum) c;
+}
+
+
+int32_t datumGetInt32(Datum d) {
+  return (int32_t) d;
+}
+
+char* datumGetString(Datum d) {
+  return (char*) d;
+}
+</code></pre>
+<h2 id="recordh">record.h</h2>
+<p>Before we move on to the serializing section, I want to round out the <code>record.h</code> header file.</p>
+<p>Similar to the <code>Page</code> type we created earlier, we're going to create a generic <code>Record</code> type that's an alias for a <code>char*</code>:</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-c">typedef char* Record;
+</code></pre>
+<p>We're also going to expose a few functions that will be mainstays in our database program.</p>
+<pre><code class="language-c">Record record_init(uint16_t recordLen);
+void free_record(Record r);
+
+void free_record_desc(RecordDescriptor* rd);
+
+void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len);
+
+void fill_record(RecordDescriptor* rd, Record r, Datum* data);
+</code></pre>
+<p><code>record_init</code> and <code>free_record</code> are your basic allocator/free pair of functions.</p>
+<p><code>free_record_desc</code>. You're probably wondering why there's not allocator function to go with this one. It's because the allocator needs to have hard-coded values at this point, so it's going to be in <code>main.c</code> for now.</p>
+<p><code>construct_column_desc</code> is just a way to populate a <code>Column</code> object with the necessary metadata.</p>
+<p><code>fill_record</code> is the main serializer function. It takes your <code>Datum</code> array and serializes each column value according to the information it finds in the <code>RecordDescriptor</code>.</p>
+<h2 id="serializing-and-inserting-data">Serializing and Inserting Data</h2>
+<p>Quick warning before we get into the code. You might be confused by the way I'm organizing the code here - some of it is throwaway code I'm sticking in the <code>main.c</code> file knowing it'll be refactored or wholesale rewritten later, and other pieces serve as groundwork for the more permanent code. So if you find yourself asking "why is this function here instead of in <filename>?", just bear with me for a while. It'll be more organized down the road.</p>
+<p>Okay, so how do we use <code>RecordDescriptor</code>s and <code>Datum</code>s to turn our data into a table record? First, let's list the steps we need to take:</p>
+<ol>
+<li>Construct a <code>RecordDescriptor</code> for the table we want to insert our data into.</li>
+<li>Allocate a block of memory with the exact amount of space our data record needs. This is the landing zone for the serialized data.</li>
+<li>Allocate memory for a <code>Datum</code> array and fill it by converting our input data into <code>Datum</code>s.</li>
+<li>Serialize</li>
+<li>Insert</li>
+</ol>
+<h3 id="constructing-a-recorddescriptor">Constructing a RecordDescriptor</h3>
+<p>Since we're working with a hard-coded table, we can hard-code the contents of a <code>RecordDescriptor</code>:</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-c">static RecordDescriptor* construct_record_descriptor() {
+  RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (2 * sizeof(Column)));
+  rd-&gt;ncols = 2;
+
+  construct_column_desc(&amp;rd-&gt;cols[0], &quot;person_id&quot;, DT_INT, 0, 4);
+  construct_column_desc(&amp;rd-&gt;cols[1], &quot;name&quot;, DT_CHAR, 1, 20);
+
+  return rd;
+}
+</code></pre>
+<p>We start by allocating memory for the <code>RecordDescriptor</code> object. We are taking advantage of C's flexible array member pattern here. The struct definition includes a <code>Column</code> array without a defined size, which means we get to define its size at the same time we <code>malloc</code> the parent object. Everything after <code>sizeof(RecordDescriptor)</code> will be part of the <code>Column</code> array.</p>
+<p>The rest of the function is where we hard-code the table definition. We know there are two columns. We know <code>person_id</code> is a <code>DT_INT</code>, the 0th column, and consumes 4 bytes. Similarly, we know <code>name</code> is a <code>DT_CHAR</code>, the 1st column, and consumes 20 bytes.</p>
+<p>Note: since the <code>RecordDescriptor</code> contains a <code>Column</code> array, NOT a <code>Column*</code>, we need to <code>&amp;</code> the item in the array in order to pass the pointer to the function.</p>
+<p><code>src/storage/record/c</code></p>
+<pre><code class="language-c">void free_record_desc(RecordDescriptor* rd) {
+  for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+    if (rd-&gt;cols[i].colname != NULL) {
+      free(rd-&gt;cols[i].colname);
+    }
+  }
+  free(rd);
+}
+
+void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len) {
+  col-&gt;colname = strdup(colname);
+  col-&gt;dataType = type;
+  col-&gt;colnum = colnum;
+  col-&gt;len = len;
+}
+</code></pre>
+<p><code>free_record_desc</code> and <code>construct_column_desc</code> are a couple of those permanent functions that will stick with us until the end.</p>
+<p>Of course we always need to pair the allocator function with a matching free function. We loop through the column array and free the <code>char*</code> pointers if they're present; however, we DO NOT free each array item. This is because they were allocated by the code used to allocate the <code>RecordDescriptor</code>. When we free the <code>RecordDescriptor</code>, we also free the <code>Column</code> array.</p>
+<p><code>construct_column_desc</code> is just a utility that sets the <code>Column</code> struct values.</p>
+<h3 id="allocate-a-record">Allocate a Record</h3>
+<p>Next up, we need to allocate memory for the record. By the time our program gets to this point, it will have all the information it needs to determine the byte-length of the record it's going to serialize. So our allocator function asks for it as a function parameter:</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-c">Record record_init(uint16_t recordLen) {
+  Record r = malloc(recordLen);
+  memset(r, 0, recordLen);
+
+  return r;
+}
+
+void free_record(Record r) {
+  if (r != NULL) free(r);
+}
+</code></pre>
+<p>Almost identical to the functions that allocate/free memory for a <code>Page</code>.</p>
+<h3 id="the-datum-array-and-serializing-data">The Datum Array and Serializing Data</h3>
+<p>We have a primary driver function for serializing data, called <code>serialize_data</code>. It is responsible for creating and populating the <code>Datum</code> array and serializing the data. It is another throwaway function, so the functionality lives in <code>main.c</code> for now.</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-c">static void serialize_data(RecordDescriptor* rd, Record r, int32_t person_id, char* name) {
+  Datum* data = malloc(rd-&gt;ncols * sizeof(Datum));
+  populate_datum_array(data, person_id, name);
+  fill_record(rd, r + sizeof(RecordHeader), data);
+  free(data);
+}
+</code></pre>
+<p>Pretty simple, just four lines that make calls to other functions performing the hard work. It takes a <code>RecordDescriptor</code> and <code>Record</code> as input, so by now the caller must have both of those objects ready to go.</p>
+<p><code>populate_datum_array</code> is yet another throwaway function that simply converts our data values to <code>Datum</code> types and stashes them in the array.</p>
+<p>We'll cover <code>fill_record</code> below, but note the second input paramter. We're passing in <code>r + sizeof(RecordHeader)</code>. This function is going to copy our <code>Datum</code> data into the <code>Record</code> landing zone starting at the memory address we give it. Since we want the header data to stay as is, we need to give it the first writable address of that block of memory, hence <code>+ sizeof(RecordHeader)</code>.</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-c">static void populate_datum_array(Datum* data, int32_t person_id, char* name) {
+  data[0] = int32GetDatum(person_id);
+  data[1] = charGetDatum(name);
+}
+</code></pre>
+<p>Here we're simply converting <code>person_id</code> and <code>name</code> to <code>Datum</code> types and storing them in the array.</p>
+<p>Next we have the meat and potatoes: <code>fill_record</code>. This function is where the serialization takes place.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-c">void fill_record(RecordDescriptor* rd, Record r, Datum* data) {
+  for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+    Column* col = &amp;rd-&gt;cols[i];
+
+    fill_val(col, &amp;r, data[i]);
+  }
+}
+</code></pre>
+<p>It's actually pretty simple. We just loop through the <code>RecordDescriptor</code>'s <code>Column</code> array and call <code>fill_val</code>. <code>fill_val</code> on the other hand can get quite gnarly. Notice the second parameter; we pass in the address of a pointer - remember <code>Record</code> is just a <code>char*</code>. Why is that necessary? I'll explain below.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-c">static void fill_val(Column* col, char** dataP, Datum datum) {
+  int16_t dataLen;
+  char* data = *dataP;
+
+  switch (col-&gt;dataType) {
+    case DT_INT:
+      dataLen = 4;
+      int32_t valInt = datumGetInt32(datum);
+      memcpy(data, &amp;valInt, dataLen);
+      break;
+    case DT_CHAR:
+      dataLen = col-&gt;len;
+      char* str = strdup(datumGetString(datum));
+      int charLen = strlen(str);
+      if (charLen &gt; dataLen) charLen = dataLen;
+      memcpy(data, str, charLen);
+      free(str);
+      break;
+  }
+
+  data += dataLen;
+  *dataP = data;
+}
+</code></pre>
+<p>This is where we actually do the serializing. The interesting bit is handled in the <code>switch</code> block where we perform data type specific actions to deposit our raw data into the <code>Record</code> landing zone. But first, a note about the <code>char** dataP</code> parameter and the second line of the function: <code>char* data = *dataP</code>.</p>
+<p>Why do we pass in the memory address of a pointer, then immediately dereference it back to a pointer and store it in a different variable? In C, we pass parameters into functions <strong>by value</strong>, meaning if we take a pointer and perform some pointer arithmetic on it, e.g. <code>data += dataLen</code>, it will not persist when we return from the function. Sometimes we want that behavior, sometimes we don't. In this case, we definitely do not - we want the pointer arithmetic to persist.</p>
+<p>The obvious question then becomes "why do we want the pointer arithmetic to stick?" Because we call <code>fill_val</code> in a loop. Each iteration writes some data to the <code>Record</code> memory block and after we write something, we want to move the pointer to the next writable address. In our case, we first write the 4-byte <code>person_id</code> int to the <code>Record</code>. Now we want to move the pointer by 4 bytes so that the next call to <code>fill_val</code> doesn't overwrite our <code>person_id</code> data.</p>
+<p>Anyways, back to the serializer function. In the switch block we convert our <code>Datum</code> value back to its C-type, according to the info in the <code>Column</code> descriptor. Then we <code>memcpy</code> it into the <code>Record</code> landing zone. In the <code>DT_CHAR</code> case we have extra logic to truncate any strings that exceed the length defined in the <code>Column</code> descriptor. After that, we move the <code>Record</code> pointer forward by the number of bytes consumed by the data type.</p>
+<p>It might look weird that we convert our <code>person_id</code> and <code>name</code> values from their C-types into <code>Datum</code>s, then back to their C-types before copying them into the <code>Record</code>. But, remember a <code>Datum</code> is just an easy way to have a singular data type such that we can have an array containing multiple different types of data.</p>
+<h3 id="inserting-a-record">Inserting a Record</h3>
+<p>Now that the hard part is done, we get to tell our database to add the serialized <code>Record</code> to the data page. Our primary driver function (again, a throwaway piece of code):</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-c">#define RECORD_LEN  36  // 12-byte header + 4-byte Int + 20-byte Char(20)
+
+static bool insert_record(Page pg, int32_t person_id, char* name) {
+  RecordDescriptor* rd = construct_record_descriptor();
+  Record r = record_init(RECORD_LEN);
+  serialize_data(rd, r, person_id, name);
+  bool insertSuccessful = page_insert(pg, r, RECORD_LEN);
+
+  free_record_desc(rd);
+  free(r);
+
+  return insertSuccessful;
+}
+</code></pre>
+<p>We go through all of the steps mentioned above: construct a <code>RecordDescriptor</code>, allocate a <code>Record</code>, and serialize the data. Then we attempt to insert the record on the page. Also note the <code>RECORD_LEN</code> macro. Since we have the table hard-coded, we know exactly how many bytes each record will consume.</p>
+<p>The <code>page_insert</code> function is a permanent function, so we need to add it to the header file:</p>
+<p><code>src/include/storage/page.h</code></p>
+<pre><code class="language-diff"> void free_page(Page pg);
+
++bool page_insert(Page pg, Record data, uint16_t length);
++ 
+ Page read_page(int fd, uint32_t pageId);
+</code></pre>
+<p>And its definition:</p>
+<p><code>src/storage/page.c</code></p>
+<pre><code class="language-c">bool page_insert(Page pg, Record data, uint16_t length) {
+  int spaceRequired = length + sizeof(SlotPointer);
+  if (!page_has_space(pg, spaceRequired)) return false;
+
+  SlotPointer* sp = malloc(sizeof(SlotPointer));
+  sp-&gt;length = length;
+
+  /**
+   * Calculating the new record's offset position:
+   * PAGE_SIZE -
+   * SLOT_ARRAY_SIZE -
+   * `freeData`
+   */
+  int slotArraySize = ((PageHeader*)pg)-&gt;numRecords * sizeof(SlotPointer);
+  sp-&gt;offset = conf-&gt;pageSize - slotArraySize - ((PageHeader*)pg)-&gt;freeData;
+
+  /* copy the record data to the correct spot on the page */
+  memcpy(pg + sp-&gt;offset, data, length);
+
+  /* prepend the new slot pointer to the slot array */
+  int newSlotOffset = conf-&gt;pageSize - slotArraySize - sizeof(SlotPointer);
+  memcpy(pg + newSlotOffset, sp, sizeof(SlotPointer));
+
+  /* update header fields */
+  PageHeader* pgHdr = (PageHeader*)pg;
+  pgHdr-&gt;numRecords++;
+  pgHdr-&gt;freeBytes -= spaceRequired;
+  pgHdr-&gt;freeData = conf-&gt;pageSize - (slotArraySize + sizeof(SlotPointer)) - (sp-&gt;offset + length);
+
+  free(sp);
+
+  return true;
+}
+</code></pre>
+<p>The first thing we need to do is determine if the page has enough available space for a new record. The caller tells us how many bytes the data itself consumes with the <code>length</code> parameter. And since this code is responsible for maintaining the integrity of the <code>Page</code>, it knows that the true cost of inserting a new record also includes 4 bytes for an additional <code>SlotPointer</code>. Se we write a helper function to do this check for us:</p>
+<p><code>src/storage/page.c</code></p>
+<pre><code class="language-c">static bool page_has_space(Page pg, int length) {
+  int availableSpace = ((PageHeader*)pg)-&gt;freeData;
+  return availableSpace &gt;= length;
+}
+</code></pre>
+<p>We just check if the <code>freeData</code> header property is large enough for the new record and its slot pointer.</p>
+<p>If there is enough space on the page, we continue by allocating a new <code>SlotPointer</code> and setting its <code>length</code> property. Then we determine where on the page to write the new data record. We'll place it immediately after the last consumed byte on the page, whether that's the page header or another record, it makes no difference. In order to get our offset, we can start at the end of the page and work backwards. Using the global <code>pageSize</code>, we subtract the number of bytes consumed by the slot array, then we subtract the number of continuous, unused bytes between the slot array and the first claimed byte; that's our new record's location.</p>
+<p>After we <code>memcpy</code> the new record to the page, we need to prepend the new slot pointer to the slot array. This one is easy, it just goes 4 bytes before the beginning of the slot array.</p>
+<p>Finally, we need to update the page header to reflect the new data record. Of the header fields we're actually using right now, we increment <code>numRecords</code>, subtract <code>spaceRequired</code> from <code>freeBytes</code>, and calculate the size of the continuous block of data between the last data record and the slot array. Right now, <code>freeBytes</code> and <code>freeData</code> will always end up being the same value. Once we introduce <code>Update</code> statements, they will be able to diverge.</p>
+<p>After we insert the record, we free the slot pointer and return <code>true</code>.</p>
+<h2 id="lets-try-it-out">Let's Try It Out</h2>
+<p><code>src/main.c</code></p>
+<pre><code class="language-diff">     switch (n-&gt;type) {
+       case T_SysCmd:
+         if (strcmp(((SysCmd*)n)-&gt;cmd, &quot;quit&quot;) == 0) {
+           free_node(n);
+           printf(&quot;Shutting down...\n&quot;);
+           flush_page(fdesc-&gt;fd, pg);
+           free_page(pg);
+           file_close(fdesc);
+           return EXIT_SUCCESS;
+         }
++        break;
++      case T_InsertStmt:
++        int32_t person_id = ((InsertStmt*)n)-&gt;personId;
++        char* name = ((InsertStmt*)n)-&gt;name;
++        if (!insert_record(pg, person_id, name)) {
++          printf(&quot;Unable to insert record\n&quot;);
++        }
+     }
+</code></pre>
+<p><code>src/Makefile</code></p>
+<pre><code class="language-diff"> SRC_FILES = main.c \
+             parser/parse.c \
+             parser/parsetree.c \
+             global/config.c \
+             storage/file.c \
++            storage/page.c \
++            storage/record.c \
++            storage/datum.c
+</code></pre>
+<p>Now we can compile and run:</p>
+<pre><code class="language-shell">$ make &amp;&amp; ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+Bytes read: 0
+bql &gt; insert 69 'chris burke'
+bql &gt; \quit
+Shutting down...
+</code></pre>
+<p>(I removed the <code>print_node</code> output to reduce the noise shown here)</p>
+<p>Here I insert one record, then quit the program. Let's take a look at the contents of our data page:</p>
+<p>Command: <code>xxd db_files/main.dbd</code></p>
+<p><img alt="Data page with one record" src="../assets/one_record.png" /></p>
+<p>The green box is the 20-byte page header, which we covered earlier. Following that is 12-byte record header, of which we currently don't use any fields so it's not very interesting. Then in the red box we have the value for <code>person_id</code>. Remember these bytes are represented in hex code where every two characters in one byte. <code>person_id</code> is a 4-byte integer stored on a little endian machine, and 45 in hex translates to 69 in decimal - as expected.</p>
+<p>The orange (yellow?) box represents the <code>name</code> column. The hex values just correspond to ASCII codes, and the xxd command translates that to our alphabet on the right. You can see it's exactly what we wanted to insert. Notice the orange box on the left encompases a bunch of bytes after the end of the "chris burke" value. That's because our data type is a <code>Char(20)</code>, so it will consume 20 bytes on disk regardless of how much space the actual text needs.</p>
+<p>Lastly, the purple box is the slot array with a single item. The first two bytes represent the location of the data record on the page - 0x14 translates to 20, meaning the data record starts at byte 20. The next two bytes store the byte-length of its associated record. 0x24 translates to 36, which is exactly how many bytes our record consumes.</p>
+<p>Now let's try to insert two more records, which would exceed the size of our 128-byte data page.</p>
+<pre><code class="language-shell">$ ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; insert 669 'I am going to be longer than 20 characters'
+bql &gt; insert 99 'this should fail'
+Unable to insert record
+bql &gt; \quit
+Shutting down...
+</code></pre>
+<p>The first record I try to insert a value in the <code>name</code> column that exceeds the maximum length of a <code>Char(20)</code>. Then I try to insert a 3rd record, but it won't fit on the page so I get an error message.</p>
+<p>Let's take a look at the data page now:</p>
+<p><img alt="Data page with two records" src="../assets/two_records.png" /></p>
+<p>And we can indeed see that our code cut off everything after 20 characters for the <code>name</code> column.</p>
+<p>That wraps up the Data Persistence section. In the next section we'll add <code>select</code> support to our little CLI.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../07-parser-refactor-insert/" class="btn btn-neutral float-left" title="Parser Refactor - Insert"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../05-selecting-data/01-parser-refactor-select/" class="btn btn-neutral float-right" title="Parser Refactor - Select">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../07-parser-refactor-insert/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../05-selecting-data/01-parser-refactor-select/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

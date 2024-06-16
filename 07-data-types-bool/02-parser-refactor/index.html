@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/07-data-types-bool/02-parser-refactor/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Parser Refactor - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Parser Refactor";
+        var mkdocs_page_input_path = "07-data-types-bool/02-parser-refactor.md";
+        var mkdocs_page_url = "/burkeql-db/07-data-types-bool/02-parser-refactor/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Parser Refactor</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#lexer-update">Lexer Update</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#grammar-update">Grammar Update</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#parsetree">Parsetree</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">7. Data Types: Bool</li>
+      <li class="breadcrumb-item active">Parser Refactor</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/07-data-types-bool/02-parser-refactor.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="parser-refactor">Parser Refactor</h1>
+<p>Next up, we need to update our parser grammar to include the new columns in our insert statement. Remember, the table we're working with now is defined as:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    name Char(20) Not Null,
+    age TinyInt Not Null,
+    daily_steps SmallInt Not Null,
+    distance_from_home BigInt Not Null,
+    is_alive Bool Not Null
+);
+</code></pre>
+<p>Currently our insert statement syntax looks like this:</p>
+<pre><code class="language-shell">bql &gt; insert [person_id] '[name]' [age] [daily_steps] [distance_from_home];
+</code></pre>
+<p>We're going to change it to this:</p>
+<pre><code class="language-shell">bql &gt; insert [person_id] '[name]' [age] [daily_steps] [distance_from_home] [is_alive];
+</code></pre>
+<p>And fortunately, this type of change is very easy to make.</p>
+<h2 id="lexer-update">Lexer Update</h2>
+<p>This is something we did not have to do last time. We need to update our lexer to match the strings <code>True</code> and <code>False</code>. That way our grammar knows to set the <code>isAlive</code> property of the insert node to either 1 or 0. Even though we use a <code>uint8_t</code> C type, we don't want to allow its value to be anything other than 1 or 0.</p>
+<p><code>src/parser/scan.l</code></p>
+<pre><code class="language-diff">   /* keywords */
++FALSE     { return KW_FALSE; }
+
+ INSERT    { return INSERT; }
+
+ SELECT    { return SELECT; }
+
++TRUE      { return KW_TRUE; }
+</code></pre>
+<p>We match the literal strings "FALSE" and "TRUE" and return their associated tokens to bison.</p>
+<h2 id="grammar-update">Grammar Update</h2>
+<p><code>src/parser/gram.y</code></p>
+<pre><code class="language-diff"> %union {
+   char* str;
+   long long numval;
+
++  int i;
+
+   struct Node* node;
+   struct ParseList* list;
+ }
+</code></pre>
+<p>I'm adding an <code>int</code> to the union because I don't want to use a <code>long long</code> to represent random numbers here and there. In this case, an <code>int</code> will convert to a <code>uint8_t</code> just fine because we're constraining the values to 1 and 0.</p>
+<pre><code class="language-diff"> /* reserved keywords in alphabetical order */
++%token KW_FALSE
+
+ %token INSERT
+
+ %token SELECT
+
++%token KW_TRUE
+
+ %type &lt;node&gt; cmd stmt sys_cmd select_stmt insert_stmt target
+
+ %type &lt;list&gt; target_list
+
++%type &lt;i&gt; bool
+
+ %start query
+</code></pre>
+<p>We add our new tokens and a new type for the new grammar rule we're introducing below.</p>
+<pre><code class="language-diff">-insert_stmt: INSERT NUMBER STRING NUMBER NUMBER NUMBER  {
++insert_stmt: INSERT NUMBER STRING NUMBER NUMBER NUMBER bool  {
+       InsertStmt* ins = create_node(InsertStmt);
+       ins-&gt;personId = $2;
+       ins-&gt;name = str_strip_quotes($3);
+       ins-&gt;age = $4;
+       ins-&gt;dailySteps = $5;
+       ins-&gt;distanceFromHome = $6;
++      ins-&gt;isAlive = $7;
+       $$ = (Node*)ins;
+     }
+   ;
+
++bool: KW_FALSE {
++      $$ = 0;
++    }
++  | KW_TRUE {
++      $$ = 1;
++    }
++  ;
+</code></pre>
+<p>For the <code>insert_stmt</code> rule, we simply need to add the bool to the list the same way we added the ints last time. However, we define a new <code>bool</code> grammar rule that accepts either of the new tokens and sets their value to 1 or 0 accordingly.</p>
+<h2 id="parsetree">Parsetree</h2>
+<p>Next, we need to update our parsetree code.</p>
+<p><code>src/include/parser/parsetree.h</code></p>
+<pre><code class="language-diff"> typedef struct InsertStmt {
+   NodeTag type;
+   int32_t personId;
+   char* name;
+   uint8_t age;
+   int16_t dailySteps;
+   int64_t distanceFromHome;
++  uint8_t isAlive;
+ } InsertStmt;
+</code></pre>
+<p><code>src/parser/parsetree.c</code></p>
+<pre><code class="language-diff"> void print_node(Node* n) {
+   if (n == NULL) {
+     printf(&quot;print_node() | Node is NULL\n&quot;);
+     return;
+   }
+
+   printf(&quot;======  Node  ======\n&quot;);
+
+   switch (n-&gt;type) {
+     case T_SysCmd:
+       printf(&quot;=  Type: SysCmd\n&quot;);
+       printf(&quot;=  Cmd: %s\n&quot;, ((SysCmd*)n)-&gt;cmd);
+       break;
+     case T_InsertStmt:
+       printf(&quot;=  Type: Insert\n&quot;);
+       printf(&quot;=  person_id:           %d\n&quot;, ((InsertStmt*)n)-&gt;personId);
+       printf(&quot;=  name:                %s\n&quot;, ((InsertStmt*)n)-&gt;name);
+       printf(&quot;=  age:                 %u\n&quot;, ((InsertStmt*)n)-&gt;age);
+       printf(&quot;=  daily_steps:         %d\n&quot;, ((InsertStmt*)n)-&gt;dailySteps);
+       printf(&quot;=  distance_from_home:  %ld\n&quot;, ((InsertStmt*)n)-&gt;distanceFromHome);
++      printf(&quot;=  is_alive:            %u\n&quot;, ((InsertStmt*)n)-&gt;isAlive);
+       break;
+     case T_SelectStmt:
+       print_selectstmt((SelectStmt*)n);
+       break;
+     default:
+       printf(&quot;print_node() | unknown node type\n&quot;);
+   }
+ }
+</code></pre>
+<p>Updating the node printer to show the parsed <code>is_alive</code> value. I'm printing it as <code>%u</code> because I don't want to write the extra code to translate it to TRUE or FALSE.</p>
+<p>That ends the changes required in the parser. In the next section, we'll make updates to the actual insert functionality and finally be able to run some insert statements and test out our changes.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../01-hard-coded-table-refactor/" class="btn btn-neutral float-left" title="Hard-Coded Table Refactor"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../03-fill-and-defill/" class="btn btn-neutral float-right" title="Fill and Defill">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../01-hard-coded-table-refactor/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../03-fill-and-defill/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

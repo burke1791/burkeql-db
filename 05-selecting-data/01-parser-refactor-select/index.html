@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/05-selecting-data/01-parser-refactor-select/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Parser Refactor - Select - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Parser Refactor - Select";
+        var mkdocs_page_input_path = "05-selecting-data/01-parser-refactor-select.md";
+        var mkdocs_page_url = "/burkeql-db/05-selecting-data/01-parser-refactor-select/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Parser Refactor - Select</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#lexer">Lexer</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#grammar">Grammar</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#parsetree-header">Parsetree Header</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#parsetree-code">Parsetree Code</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-the-program">Running the Program</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">5. Selecting Data</li>
+      <li class="breadcrumb-item active">Parser Refactor - Select</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/05-selecting-data/01-parser-refactor-select.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="parser-refactor-select">Parser Refactor - Select</h1>
+<p>Now that we're able to insert data into our database, we need to add some functionality that can "Select" data back out. We'll start by defining our CLI syntax, then update the lexer/parser to support the new grammar, and finally we'll write the supporting code in our <code>parsetree</code> header and code files.</p>
+<p>The syntax will be pretty simple:</p>
+<p><code>bql &gt; select [colname], [colname], ... ;</code></p>
+<p>We look for the <code>SELECT</code> keyword, followed by a comma-separated list of columns we want to select, then ending with a semi-colon. The column names will not be surrounded by quotes - they'll be a class of lexer tokens called <code>IDENTIFIERS</code>.</p>
+<p>The list of columns can be as long as the user wants, so our parser needs to be smart enough to support a potentially infinite list. And because it can grow forever, we need to introduce a token that tells the parser it's time to stop: the semi-colon.</p>
+<h2 id="lexer">Lexer</h2>
+<p>Starting off simple, the lexer updates are pretty small. We need to add two new match patterns - one for the two punctuation characters, and another for identifiers.</p>
+<p><code>src/parser/scan.l</code></p>
+<pre><code class="language-diff">+  /* operators */
++[,;]   { return yytext[0]; }
+
+   /* strings */
+ '(\\.|''|[^'\n])*'  { yylval-&gt;str = strdup(yytext); return STRING; }
+
++  /* identifiers */
++[A-Za-z_][A-Za-z0-9_]*   { yylval-&gt;str = strdup(yytext); return IDENT; }
+</code></pre>
+<p>The comma and semi-colon are very straightforward - just those literal characters. Identifiers are also fairly simple. We want any alphanumeric text without whitespace as long as it doesn't begin with a number.</p>
+<p>Easy, right?</p>
+<h2 id="grammar">Grammar</h2>
+<p>Now let's check out the grammar changes.</p>
+<p><code>src/parser/gram.y</code></p>
+<pre><code class="language-diff"> %union {
+   char* str;
+   int intval;
+
+   struct Node* node;
++  struct ParseList* list;
+ }
+
+ %parse-param { struct Node** n }
+ %param { void* scanner }
+
+-%token &lt;str&gt; SYS_CMD STRING
++%token &lt;str&gt; SYS_CMD STRING IDENT
+
+ %token &lt;intval&gt; INTNUM
+
+ /* reserved keywords in alphabetical order */
+ %token INSERT
+
+ %token SELECT
+
+-%type &lt;node&gt; cmd stmt sys_cmd select_stmt insert_stmt
++%type &lt;node&gt; cmd stmt sys_cmd select_stmt insert_stmt target
++ 
++%type &lt;list&gt; target_list
+
+ %start query
+</code></pre>
+<p>We add a new <code>ParseList</code> struct to the union, which will enable us to make lists like the comma-separated list of columns our CLI will accept. We'll cover the details of the struct in the next section. We also need to add a new token for the identifiers our lexer is now able to match.</p>
+<p>And closing out the definitions section, we have two new grammar rules: <code>target</code> and <code>target_list</code>. As you can probably guess, the <code>target_list</code> is going to be a <code>ParseList</code> to <code>target</code>s.</p>
+<p><code>src/parser/gram.y</code></p>
+<pre><code class="language-diff">-cmd: stmt
++cmd: stmt ';'
+   | sys_cmd 
+   ;
+</code></pre>
+<p>At the top, we add the terminator semi-colon to the <code>cmd</code> rule when it follows a <code>stmt</code>. With this change we'll also need to end our insert statements with a semi-colon in order for the parser to correctly identify them. <code>sys_cmd</code>s will not need a semi-colon.</p>
+<p><code>src/parser/gram.y</code></p>
+<pre><code class="language-diff">-select_stmt: SELECT {
++select_stmt: SELECT target_list {
+-      printf(&quot;SELECT command received\n&quot;);
+-      $$ = NULL;
++      SelectStmt* s = create_node(SelectStmt);
++      s-&gt;targetList = $2;
++      $$ = (Node*)s;
++    }
++  ;
++
++target_list: target {
++      $$ = create_parselist($1);
++    }
++  | target_list ',' target {
++      $$ = parselist_append($1, $3);
++    }
++  ;
++
++target: IDENT {
++      ResTarget* r = create_node(ResTarget);
++      r-&gt;name = $1;
++      $$ = (Node*)r;
++    }
++  ;
+</code></pre>
+<p>Don't spend too much time worring about new structs/functions you see like <code>ResTarget</code> or <code>create_parselist</code> - I'll cover those below. Instead pay attention to how the grammar is written.</p>
+<p>Here we have refactored the syntax rules for our <code>select_stmt</code>. We still begin by looking for the <code>SELECT</code> keyword, but now we also require a <code>target_list</code>, which is exactly what it sounds like - a list of <code>targets</code>. Note the clever grammar definition we use here - a valid <code>target_list</code> is either a single <code>target</code> or a <code>target_list</code> followed by another <code>target</code>. This means bison can keep matching <code>target</code>s and appending them to the list until the cows come home (or flex sends a semi-colon).</p>
+<p>The <code>target</code> itself is just an <code>IDENT</code> token sent by flex, whose value we stuff into a <code>ResTarget</code> node.</p>
+<h2 id="parsetree-header">Parsetree Header</h2>
+<p>These updates to our parser require a fairly significant amount of new code in the <code>parsetree.c</code> file, but first let's go over the changes in the header file.</p>
+<p><code>src/include/parser/parsetree.h</code></p>
+<pre><code class="language-diff"> typedef enum NodeTag {
+   T_SysCmd,
+-  T_InsertStmt
++  T_InsertStmt,
++  T_SelectStmt,
++  T_ParseList,
++  T_ResTarget
+ } NodeTag;
+</code></pre>
+<p>We add three new node types to our library of nodes. The <code>SelectStmt</code>, which we knew was coming, the <code>ParseList</code>, and the <code>ResTarget</code>. The <code>ParseList</code> is just a generic list struct our parser will use to store anything we need to keep in a list. <code>ResTarget</code> - kind of short for "Result Target" is a node that stores information about the column our select statement is targeting.</p>
+<p><code>src/include/parser/parsetree.h</code></p>
+<pre><code class="language-diff"> typedef struct Node {
+   NodeTag type;
+ } Node;
+
++typedef struct ParseCell {
++  void* ptr;
++} ParseCell;
++
++typedef struct ParseList {
++  NodeTag type;
++  int length;
++  int maxLength;
++  ParseCell* elements;
++} ParseList;
++
+ typedef struct SysCmd {
+   NodeTag type;
+   char* cmd;
+ } SysCmd;
+</code></pre>
+<p>We add structs for the <code>ParseList</code>, which keeps an array of <code>ParseCell</code>s. Most often, we'll be using the <code>ParseCell</code> to store a <code>Node</code>, but we define its property to be a generic <code>void*</code> so that we can store whatever we want in it.</p>
+<p><code>src/include/parser/parsetree.h</code></p>
+<pre><code class="language-diff"> typedef struct InsertStmt {
+   NodeTag type;
+   int personId;
+   char* name;
+ } InsertStmt;
+
++typedef struct ResTarget {
++  NodeTag type;
++  char* name;
++} ResTarget;
++
++typedef struct SelectStmt {
++  NodeTag type;
++  ParseList* targetList;
++} SelectStmt;
+</code></pre>
+<p>Next, we define the <code>ResTarget</code> and <code>SelectStmt</code> nodes. As mentioned above, the <code>ResTarget</code> just stores the name of the column we're "select"ing. And the <code>SelectStmt</code> stores a list of <code>ResTarget</code>s.</p>
+<p><code>src/include/parser/parsetree.h</code></p>
+<pre><code class="language-diff">+#define parselist_make_ptr_cell(v)    ((ParseCell) {.ptr = (v)})
++
++#define create_parselist(li)   new_parselist(parselist_make_ptr_cell(li))
+
+ void free_node(Node* n);
+
+ void print_node(Node* n);
+
+ char* str_strip_quotes(char* str);
+
++ParseList* new_parselist(ParseCell li);
++void free_parselist(ParseList* l);
++ParseList* parselist_append(ParseList* l, void* cell);
+</code></pre>
+<p>Lastly, we have a couple new macros and a few new functions. Similar to the <code>create_node</code> macro, I wrote the <code>create_parselist</code> macro to simplify list creation. It takes anything as input and first creates a new <code>ParseList</code> of length 1, then it creates a <code>ParseCell</code> and stores whatever we passed in (<code>li</code>) in the <code>.ptr</code> field of <code>ParseCell</code> and populates the 1-length array with that <code>ParseCell</code>.</p>
+<p>Next up, we have three common "list" functions: the allocate/free function pair, and a function to append an item to the list.</p>
+<h2 id="parsetree-code">Parsetree Code</h2>
+<p>We have a lot of new code in this file, and it's boring code too, so bear with me.</p>
+<p><code>src/parser/parsetree.c</code></p>
+<pre><code class="language-diff">+ParseList* new_parselist(ParseCell li) {
++  ParseList* l = malloc(sizeof(ParseList));
++  ParseCell* elements = malloc(sizeof(ParseCell));
++  elements[0] = li;
++
++  l-&gt;type = T_ParseList;
++  l-&gt;length = 1;
++  l-&gt;maxLength = 1;
++  l-&gt;elements = elements;
++
++  return l;
++}
++
++void free_parselist(ParseList* l) {
++  if (l != NULL) {
++    for (int i = 0; i &lt; l-&gt;length; i++) {
++      if (&amp;(l-&gt;elements[i]) != NULL) {
++        free_node((Node*)l-&gt;elements[i].ptr);
++      }
++    }
++
++    free(l-&gt;elements);
++  }
++}
+</code></pre>
+<p>Starting with the allocator/free pair of functions. The allocator grabs enough memory for the list struct and a list with a single item - the <code>ParseCell</code> input parameter. We populate the first item of the list and set the list metadata fields. Remember, a <code>ParseList</code> is also a <code>Node</code>, so it needs to have a valid <code>NodeTag</code> in its <code>type</code> property.</p>
+<p>The free function is standard list free logic. We loop through the elements array and call <code>free_node</code> on the <code>.ptr</code> of each <code>ParseCell</code>.</p>
+<p><code>src/parser/parsetree.c</code></p>
+<pre><code class="language-diff">+static inline ParseCell* parselist_last_cell(const ParseList* l) {
++   return &amp;l-&gt;elements[l-&gt;length];
++}
++
++#define lcptr(lc)  ((lc)-&gt;ptr)
++#define llast(l)  lcptr(parselist_last_cell(l))
++
++ParseList* parselist_append(ParseList* l, void* cell) {
++  if (l-&gt;length &gt;= l-&gt;maxLength) {
++    enlarge_list(l);
++  }
++
++  llast(l) = cell;
++
++  l-&gt;length++;
++
++  return l;
++}
++
++static void enlarge_list(ParseList* list) {
++  if (list == NULL) {
++    printf(&quot;ERROR: list is empty!\n&quot;);
++    exit(EXIT_FAILURE);
++  } else {
++    if (list-&gt;elements == NULL) {
++      list-&gt;elements = malloc(sizeof(ParseCell));
++    } else {
++      list-&gt;elements = realloc(list-&gt;elements, (list-&gt;length + 1) * sizeof(ParseCell));
++    }
++
++    list-&gt;maxLength++;
++  }
++}
+</code></pre>
+<p>The <code>parselist_last_cell</code> and two macros might look confusing, but it's just an easy way to set the last element in a list.</p>
+<p>Our append function grows the list if necessary, then sets the last cell of the list to the <code>void* cell</code> input parameter. The <code>enlarge_list</code> function will grow the list by 1 each time it's called, using the handy <code>realloc</code> function.</p>
+<p>Now let's write the free functions for our two new node types:</p>
+<p><code>src/parser/parsetree.c</code></p>
+<pre><code class="language-diff">+static void free_insert_stmt(InsertStmt* ins) {
++  if (ins == NULL) return;
++
++  if (ins-&gt;name != NULL) free(ins-&gt;name);
++}
++
++static void free_selectstmt(SelectStmt* s) {
++  if (s == NULL) return;
++
++  if (s-&gt;targetList != NULL) {
++    free_parselist(s-&gt;targetList);
++    free(s-&gt;targetList);
++  }
++}
+</code></pre>
+<p>Pretty straightforward, simply call <code>free()</code> on anything that needs to be free'd.</p>
+<p>Next, we'll add a few switch/case branches in the big <code>free_node</code> function:</p>
+<p><code>src/parser/parsetree.c</code></p>
+<pre><code class="language-diff"> void free_node(Node* n) {
+   if (n == NULL) return;
+
+   switch (n-&gt;type) {
+     case T_SysCmd:
+       free_syscmd((SysCmd*)n);
+       break;
+     case T_InsertStmt:
+       free_insert_stmt((InsertStmt*)n);
+       break;
++    case T_SelectStmt:
++      free_selectstmt((SelectStmt*)n);
++      break;
++    case T_ParseList:
++      free_parselist((ParseList*)n);
++      break;
++    case T_ResTarget:
++      free_restarget((ResTarget*)n);
++      break;
+     default:
+       printf(&quot;Unknown node type\n&quot;);
+   }
+
+   free(n);
+ }
+</code></pre>
+<p>Nothing interesting to see here either.</p>
+<p>The last thing we need to do is write <code>print_</code> functions for the new nodes:</p>
+<p><code>src/parser/parsetree.c</code></p>
+<pre><code class="language-diff">+static void print_restarget(ResTarget* r) {
++  printf(&quot;%s&quot;, r-&gt;name);
++}
++
++static void print_selectstmt(SelectStmt* s) {
++  printf(&quot;=  Type: Select\n&quot;);
++  printf(&quot;=  Targets:\n&quot;);
++
++  if (s-&gt;targetList == NULL || s-&gt;targetList-&gt;length == 0) {
++    printf(&quot;=    (none)\n&quot;);
++    return;
++  }
++
++  for (int i = 0; i &lt; s-&gt;targetList-&gt;length; i++) {
++    printf(&quot;=    &quot;);
++    print_restarget((ResTarget*)s-&gt;targetList-&gt;elements[i].ptr);
++    printf(&quot;\n&quot;);
++  }
++}
++
+ void print_node(Node* n) {
+   if (n == NULL) {
+     printf(&quot;print_node() | Node is NULL\n&quot;);
+     return;
+   }
+
+   printf(&quot;======  Node  ======\n&quot;);
+
+   switch (n-&gt;type) {
+     case T_SysCmd:
+       printf(&quot;=  Type: SysCmd\n&quot;);
+       printf(&quot;=  Cmd: %s\n&quot;, ((SysCmd*)n)-&gt;cmd);
+       break;
+     case T_InsertStmt:
+       printf(&quot;=  Type: Insert\n&quot;);
+       printf(&quot;=  person_id: %d\n&quot;, ((InsertStmt*)n)-&gt;personId);
+       printf(&quot;=  name:      %s\n&quot;, ((InsertStmt*)n)-&gt;name);
+       break;
++    case T_SelectStmt:
++      print_selectstmt((SelectStmt*)n);
++      break;
+     default:
+       printf(&quot;print_node() | unknown node type\n&quot;);
+   }
+ }
+</code></pre>
+<p>Again, not particularly interesting. But at least we're done writing code. Let's run the program and see how we did.</p>
+<h2 id="running-the-program">Running the Program</h2>
+<pre><code class="language-shell">$ make &amp;&amp; ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; select foo, bar, baz;
+======  Node  ======
+=  Type: Select
+=  Targets:
+=    foo
+=    bar
+=    baz
+bql &gt;
+</code></pre>
+<p>And our parser was able to parse each of our target columns as expected.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../04-data-persistence/08-serializing-and-inserting-data/" class="btn btn-neutral float-left" title="Serializing and Inserting Data"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../02-the-sql-analyzer/" class="btn btn-neutral float-right" title="The SQL Analyzer">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../04-data-persistence/08-serializing-and-inserting-data/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../02-the-sql-analyzer/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

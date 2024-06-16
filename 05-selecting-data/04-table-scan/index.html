@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/05-selecting-data/04-table-scan/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Table Scan - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Table Scan";
+        var mkdocs_page_input_path = "05-selecting-data/04-table-scan.md";
+        var mkdocs_page_url = "/burkeql-db/05-selecting-data/04-table-scan/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Table Scan</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#table-access-method">Table Access Method</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#table-scan-function">Table Scan Function</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#recordset">RecordSet</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#defill_record">defill_record</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">5. Selecting Data</li>
+      <li class="breadcrumb-item active">Table Scan</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/05-selecting-data/04-table-scan.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="table-scan">Table Scan</h1>
+<p>We're able to insert data into our database, but that's effectively useless if we don't have any way to read it back out. Our parser can handle basic select statements, so now we need to write the code that reads through a table's data pages and returns an organized list or row/column data.</p>
+<p>We're going to start out super basic and implement a full table scan. That's where our engine starts at the data page and reads all data rows until it runs out of pages. So what information does our table scan function need to do its job?</p>
+<p>For starters, it needs a pointer to the <code>BufPool</code> so that it can request data pages be read into memory. It will also need a <code>RecordDescriptor</code> about the table its scanning so that it can correctly parse the bytes stored in each row. And lastly, it needs somewhere to dump the parsed data - we'll be using a doubly linked list.</p>
+<p>Fair warning: we're going to be writing a lot of code and it's going to be all over the place.</p>
+<h2 id="table-access-method">Table Access Method</h2>
+<p>With this new table scan functionality, I am starting a new folder for files containing "access" methods. I.e. since we're scanning a table is a way of "accessing" its data, so the code belongs to the "access" section of the codebase.</p>
+<p><code>src/include/access/tableam.h</code></p>
+<pre><code class="language-c">#include &quot;storage/table.h&quot;
+#include &quot;buffer/bufpool.h&quot;
+#include &quot;utility/linkedlist.h&quot;
+
+void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows);
+</code></pre>
+<p>Pretty basic stuff here. No structs, just a single function for now. As mentioned above, our table scan method needs access to the buffer pool, metadata about the table and its contents (<code>TableDesc</code>), and a landing zone for the data it reads from the data pages.</p>
+<p>Now, what the hell is a <code>TableDesc</code>?</p>
+<p><code>src/include/storage/table.h</code></p>
+<pre><code class="language-c">#include &quot;storage/record.h&quot;
+
+typedef struct TableDesc {
+  char* tablename;
+  RecordDescriptor* rd;
+} TableDesc;
+
+TableDesc* new_tabledesc(char* tablename);
+
+void free_tabledesc(TableDesc* td);
+</code></pre>
+<p>It's just a <code>RecordDescriptor</code> that also contains the table's name. In this header file, we also define the standard allocator/free pair of functions. Let's get them out of the way real quick:</p>
+<p><code>src/storage/table.c</code></p>
+<pre><code class="language-c">TableDesc* new_tabledesc(char* tablename) {
+  TableDesc* td = malloc(sizeof(TableDesc));
+  td-&gt;tablename = tablename;
+  td-&gt;rd = NULL;
+
+  return td;
+}
+
+void free_tabledesc(TableDesc* td) {
+  if (td == NULL) return;
+
+  // if (td-&gt;tablename != NULL) free(td-&gt;tablename);
+  if (td-&gt;rd != NULL) free_record_desc(td-&gt;rd);
+  free(td);
+}
+</code></pre>
+<p>Again, these are pretty standard memory management functions. Right now I have that line commented out in the <code>free_tabledesc</code> function because our table is hard-coded. Meaning when we create a new <code>TableDesc</code>, the <code>tablename</code> parameter is hard-coded in our source code, i.e. not <code>malloc</code>'d, so there is nothing to free. Later on, when we support more than one table, this will get uncommented.</p>
+<p>Alright, back to the table scan function. The third, and last, parameter is a <code>LinkedList</code>. Let's check it out:</p>
+<p><code>src/include/utility/linkedlist.h</code></p>
+<pre><code class="language-c">#pragma pack(push, 1) /* disabling memory alignment because I don't want to deal with it */
+typedef struct ListItem {
+  void* ptr;
+  struct ListItem* prev;
+  struct ListItem* next;
+} ListItem;
+
+typedef struct LinkedList {
+  int numItems;
+  ListItem* head;
+  ListItem* tail;
+} LinkedList;
+
+LinkedList* new_linkedlist();
+void free_linkedlist(LinkedList* l);
+
+void linkedlist_append(LinkedList* l, void* ptr);
+</code></pre>
+<p>This is a standard linked list implementation. We store previous and next pointers in each <code>ListItem</code>, and the head and tail of the list in the <code>LinkedList</code> struct. We also have the allocator and free functions, along with an append function. We currently don't need a <code>delete_item</code> function, so I didn't write one. And I am disabling memory alignment on the <code>ListItem</code> because we store <code>Datum</code> arrays in this list and I got a lot of read access errors. The <code>#pragma</code> here gets rid of those. A reminder, I am not an expert at C - just stupid enough to get something working.</p>
+<p>Anyways, let's look at how the linked list is implemented:</p>
+<p><code>src/utility/linkedlist.c</code></p>
+<pre><code class="language-c">LinkedList* new_linkedlist() {
+  LinkedList* l = malloc(sizeof(LinkedList));
+  l-&gt;numItems = 0;
+  l-&gt;head = NULL;
+  l-&gt;tail = NULL;
+
+  return l;
+}
+
+void free_linkedlist(LinkedList* l) {
+  if (l == NULL) return;
+
+  if (l-&gt;head != NULL) {
+    ListItem* li = l-&gt;head;
+    while (li != NULL) {
+      ListItem* curr = li;
+      li = curr-&gt;next;
+      free(curr);
+    }
+  }
+
+  free(l);
+}
+
+void linkedlist_append(LinkedList* l, void* ptr) {
+  if (l == NULL) {
+    printf(&quot;Error: tried to append to a NULL LinkedList&quot;);
+    return;
+  }
+
+  ListItem* new = malloc(sizeof(ListItem));
+  new-&gt;ptr = ptr;
+  new-&gt;next = NULL;
+  new-&gt;prev = NULL;
+
+  if (l-&gt;numItems == 0) {
+    l-&gt;head = new;
+  } else {
+    ListItem* tail = l-&gt;tail;
+    tail-&gt;next = new;
+    new-&gt;prev = tail;
+  }
+
+  l-&gt;tail = new;
+  l-&gt;numItems++;
+}
+</code></pre>
+<p>The allocator is pretty basic - just initializing its properties. The free function loops through the entire list and frees the memory it has consumed. <strong>Super Important Note</strong>: since this is a generic linked list, the caller is responsible for freeing whatever is stored in the <code>ListItem-&gt;ptr</code> memory blocks before calling <code>free_linkedlist</code>.</p>
+<p>The append function is also pretty standard. We just create a new <code>ListItem</code> and add it to the end of the list, updating the linking chain as needed.</p>
+<p>Okay, that takes care of everything we need to know about the inputs to our table scan function. Now let's take a look at the function itself.</p>
+<h2 id="table-scan-function">Table Scan Function</h2>
+<p><code>src/access/tableam.c</code></p>
+<pre><code class="language-c">extern Config* conf;
+
+void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows) {
+  BufPoolSlot* slot = bufpool_read_page(bp, 1);
+
+  while (slot != NULL) {
+    PageHeader* pgHdr = (PageHeader*)slot-&gt;pg;
+    int numRecords = pgHdr-&gt;numRecords;
+
+    for (int i = 0; i &lt; numRecords; i++) {
+      RecordSetRow* row = new_recordset_row(td-&gt;rd-&gt;ncols);
+      int slotPointerOffset = conf-&gt;pageSize - (sizeof(SlotPointer) * (i + 1));
+      SlotPointer* sp = (SlotPointer*)(slot-&gt;pg + slotPointerOffset);
+      defill_record(td-&gt;rd, slot-&gt;pg + sp-&gt;offset, row-&gt;values);
+      linkedlist_append(rows, row);
+    }
+
+    slot = bufpool_read_page(bp, pgHdr-&gt;nextPageId);
+  }
+}
+</code></pre>
+<p>The basic workflow of a table scan is as follows:</p>
+<ol>
+<li>Request the first page of the table from the buffer pool</li>
+<li>Determine the number or records on the page from the header field <code>numRecords</code></li>
+<li>Loop through the slot array, finding the location of each record</li>
+<li>Extract the data from each record (<code>defill_record</code>) into a <code>Datum</code> array</li>
+<li>Append the <code>Datum</code> array to the <code>rows</code> linked list</li>
+<li>Repeat until we hit the last page in the table</li>
+</ol>
+<p>At the top, we request <code>pageId</code> 1 from the buffer pool - this is hard-coded right now, but will change when we support multiple tables. Then we enter a loop that continues until we hit the end of the data pages for our table.</p>
+<p>Inside the <code>while</code> loop, we grab the number of records from the header, which is also how many slot pointers there are in the slot array. From here, we loop through each record and extract each column into a <code>Datum</code> array via <code>defill_record</code> and then append it to our results linked list.</p>
+<h3 id="recordset">RecordSet</h3>
+<p>Let's dive in to some of the new code, starting with the new <code>RecordSetRow</code> data type:</p>
+<p><code>src/include/resultset/recordset.h</code></p>
+<pre><code class="language-c">#include &quot;storage/record.h&quot;
+#include &quot;utility/linkedlist.h&quot;
+
+typedef struct RecordSetRow {
+  Datum* values;
+} RecordSetRow;
+
+typedef struct RecordSet {
+  LinkedList* rows;
+} RecordSet;
+
+RecordSet* new_recordset();
+void free_recordset(RecordSet* rs, RecordDescriptor* rd);
+
+RecordSetRow* new_recordset_row(int ncols);
+void free_recordset_row(RecordSetRow* row, RecordDescriptor* rd);
+</code></pre>
+<p>Two structs, and their associated allocator/free functions. Right now, <code>RecordSet</code> might seem like a pointless wrapper around a <code>LinkedList</code>, but it will become more complex and necessary as our program evolves. Same thing goes for the <code>RecordSetRow</code>. And as you can probably guess, the linked list in <code>RecordSet</code> will be filled with <code>RecordSetRow</code> items as we scan the table data.</p>
+<p>The free functions here need to take a <code>RecordDescriptor</code> as input because they'll be responsible for freeing each <code>Datum</code> inside the <code>Datum</code> array. And in order to do so, we need to know what kinds of data are stored in the <code>Datum</code> array.</p>
+<p><code>src/resultset/recordset.c</code></p>
+<pre><code class="language-c">RecordSet* new_recordset() {
+  RecordSet* rs = malloc(sizeof(RecordSet));
+  rs-&gt;rows = NULL;
+
+  return rs;
+}
+
+static void free_recordset_row_columns(RecordSetRow* row, RecordDescriptor* rd) {
+  for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+    if (rd-&gt;cols[i].dataType == DT_CHAR) {
+      free((void*)row-&gt;values[i]);
+    }
+  }
+}
+
+static void free_recordset_row_list(LinkedList* rows, RecordDescriptor* rd) {
+  ListItem* li = rows-&gt;head;
+
+  while (li != NULL) {
+    free_recordset_row((RecordSetRow*)li-&gt;ptr, rd);
+    li = li-&gt;next;
+  }
+}
+
+void free_recordset(RecordSet* rs, RecordDescriptor* rd) {
+  if (rs == NULL) return;
+
+  if (rs-&gt;rows != NULL) {
+    free_recordset_row_list(rs-&gt;rows, rd);
+    free_linkedlist(rs-&gt;rows);
+  }
+
+  free(rs);
+}
+
+RecordSetRow* new_recordset_row(int ncols) {
+  RecordSetRow* row = malloc(sizeof(RecordSetRow));
+  row-&gt;values = malloc(ncols * sizeof(Datum));
+  return row;
+}
+
+void free_recordset_row(RecordSetRow* row, RecordDescriptor* rd) {
+  if (row-&gt;values != NULL) {
+    free_recordset_row_columns(row, rd);
+    free(row-&gt;values);
+  }
+  free(row);
+}
+</code></pre>
+<p>And here's the code for our <code>RecordSet</code> structs. Nothing too complex is going on here - just allocating memory and freeing memory as needed. The only noteworthy function is <code>free_recordset_row_columns</code>. This is where we use the information stored in the <code>RecordDescriptor</code> to free data inside the <code>Datum</code> array. Basic types like ints do not need to be free'd, but <code>char*</code>'s do. So we loop through the column metadata and call <code>free</code> on any <code>DT_CHAR</code> data types in the <code>Datum</code> array.</p>
+<h3 id="defill_record">defill_record</h3>
+<p>Now, let's continue along our table scan function. Right now we're inside the <code>for</code> loop and we've just allocated a new <code>RecordSetRow</code>. Here's the relevant section for reference:</p>
+<p><code>src/access/tableam.c</code> (<code>tableam_fullscan()</code>)</p>
+<pre><code class="language-c">    for (int i = 0; i &lt; numRecords; i++) {
+      RecordSetRow* row = new_recordset_row(td-&gt;rd-&gt;ncols);
+      int slotPointerOffset = conf-&gt;pageSize - (sizeof(SlotPointer) * (i + 1));
+      SlotPointer* sp = (SlotPointer*)(slot-&gt;pg + slotPointerOffset);
+      defill_record(td-&gt;rd, slot-&gt;pg + sp-&gt;offset, row-&gt;values);
+      linkedlist_append(rows, row);
+    }
+</code></pre>
+<p>Our next step is to grab the next <code>SlotPointer</code>. Remember, the slot array grows from the end of the page towards the beginning. So, the first slot pointer is the very last 4 bytes on the page, the next one is the 4 bytes preceeding it, and so on. We can get the byte position by using this formula: <code>conf-&gt;pageSize - (sizeof(SlotPointer) * (i + 1))</code>. Once we have its location, we can create a <code>SlotPointer*</code> object for easy reference.</p>
+<p>Now, we call the workhorse of our table scan method. <code>defill_record</code> uses the information in the <code>RecordDescriptor</code> and marches through the bytes where the data record are stored and extracts them into the <code>Datum</code> array we give to it.</p>
+<p>We define <code>defill_record</code> in the same place we defined <code>fill_record</code>.</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-diff"> void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len);
+
+ void fill_record(RecordDescriptor* rd, Record r, Datum* data);
++void defill_record(RecordDescriptor* rd, Record r, Datum* values);
+
+ #endif /* RECORD_H */
+</code></pre>
+<p>And here's the code:</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff">+void defill_record(RecordDescriptor* rd, Record r, Datum* values) {
++  int offset = sizeof(RecordHeader);
++  for (int i = 0; i &lt; rd-&gt;ncols; i++) {
++    Column* col = &amp;rd-&gt;cols[i];
++    values[i] = record_get_col_value(col, r, &amp;offset);
++  }
++}
+</code></pre>
+<p>Pretty simple, right? We loop through the columns in our <code>RecordDescriptor</code> and extract each column's value, via a static helper function, into the <code>Datum</code> array. Note that we're passing <code>&amp;offset</code> into the helper function. We want <code>offset</code> to change as we progress through the loop, so we need to pass in the address of the variable if we want the inner function to be able to perform persistent operations on its value.</p>
+<p>I should mention right now we COULD just perform <code>offset += col-&gt;len;</code> at the end of the for loop and be good. However, this method will not work when we get to variable-length columns. The <code>Column</code> object in the <code>RecordDescriptor</code> won't be able to store those lengths because they could be different for each row. The only way to find the length of those columns is to dig further into the <code>Record</code> data, which happens inside these helper functions. Thus, we make them responsible for incrementing <code>offset</code>.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff">+static Datum record_get_col_value(Column* col, Record r, int* offset) {
++  switch (col-&gt;dataType) {
++    case DT_INT:
++      return record_get_int(r, offset);
++    case DT_CHAR:
++      return record_get_char(r, offset, col-&gt;len);
++    default:
++      printf(&quot;record_get_col_value() | Unknown data type!\n&quot;);
++      return (Datum)NULL;
++  }
++}
+</code></pre>
+<p>This function is a wrapper around type-specific data extraction. As you can imagine, we'll be adding more case statements to this function as we expand our list of supported data types.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff">+static Datum record_get_int(Record r, int* offset) {
++  int32_t intVal;
++  memcpy(&amp;intVal, r + *offset, 4);
++  *offset += 4;
++  return int32GetDatum(intVal);
++}
++
++static Datum record_get_char(Record r, int* offset, int charLen) {
++  char* pChar = malloc(charLen + 1);
++  memcpy(pChar, r + *offset, charLen);
++  pChar[charLen] = '\0';
++  *offset += charLen;
++  return charGetDatum(pChar);
++}
+</code></pre>
+<p>And here is where we do the actual data extraction. We create a variable of the correct data type, then <code>memcpy</code> the contents of the <code>Record</code> into that variable. Increment <code>offset</code> by dereferencing it, then return the <code>Datum</code> representation of the value.</p>
+<p>We have additional complexity for the <code>record_get_char</code> function. When we insert <code>DT_CHAR</code> data, we only store the relevant characters - we DO NOT store the null terminator. So when we extract the value, we need to <code>malloc(charLen + 1)</code> to make sure there's enough memory to append the null terminator to the end of the string.</p>
+<p>And that's all the code we need to perform a table scan on our table. Unfortunately, it's not enough to get our program to do anything useful just yet. I feel like this section has gone on long enough, so we'll round out the whole process in the next section.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../03-buffer-pool/" class="btn btn-neutral float-left" title="Buffer Pool"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../05-displaying-results/" class="btn btn-neutral float-right" title="Displaying Results">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../03-buffer-pool/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../05-displaying-results/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

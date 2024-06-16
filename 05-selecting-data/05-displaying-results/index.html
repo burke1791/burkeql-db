@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/05-selecting-data/05-displaying-results/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Displaying Results - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Displaying Results";
+        var mkdocs_page_input_path = "05-selecting-data/05-displaying-results.md";
+        var mkdocs_page_url = "/burkeql-db/05-selecting-data/05-displaying-results/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Displaying Results</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#resultset-header">Resultset Header</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#resultset-print-code">Resultset Print Code</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#updating-main">Updating Main</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-the-program">Running The Program</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">5. Selecting Data</li>
+      <li class="breadcrumb-item active">Displaying Results</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/05-selecting-data/05-displaying-results.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="displaying-results">Displaying Results</h1>
+<p>In this section, we're going to write the code that parses through the data returned by the table scan function and displays them in a pretty way on the terminal. Something like this:</p>
+<pre><code class="language-shell">$ make &amp;&amp; ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; select person_id, name;
+======  Node  ======
+=  Type: Select
+=  Targets:
+=    person_id
+=    name
+--------
+*** Rows: 2
+--------
+|person_id |name         |
+--------------------------
+|        69|chris burke  |
+|        77|hello, world |
+(Rows: 2)
+
+bql &gt;
+</code></pre>
+<p>When we run <code>select person_id, name;</code>, the "backend" performs the table scan and hands the data back to the "frontend". We then parse through everything and determine how wide each column needs to be in order for the tabular format to look pretty.</p>
+<h2 id="resultset-header">Resultset Header</h2>
+<p><code>src/include/resultset/resultset_print.h</code></p>
+<pre><code class="language-c">#ifndef RESULTSET_PRINT_H
+#define RESULTSET_PRINT_H
+
+#include &quot;resultset/recordset.h&quot;
+
+void resultset_print(RecordDescriptor* rd, RecordSet* rs, RecordDescriptor* targets);
+
+#endif /* RESULTSET_PRINT_H */
+</code></pre>
+<p>I created a dedicated header file for outputting query results to the console. Right now it just has a single function that encapsulates all the work required to pretty-print our results. We send it a <code>RecordDescriptor* rd</code> that describes all columns in our table, a <code>RecordSet* rs</code> that contains all of the data brought back by the table scan, and a <code>RecordDescriptor* targets</code> that has an entry for each column we want to display.</p>
+<p>Remember, the table scan function pull back all columns regardless of what our select statement says it wants. So we need this additional <code>RecordDescriptor</code> to tell the print function exactly what we want displayed. It also works the other way, e.g. if we run <code>select person_id, name, person_id, name;</code>, the print function will know it needs to display each column twice.</p>
+<h2 id="resultset-print-code">Resultset Print Code</h2>
+<p>This is a rather long file, so bear with me.</p>
+<p><code>src/resultset/resultset_print.c</code></p>
+<pre><code class="language-c">void resultset_print(RecordDescriptor* rd, RecordSet* rs, RecordDescriptor* targets) {
+  printf(&quot;--------\n&quot;);
+  printf(&quot;*** Rows: %d\n&quot;, rs-&gt;rows-&gt;numItems);
+  printf(&quot;--------\n&quot;);
+
+  if (rs-&gt;rows-&gt;numItems == 0) return;
+
+  int* widths = malloc(sizeof(int) * rd-&gt;ncols);
+  compute_column_widths(rd, rs, widths);
+  print_column_headers(rd, targets, widths);
+
+  ListItem* row = rs-&gt;rows-&gt;head;
+  while (row != NULL) {
+    printf(&quot;|&quot;);
+    Datum* values = (Datum*)(((RecordSetRow*)row-&gt;ptr)-&gt;values);
+    for (int i = 0; i &lt; targets-&gt;ncols; i++) {
+      int colIndex = get_col_index(rd, targets-&gt;cols[i].colname);
+      Column* col = &amp;rd-&gt;cols[colIndex];
+
+      switch (col-&gt;dataType) {
+        case DT_INT:
+          print_cell_num(col-&gt;dataType, values[colIndex], widths[colIndex]);
+          break;
+        case DT_CHAR:
+          print_cell_with_padding(datumGetString(values[colIndex]), widths[colIndex], false);
+          break;
+        default:
+          printf(&quot;resultset_print() | Unknown data type\n&quot;);
+      }
+    }
+    printf(&quot;\n&quot;);
+    row = row-&gt;next;
+  }
+
+  printf(&quot;(Rows: %d)\n\n&quot;, rs-&gt;rows-&gt;numItems);
+
+  free(widths);
+}
+</code></pre>
+<p>Starting with the function we expose in the header file, we print a little row count header at the top. And if there aren't any rows to display, we return early.</p>
+<p>Next we allocate memory for an int array with an entry for each column in our table. Then we offload the computation of those widths to our helper function <code>compute_column_widths</code>:</p>
+<p><code>src/resultset/resultset_print.c</code></p>
+<pre><code class="language-c">static void compute_column_widths(RecordDescriptor* rd, RecordSet* rs, int* widths) {
+  int maxLen;
+
+  for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+    maxLen = strlen(rd-&gt;cols[i].colname);
+    Column* col = &amp;rd-&gt;cols[i];
+    ListItem* row = rs-&gt;rows-&gt;head;
+
+    while (row != NULL) {
+      int len;
+      RecordSetRow* data = (RecordSetRow*)row-&gt;ptr;
+
+      switch (col-&gt;dataType) {
+        case DT_INT:
+          len = num_digits(datumGetInt32(data-&gt;values[i]));
+          break;
+        case DT_CHAR:
+          len = strlen(datumGetString(data-&gt;values[i]));
+          break;
+        default:
+          printf(&quot;compute_column_widths() | Unknown data type\n&quot;);
+      }
+
+      if (len &gt; maxLen) maxLen = len;
+      row = row-&gt;next;
+    }
+
+    widths[i] = maxLen + 1;
+  }
+}
+</code></pre>
+<p>In this function, we have a nested loop that calculates the largest width for a given column across all rows. It adds 1 to the <code>maxLen</code> and sets the value in our <code>widths</code> array. The reason for the additional padding is just so the table display doesn't feel to congested.</p>
+<p>For <code>DT_INT</code>, we calculate the number of digits to get the maxLen, and for <code>DT_CHAR</code> we use the built in <code>strlen</code> function. The <code>num_digits</code> function is defined as follows:</p>
+<p><code>src/resultset/resultset_print.c</code></p>
+<pre><code class="language-c">static int num_digits(int64_t num) {
+  if (num &lt; 0) return num_digits(-num) + 1; // extra '1' is to account for the negative sign in the display
+  if (num &lt; 10) return 1;
+  return 1 + num_digits(num / 10);
+}
+</code></pre>
+<p>Pretty basic recursive function where we add 1 each time we divide the number by 10.</p>
+<p>Now back to the primary print function. After we compute the column widths, we call <code>print_column_headers</code>:</p>
+<p><code>src/resultset/resultset_print.c</code></p>
+<pre><code class="language-c">static void print_column_headers(RecordDescriptor* rd, RecordDescriptor* rs, int* widths) {
+  printf(&quot;|&quot;);
+
+  int totalWidth = 1;
+  for (int i = 0; i &lt; rs-&gt;ncols; i++) {
+    int colIndex = get_col_index(rd, rs-&gt;cols[i].colname);
+    print_cell_with_padding(rs-&gt;cols[i].colname, widths[colIndex], false);
+    totalWidth += (widths[colIndex] + 1);
+  }
+
+  printf(&quot;\n&quot;);
+
+  for (int i = 0; i &lt; totalWidth; i++) {
+    printf(&quot;-&quot;);
+  }
+  printf(&quot;\n&quot;);
+}
+</code></pre>
+<p>We pass in the <code>RecordDescriptor</code> for the table, the <code>RecordDescriptor</code> for our target list, and the widths array. We start by printing the column boundary "pipe" character, then we loop through the columns in our target list. Based on the <code>colname</code> of the <strong>target</strong> column, we find its location in the <code>RecordDescriptor</code> for the table, which is also the same array index in the widths array. Using this information, we make a call to <code>print_cell_with_padding</code> to output our column name and update our <code>totalWidth</code> tracker.</p>
+<p>Finally at the end, we print a horizontal row of dashes to separate our column headers from the row data.</p>
+<p>Let's take a look at the two helper functions we used in printing out the column headers:</p>
+<p><code>src/resultset/resultset_print.c</code></p>
+<pre><code class="language-c">static int get_col_index(RecordDescriptor* rd, char* name) {
+  for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+    if (strcasecmp(rd-&gt;cols[i].colname, name) == 0) return rd-&gt;cols[i].colnum;
+  }
+
+  return -1;
+}
+</code></pre>
+<p>We loop through the table's <code>RecordDescriptor</code> and just do a basic case-insensitive string comparison to find the correct column index.</p>
+<pre><code class="language-c">static void print_cell_with_padding(char* cell, int cellWidth, bool isRightAligned) {
+  int padLen = cellWidth - strlen(cell);
+
+  if (padLen &lt; 0) {
+    printf(&quot;\npadLen: %d\ncellWidth: %d\n valWidth: %ld\n&quot;, padLen, cellWidth, strlen(cell));
+    return;
+  }
+
+  if (padLen == 0) {
+    printf(&quot;%s|&quot;, cell);
+  } else if (isRightAligned) {
+    printf(&quot;%*s%s|&quot;, padLen, &quot; &quot;, cell);
+  } else {
+    printf(&quot;%s%*s|&quot;, cell, padLen, &quot; &quot;);
+  }
+}
+</code></pre>
+<p>And here we compute how much padding we need by subtracting the <code>strlen</code> of the value we want to print from the previously computed <code>cellWidth</code>. If it's less than zero, we print a sort of error message. If there's no padding, we print the value as-is and immediately follow it with a column divider.</p>
+<p>Next, we check if the caller wants the value right-aligned. This just determines whether we print the padding on the left or right side of the value. And instead of using a loop to print the padding, we use a clever trick of <code>printf</code>. The <code>%*s</code> will print <code>n</code> number of <code>s</code>. So in the right-align branch, we print <code>%*s%s</code>, meaning we print <code>padLen</code> number of <code>" "</code> (space characters) followed by the value of <code>cell</code>.</p>
+<p>Now, continuing along our primary print function, we enter the looping mechanism that goes row-by-row and prints out each column we declare in our target list. Here's the loop code for reference:</p>
+<p><code>src/resultset/resultset_print.c</code> (<code>resultset_print()</code>)</p>
+<pre><code class="language-c">  ListItem* row = rs-&gt;rows-&gt;head;
+  while (row != NULL) {
+    printf(&quot;|&quot;);
+    Datum* values = (Datum*)(((RecordSetRow*)row-&gt;ptr)-&gt;values);
+    for (int i = 0; i &lt; targets-&gt;ncols; i++) {
+      int colIndex = get_col_index(rd, targets-&gt;cols[i].colname);
+      Column* col = &amp;rd-&gt;cols[colIndex];
+
+      switch (col-&gt;dataType) {
+        case DT_INT:
+          print_cell_num(col-&gt;dataType, values[colIndex], widths[colIndex]);
+          break;
+        case DT_CHAR:
+          print_cell_with_padding(datumGetString(values[colIndex]), widths[colIndex], false);
+          break;
+        default:
+          printf(&quot;resultset_print() | Unknown data type\n&quot;);
+      }
+    }
+    printf(&quot;\n&quot;);
+    row = row-&gt;next;
+  }
+</code></pre>
+<p>We start at the head of the linked list containing our data and extract the <code>Datum</code> array from the <code>ListItem</code>. Then we loop over each column in our target list and print out the corresponding value. For <code>DT_CHAR</code>, we can simply call the same function we went over above, but for <code>DT_INT</code> we need another helper function.</p>
+<p><code>src/resultset/resultset_print.c</code></p>
+<pre><code class="language-c">static void print_cell_num(DataType dt, Datum d, int width) {
+  int numDigits;
+  char* cell;
+
+  switch (dt) {
+    case DT_INT:
+      numDigits = num_digits(datumGetInt32(d));
+      cell = malloc(numDigits + 1);
+      sprintf(cell, &quot;%d&quot;, datumGetInt32(d));
+      break;
+  }
+
+  cell[numDigits] = '\0';
+  print_cell_with_padding(cell, width, true);
+
+  if (cell != NULL) free(cell);
+}
+</code></pre>
+<p>Here we simply compute the number of digits, turn the number into a <code>char*</code>, then call <code>print_cell_with_padding</code>.</p>
+<h2 id="updating-main">Updating Main</h2>
+<p>We've covered all the code required to print our query results to the console, now let's update <code>main.c</code> and run the program.</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-diff"> #include &quot;gram.tab.h&quot;
+ #include &quot;parser/parsetree.h&quot;
+ #include &quot;parser/parse.h&quot;
+ #include &quot;global/config.h&quot;
+ #include &quot;storage/file.h&quot;
+ #include &quot;storage/page.h&quot;
++#include &quot;storage/table.h&quot;
+ #include &quot;buffer/bufpool.h&quot;
++#include &quot;storage/table.h&quot;
++#include &quot;resultset/recordset.h&quot;
++#include &quot;resultset/resultset_print.h&quot;
++#include &quot;access/tableam.h&quot;
++#include &quot;utility/linkedlist.h&quot;
+
+*** code removed for brevity ***
+
++static RecordDescriptor* construct_record_descriptor_from_target_list(ParseList* targetList) {
++  RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (targetList-&gt;length * sizeof(Column)));
++  rd-&gt;ncols = targetList-&gt;length;
++
++  for (int i = 0; i &lt; rd-&gt;ncols; i++) {
++    ResTarget* t = (ResTarget*)targetList-&gt;elements[i].ptr;
++
++    // we don't care about the data type or length here
++    construct_column_desc(&amp;rd-&gt;cols[i], t-&gt;name, DT_UNKNOWN, i, 0);
++  }
++
++  return rd;
++}
+</code></pre>
+<p>Starting with a bunch of new include statements and this brand new function in our "temporary" section of code. We loop through the list of select targets generated by the parser and create a <code>RecordDescriptor</code> for use elsewhere. Notice we're supplying <code>DT_UNKNOWN</code> to the column constructor. It's because the data type in these column structs is irrelevant - in reality, we're just shoehorning the <code>RecordDescriptor</code> into a role it's not meant to play. But it's good enough for now.</p>
+<p>We need to add the new data type to the <code>DataType</code> enum:</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-diff"> typedef enum DataType {
+   DT_INT,     /* 4-bytes, signed */
+   DT_CHAR,    /* Byte-size defined at table creation */
++  DT_UNKNOWN
+ } DataType;
+</code></pre>
+<p>And finally, we have the logic that kicks off the select query:</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-diff">     switch (n-&gt;type) {
+       case T_SysCmd:
+         if (strcmp(((SysCmd*)n)-&gt;cmd, &quot;quit&quot;) == 0) {
+           free_node(n);
+           printf(&quot;Shutting down...\n&quot;);
+           bufpool_flush_all(bp);
+           bufpool_destroy(bp);
+           file_close(fdesc);
+           return EXIT_SUCCESS;
+         }
+         break;
+       case T_InsertStmt:
+         int32_t person_id = ((InsertStmt*)n)-&gt;personId;
+         char* name = ((InsertStmt*)n)-&gt;name;
+         if (!insert_record(bp, person_id, name)) {
+           printf(&quot;Unable to insert record\n&quot;);
+         }
+         break;
+       case T_SelectStmt:
+         if (!analyze_node(n)) {
+           printf(&quot;Semantic analysis failed\n&quot;);
++        } else {
++          TableDesc* td = new_tabledesc(&quot;person&quot;);
++          td-&gt;rd = construct_record_descriptor();
++          RecordSet* rs = new_recordset();
++          rs-&gt;rows = new_linkedlist();
++          RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)-&gt;targetList);
++          
++          tableam_fullscan(bp, td, rs-&gt;rows);
++          resultset_print(td-&gt;rd, rs, targets);
++
++          free_recordset(rs, td-&gt;rd);
++          free_tabledesc(td);
++          free_record_desc(targets);
++        }
+         break;
+     }
+</code></pre>
+<p>Essentially, if the analyzer says we're good, we run a full table scan. We start by allocating a <code>TableDesc</code>, a <code>RecordSet</code>, and a <code>RecordDescriptor</code> of our target list. Then we pass them to our table scan and print functions to take care of the heavy lifting. After that, we free up the memory we no longer need.</p>
+<p>Lastly, we need to update our <code>Makefile</code>:</p>
+<p><code>src/Makefile</code></p>
+<pre><code class="language-diff">SRC_FILES = main.c \
+            parser/parse.c \
+            parser/parsetree.c \
+            global/config.c \
+            storage/file.c \
+            storage/page.c \
+            storage/record.c \
+            storage/datum.c \
+-           buffer/bufpool.c \                        
++           storage/table.c \
++           buffer/bufpool.c \
++           access/tableam.c \
++           resultset/recordset.c \
++           resultset/resultset_print.c \
++           utility/linkedlist.c
+</code></pre>
+<p>Note the red line for <code>bufpool.c</code> is just because we moved it to a different location - it's still in the list.</p>
+<h2 id="running-the-program">Running The Program</h2>
+<p>I'm starting with a brand new database file by deleting the existing one (if necessary). Run</p>
+<pre><code class="language-shell">$ rm db_files/main.dbd
+$ make clean &amp;&amp; make &amp;&amp; ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; insert 69 'chris burke';
+Bytes read: 0
+bql &gt; insert 123456789 'Large number';
+bql &gt; select person_id, name;
+--------
+*** Rows: 2
+--------
+|person_id |name         |
+--------------------------
+|        69|chris burke  |
+| 123456789|Large number |
+(Rows: 2)
+
+bql &gt;
+</code></pre>
+<p>I removed the node outputs to reduce the noise in the console display. After startup, I insert two records then run a select on both columns, which shows exactly what we expect in the tabular form. What if we select the columns more than once?</p>
+<pre><code class="language-shell">bql &gt; select person_id, name, PERSON_ID, NAME;
+--------
+*** Rows: 2
+--------
+|person_id |name         |PERSON_ID |NAME         |
+---------------------------------------------------
+|        69|chris burke  |        69|chris burke  |
+| 123456789|Large number | 123456789|Large number |
+(Rows: 2)
+
+bql &gt;
+</code></pre>
+<p>We get all of our target columns displayed to us - even the headers preserve the casing we used in our select statement.</p>
+<p>That wraps up this section. In the next section we're going to start expanding the data types we support - starting with the <code>Int</code> class.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../04-table-scan/" class="btn btn-neutral float-left" title="Table Scan"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../06-data-types-ints/01-hard-coded-table-refactor/" class="btn btn-neutral float-right" title="Hard-Coded Table Refactor">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../04-table-scan/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../06-data-types-ints/01-hard-coded-table-refactor/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

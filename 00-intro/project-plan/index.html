@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/00-intro/project-plan/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Project Roadmap - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Project Roadmap";
+        var mkdocs_page_input_path = "00-intro/project-plan.md";
+        var mkdocs_page_url = "/burkeql-db/00-intro/project-plan/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Project Roadmap</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#milestones">Milestones</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-plan">The Plan</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#basic-cli-complete">Basic CLI (COMPLETE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#abstract-syntax-trees-complete">Abstract Syntax Trees (COMPLETE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-database-page-complete">The Database Page (COMPLETE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-persistence-complete">Data Persistence (COMPLETE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#selecting-data-complete">Selecting Data (COMPLETE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-type-ints-complete">Data Type - Ints (COMPLETE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-type-bool-complete">Data Type - Bool (COMPLETE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-type-varchar-complete">Data Type - Varchar (COMPLETE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-constraint-nulls-in-progress">Data Constraint - NULLs (in progress)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#page-splits-planned">Page Splits (planned)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#system-catalog-_tables-planned">System Catalog - _tables (planned)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#system-catalog-_columns-planned">System Catalog - _columns (planned)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#analyzer-planned">Analyzer (planned)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bql-select-from-planned">BQL - Select From (planned)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bql-create-table-planned">BQL - Create Table (planned)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bql-insert-into-planned">BQL - Insert Into (planned)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bql-update-planned">BQL - Update (planned)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bql-delete-planned">BQL - Delete (planned)</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Project Roadmap</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/00-intro/project-plan.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="burkeql-project-roadmap">BurkeQL - Project Roadmap</h1>
+<p>This page contains an outline of my plan for this project. It's really meant to serve as a scratchpad for me to organize my thoughts. Please ignore any notes that don't make sense, I probably just forgot to delete/move them.</p>
+<h2 id="milestones">Milestones</h2>
+<table>
+<thead>
+<tr>
+<th>Milestone</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Basic SQL Parser</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>Data Persistence</td>
+<td>In Progress</td>
+</tr>
+<tr>
+<td>System Catalogs</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>BQL DML</td>
+<td>Planned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-plan">The Plan</h2>
+<p>What follows is basically a table of contents for this tutorial/blog series. I list all sections I've completed, as well as future sections I have planned, and any associated notes.</p>
+<h3 id="basic-cli-complete">Basic CLI (COMPLETE)</h3>
+<p>Writing an extremely basic cli with an extremely basic input parser.</p>
+<p>Github branch: <a href="https://github.com/burke1791/burkeql-db/tree/basic-cli">basic-cli</a></p>
+<ol>
+<li><a href="../../01-basic-cli/intro">Intro</a></li>
+<li><a href="../../01-basic-cli/flex">Flex</a></li>
+<li><a href="../../01-basic-cli/bison">Bison</a></li>
+<li><a href="../../01-basic-cli/putting-it-together">Putting It Together</a></li>
+</ol>
+<h3 id="abstract-syntax-trees-complete">Abstract Syntax Trees (COMPLETE)</h3>
+<p>Introduce ASTs to the parser.</p>
+<p>Github branch: <a href="https://github.com/burke1791/burkeql-db/tree/ast">ast</a></p>
+<ol>
+<li><a href="../../02-ast/intro">Intro</a></li>
+<li><a href="../../02-ast/ast-interface">AST Interface</a></li>
+<li><a href="../../02-ast/ast-implementation">AST Implementation</a></li>
+<li><a href="../../02-ast/parser-refactor">Parser Refactor</a></li>
+<li><a href="../../02-ast/parser-interface">Parser Interface</a></li>
+<li><a href="../../02-ast/putting-it-together">Putting It Together</a></li>
+</ol>
+<h3 id="the-database-page-complete">The Database Page (COMPLETE)</h3>
+<p>This section is entirely conceptual - there will be zero code written.</p>
+<p>Discussion about how data are organized on disk. Also touch on how different DBMS's do things slightly different from one another.</p>
+<ol>
+<li><a href="../../03-db-page/page-structure">Page Structure</a></li>
+</ol>
+<h3 id="data-persistence-complete">Data Persistence (COMPLETE)</h3>
+<p>Start storing data on disk. Using a hard-coded table definition:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    name Char(20) Not Null
+);
+</code></pre>
+<ul>
+<li>Every insert is immediately persisted to disk</li>
+<li>Talk about the buffer pool? Probably not</li>
+<li>Only a single data page allowed - throw error if page is full</li>
+<li>Page splits implemented in a later section</li>
+<li>Select statement also deferred - will be inspecting data pages using <code>xxd</code></li>
+</ul>
+<hr />
+<ol>
+<li><a href="../../04-data-persistence/01-intro">Intro</a></li>
+<li><a href="../../04-data-persistence/02-config-file">Config File</a></li>
+<li><a href="../../04-data-persistence/03-loading-config">Loading Config</a></li>
+<li><a href="../../04-data-persistence/04-file-interface">DB File Interface</a></li>
+<li><a href="../../04-data-persistence/05-page-interface">DB Page Interface</a></li>
+<li><a href="../../04-data-persistence/06-page-implementation">DB Page Implementation</a></li>
+<li><a href="../../04-data-persistence/07-parser-refactor-insert">Parser Refactor - Insert</a></li>
+<li><a href="../../04-data-persistence/08-serializing-and-inserting-data">Serializing and Inserting Data</a></li>
+</ol>
+<h3 id="selecting-data-complete">Selecting Data (COMPLETE)</h3>
+<ul>
+<li>Updating the parser to support selecting data from the table</li>
+<li>MAYBE introduce the analyzer</li>
+<li>Implement basic table scan</li>
+<li>RecordDescriptor</li>
+<li>Datum construct</li>
+</ul>
+<hr />
+<ol>
+<li><a href="../../05-selecting-data/01-parser-refactor-select">Parser Refactor - Select</a></li>
+<li><a href="../../05-selecting-data/02-the-sql-analyzer">The SQL Analyzer</a></li>
+<li><a href="../../05-selecting-data/03-buffer-pool">Buffer Pool</a> </li>
+<li><a href="../../05-selecting-data/04-table-scan">Table Scan</a></li>
+<li><a href="../../05-selecting-data/05-displaying-results">Displaying Results</a></li>
+</ol>
+<h3 id="data-type-ints-complete">Data Type - Ints (COMPLETE)</h3>
+<ul>
+<li>Write functions to support all of the <code>Int</code> class data types:<ul>
+<li>TinyInt</li>
+<li>SmallInt</li>
+<li>Int</li>
+<li>BigInt</li>
+</ul>
+</li>
+</ul>
+<p>Use a new hard-coded table:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    name Char(20) Not Null,
+    age TinyInt Not Null,
+    daily_steps SmallInt Not Null,
+    distance_from_home BigInt Not Null
+);
+</code></pre>
+<ol>
+<li><a href="../../06-data-types-ints/01-hard-coded-table-refactor">Hard-Coded Table Refactor</a></li>
+<li><a href="../../06-data-types-ints/02-parser-refactor">Parser Refactor</a></li>
+<li><a href="../../06-data-types-ints/03-fill-and-defill">Fill and Defill</a></li>
+<li><a href="../../06-data-types-ints/04-select-updates">Select Updates</a></li>
+</ol>
+<h3 id="data-type-bool-complete">Data Type - Bool (COMPLETE)</h3>
+<ul>
+<li>1-byte</li>
+<li>Essentially a TinyInt, but can only be 1 or 0 so requires extra code</li>
+</ul>
+<p>Hard-coded table:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    name Char(20) Not Null,
+    age TinyInt Not Null,
+    daily_steps SmallInt Not Null,
+    distance_from_home BigInt Not Null,
+    is_alive Bool Not Null
+);
+</code></pre>
+<ol>
+<li><a href="../../07-data-types-bool/01-hard-coded-table-refactor">Hard-Coded Table Refactor</a></li>
+<li><a href="../../07-data-types-bool/02-parser-refactor">Parser Refactor</a></li>
+<li><a href="../../07-data-types-bool/03-fill-and-defill">Fill and Defill</a></li>
+<li><a href="../../07-data-types-bool/04-select-updates">Select Updates</a></li>
+</ol>
+<h3 id="data-type-varchar-complete">Data Type - Varchar (COMPLETE)</h3>
+<ul>
+<li>2-byte variable length overhead</li>
+<li>talk about how column order in the create statement can differ from how the engine stores columns on disk</li>
+</ul>
+<p>Hard-coded table:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    first_name Varchar(20) Not Null,
+    last_name Varchar(20) Not Null,
+    age Int Not Null
+);
+</code></pre>
+<ol>
+<li><a href="../../08-data-types-varchar/01-intro">Intro</a></li>
+<li><a href="../../08-data-types-varchar/02-storage-and-fill">Storage and Fill</a></li>
+<li><a href="../../08-data-types-varchar/03-temporary-code-refactor">Temporary Code Refactor</a></li>
+<li><a href="../../08-data-types-varchar/04-inserting-data">Inserting Data</a></li>
+<li><a href="../../08-data-types-varchar/05-defill-and-display">Defill and Display</a></li>
+</ol>
+<h3 id="data-constraint-nulls-in-progress">Data Constraint - NULLs (in progress)</h3>
+<ul>
+<li>Introduce the Null bitmap and explain why it's important</li>
+<li>Implement the Null bitmap</li>
+</ul>
+<p>Hard-coded table:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    first_name Varchar(20) Null,
+    last_name Varchar(20) Not Null,
+    age Int Null
+);
+</code></pre>
+<ol>
+<li><a href="../../09-data-constraint-null/01-intro">Intro</a></li>
+<li><a href="../../09-data-constraint-null/02-parser-refactor">Parser Refactor</a></li>
+<li><a href="../../09-data-constraint-null/03-writing-data">Writing Data</a></li>
+<li><a href="../../09-data-constraint-null/04-reading-data">Reading Data</a></li>
+</ol>
+<h3 id="page-splits-planned">Page Splits (planned)</h3>
+<ul>
+<li>Create a new page when an insert won't fit on an existing page</li>
+<li>Page metadata functionality - linked list in the header fields</li>
+<li>Because tables are heaps, we will loop through all existing pages until we find one that has enough space</li>
+<li>Introduce buffer tags and fully flesh out the buffer pool (except for locks)</li>
+</ul>
+<h3 id="system-catalog-_tables-planned">System Catalog - _tables (planned)</h3>
+<ul>
+<li>Introduce the concept of the system catalog</li>
+<li>Global values<ul>
+<li><code>object_id</code></li>
+<li><code>page_id</code>?</li>
+</ul>
+</li>
+<li>Implement the <code>_tables</code> system catalog</li>
+<li>Check for the existence of the system catalogs on boot</li>
+<li>Populate the <code>_tables</code> table on startup of a new database</li>
+</ul>
+<h3 id="system-catalog-_columns-planned">System Catalog - _columns (planned)</h3>
+<ul>
+<li>Same as above, but for columns</li>
+<li>Refactor the retrieval code to use system catalogs for grabbing RecordDescriptors</li>
+</ul>
+<h3 id="analyzer-planned">Analyzer (planned)</h3>
+<h3 id="bql-select-from-planned">BQL - Select From (planned)</h3>
+<h3 id="bql-create-table-planned">BQL - Create Table (planned)</h3>
+<h3 id="bql-insert-into-planned">BQL - Insert Into (planned)</h3>
+<h3 id="bql-update-planned">BQL - Update (planned)</h3>
+<h3 id="bql-delete-planned">BQL - Delete (planned)</h3>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../.." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../01-basic-cli/intro/" class="btn btn-neutral float-right" title="Intro">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../01-basic-cli/intro/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

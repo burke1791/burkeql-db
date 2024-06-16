@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/08-data-types-varchar/02-storage-and-fill/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Storage and Fill - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Storage and Fill";
+        var mkdocs_page_input_path = "08-data-types-varchar/02-storage-and-fill.md";
+        var mkdocs_page_url = "/burkeql-db/08-data-types-varchar/02-storage-and-fill/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Storage and Fill</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#storage-engine">Storage Engine</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#fill">Fill</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">8. Data Types: Varchar</li>
+      <li class="breadcrumb-item active">Storage and Fill</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/08-data-types-varchar/02-storage-and-fill.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="storage-and-fill">Storage and Fill</h1>
+<p>As has been the case for each new data type, we need to change the definition of the table we're working with. For this <code>Varchar</code> section, our table looks like this:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    first_name Varchar(20) Not Null,
+    last_name Varchar(20) Not Null,
+    age Int Not Null
+);
+</code></pre>
+<p>The only purpose of that <code>age</code> column is to demonstrate how the storage engine physically stores fixed-length columns before variable-length columns. But more on that later.</p>
+<p>Fortunately, we don't have to refactor the code too much in order to support Varchars, but there is some nuance to the <code>fill</code> and <code>defill</code> logic that might take a bit to wrap your head around. We'll get to that later though.</p>
+<h2 id="storage-engine">Storage Engine</h2>
+<p>First up, we start with the simple changes: supporting a new data type.</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-diff"> typedef enum DataType {
+   DT_TINYINT,     /* 1-byte, unsigned */
+   DT_SMALLINT,    /* 2-bytes, signed */
+   DT_INT,         /* 4-bytes, signed */
+   DT_BIGINT,      /* 8-bytes, signed */
+   DT_BOOL,        /* 1-byte, unsigned | similar to DT_TINYINT, but always evaluates to 1 or 0 */
+   DT_CHAR,        /* Byte-size defined at table creation */
++  DT_VARCHAR,     /* Variable length. A 2-byte &quot;header&quot; stores the length of the column
++                     followed by the actual column bytes */
+   DT_UNKNOWN
+ } DataType;
+</code></pre>
+<p>Next, since our storage engine separates the column data into two sections: fixed-length and variable-length, we need to add some metadata to support that downstream logic.</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-diff"> typedef struct RecordDescriptor {
+   int ncols;        /* number of columns (defined by the Create Table DDL) */
++  int nfixed;       /* number of fixed-length columns */
+   Column cols[];
+ } RecordDescriptor;
+</code></pre>
+<p>We add a property to the <code>RecordDescriptor</code> to keep track of the number of fixed-length columns in the record. Since this struct is passed all over the place in the storage engine, we'll be able to use it to accurately read and write column data in the correct spot.</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-diff">-void fill_record(RecordDescriptor* rd, Record r, Datum* data);
++void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen);
+</code></pre>
+<p>We also need to change the definition of the <code>fill_record</code> function to support the two different sections in the physical record structure. Since we need to write all fixed-length data first, then write the variable-length data, it'll be easier to work with them in separate variables.</p>
+<h2 id="fill">Fill</h2>
+<p>Let's step through the <code>fill_record</code> function and refactor the code as needed. Since separating fixed-length and variable-length columns is such a fundamental change, the <code>fill_record</code> function is going to be a complete rewrite. So I'm not providing a diff.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-c">void fill_record(RecordDescriptor* rd, Record r, Datum* fixed, Datum* varlen) {
+  // fill fixed-length columns
+  for (int i = 0; i &lt; rd-&gt;nfixed; i++) {
+    Column* col = get_nth_col(rd, true, i);
+
+    fill_val(col, &amp;r, fixed[i]);
+  }
+
+  // fill varlen columns
+  for (int i = 0; i &lt; (rd-&gt;ncols - rd-&gt;nfixed); i++) {
+    Column* col = get_nth_col(rd, false, i);
+
+    fill_val(col, &amp;r, varlen[i]);
+  }
+}
+</code></pre>
+<p>The logic inside each for loop is pretty much the same, but now we have two loops. First, we write the fixed-length columns to the record, then we write the variable-length columns. And because the columns in the <code>RecordDescriptor</code> can be in a different order than the storage engine writes them, we need a helper function get us the correct <code>Column</code> from the <code>RecordDescriptor</code>.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-c">static Column* get_nth_col(RecordDescriptor* rd, bool isFixed, int n) {
+  int nCol = 0;
+
+  for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+    if (rd-&gt;cols[i].dataType == DT_VARCHAR) {
+      // column is variable-length
+      if (!isFixed &amp;&amp; nCol == n) return &amp;rd-&gt;cols[i];
+      if (!isFixed) nCol++;
+    } else {
+      // column is fixed length
+      if (isFixed &amp;&amp; nCol == n) return &amp;rd-&gt;cols[i];
+      if (isFixed) nCol++;
+    }
+  }
+
+  return NULL;
+}
+</code></pre>
+<p>This function is fairly straightforward. We just loop through the <code>RecordDescriptor</code>'s <code>Column</code> array and return the <code>n</code>th column according to the <code>isFixed</code> parameter. Although pretty simple, this function is crucial to reconciling the different physical ordering of columns compared to the order in the <code>Create Table</code> statement.</p>
+<p>Next, let's step into <code>fill_val</code>.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff"> static void fill_val(Column* col, char** dataP, Datum datum) {
+   int16_t dataLen;
+   char* data = *dataP;
+
+   switch (col-&gt;dataType) {
+
+*** code omitted for brevity ***
+
+       free(str);
+       break;
++    case DT_VARCHAR:
++      fill_varchar(col, data, &amp;dataLen, datum);
++      break;
+   }
+
+   data += dataLen;
+   *dataP = data;
+ }
+</code></pre>
+<p>We just need to add a new <code>case</code> to the switch/case block and call our new <code>fill_varchar</code> function (defined below).</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-c">static void fill_varchar(Column* col, char* data, int16_t* dataLen, Datum value) {
+  int16_t charLen = strlen(datumGetString(value));
+  if (charLen &gt; col-&gt;len) charLen = col-&gt;len;
+  charLen += 2; // account for the 2-byte length overhead
+
+  // write the 2-byte length overhead
+  memcpy(data, &amp;charLen, 2);
+
+  // write the actual data
+  memcpy(data + 2, datumGetString(value), charLen - 2);
+  *dataLen = charLen;
+}
+</code></pre>
+<p>This logic is pretty similar to the <code>DT_CHAR</code> case, except we need to also write the 2-byte length overhead directly before the column data itself. And remember, the length overhead also includes the 2-byte length of itself, hence the <code>charLen += 2;</code> statement.</p>
+<p>And that does it for the "fill" part of the storage engine. Next, we'll muddle through the tedious task of updating our temporary code - we are so close to ditching the temp code for good!</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../01-intro/" class="btn btn-neutral float-left" title="Intro"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../03-temporary-code-refactor/" class="btn btn-neutral float-right" title="Temporary Code Refactor">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../01-intro/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../03-temporary-code-refactor/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

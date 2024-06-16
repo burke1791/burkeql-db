@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/09-data-constraint-null/04-reading-data/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Reading Data - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Reading Data";
+        var mkdocs_page_input_path = "09-data-constraint-null/04-reading-data.md";
+        var mkdocs_page_url = "/burkeql-db/09-data-constraint-null/04-reading-data/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Reading Data</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#recorddescriptor">RecordDescriptor</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#recordset">RecordSet</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#defill_record">defill_record</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#col_isnull-examples">col_isnull examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#col_isnull-colnum-3">col_isnull - colnum = 3</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#col_isnull-colnum-8">col_isnull - colnum = 8</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">9. Data Constraint: NULL</li>
+      <li class="breadcrumb-item active">Reading Data</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/09-data-constraint-null/04-reading-data.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="reading-data">Reading Data</h1>
+<p>For the reading data changes, we again follow the code from the top and make updates as needed. Starting at the entry point for a <code>Select</code> statement, here's the top-level code block we're going to follow:</p>
+<pre><code class="language-c">case T_SelectStmt:
+  if (!analyze_node(n)) {
+    printf(&quot;Semantic analysis failed\n&quot;);
+  } else {
+    TableDesc* td = new_tabledesc(&quot;person&quot;);
+    td-&gt;rd = construct_record_descriptor();
+    RecordSet* rs = new_recordset();
+    rs-&gt;rows = new_linkedlist();
+    RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)-&gt;targetList);
+
+    tableam_fullscan(bp, td, rs-&gt;rows);
+    resultset_print(td-&gt;rd, rs, targets);
+
+    free_recordset(rs, td-&gt;rd);
+    free_tabledesc(td);
+    free_record_desc(targets);
+  }
+  break;
+</code></pre>
+<h2 id="recorddescriptor">RecordDescriptor</h2>
+<p>The line:</p>
+<pre><code class="language-c">    td-&gt;rd = construct_record_descriptor();
+</code></pre>
+<p>is where our first change happens. We need to add nullability flags to the <code>RecordDescriptor</code> and <code>Column</code> structs. These flags will allow our output code to skip a bunch of logic checks for cases when the column value is <code>Not Null</code>.</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-diff"> #include &lt;stdint.h&gt;
++#include &lt;stdbool.h&gt;
+
+ #include &quot;storage/datum.h&quot;
+
+*** omitted for brevity ***
+
+ #pragma pack(push, 1) /* disabling memory alignment because I don't want to deal with it */
+ typedef struct Column {
+   char* colname;
+   DataType dataType;
+   int colnum;     /* 0-based col index */
+   int len;
++  bool isNotNull;
+ } Column;
+
+*** omitted for brevity ***
+
+ typedef struct RecordDescriptor {
+   int ncols;        /* number of columns (defined by the Create Table DDL) */
+   int nfixed;       /* number of fixed-length columns */
++  bool hasNullableColumns;
+   Column cols[];
+ } RecordDescriptor;
+
+ Record record_init(uint16_t recordLen);
+ void free_record(Record r);
+
+ void free_record_desc(RecordDescriptor* rd);
+
+-void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len);
++void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len, bool  isNotNull);
+</code></pre>
+<p>Two simple changes going on here. We add nullability flags to both the <code>Column</code> and <code>RecordDescriptor</code> structs, and we add a new parameter to the column constructor function.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff">-void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len) {
++void construct_column_desc(Column* col, char* colname, DataType type, int colnum, int len, bool  isNotNull) {
+   col-&gt;colname = strdup(colname);
+   col-&gt;dataType = type;
+   col-&gt;colnum = colnum;
+   col-&gt;len = len;
++  col-&gt;isNotNull = isNotNull;
+ }
+</code></pre>
+<p>We just need to add a new line to set the <code>isNotNull</code> property of the <code>Column</code> struct.</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-diff"> static RecordDescriptor* construct_record_descriptor() {
+   RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (4 * sizeof(Column)));
+   rd-&gt;ncols = 4;
+   rd-&gt;nfixed = 2;
+
+-  construct_column_desc(&amp;rd-&gt;cols[0], &quot;person_id&quot;, DT_INT, 0, 4);
+-  construct_column_desc(&amp;rd-&gt;cols[1], &quot;first_name&quot;, DT_VARCHAR, 1, 20);
+-  construct_column_desc(&amp;rd-&gt;cols[2], &quot;last_name&quot;, DT_VARCHAR, 2, 20);
+-  construct_column_desc(&amp;rd-&gt;cols[3], &quot;age&quot;, DT_INT, 3, 4);
++  construct_column_desc(&amp;rd-&gt;cols[0], &quot;person_id&quot;, DT_INT, 0, 4, true);
++  construct_column_desc(&amp;rd-&gt;cols[1], &quot;first_name&quot;, DT_VARCHAR, 1, 20, false);
++  construct_column_desc(&amp;rd-&gt;cols[2], &quot;last_name&quot;, DT_VARCHAR, 2, 20, true);
++  construct_column_desc(&amp;rd-&gt;cols[3], &quot;age&quot;, DT_INT, 3, 4, false);
++
++  rd-&gt;hasNullableColumns = true;
+
+   return rd;
+ }
+
+ static RecordDescriptor* construct_record_descriptor_from_target_list(ParseList* targetList) {
+   RecordDescriptor* rd = malloc(sizeof(RecordDescriptor) + (targetList-&gt;length * sizeof (Column)));
+   rd-&gt;ncols = targetList-&gt;length;
+
+   for (int i = 0; i &lt; rd-&gt;ncols; i++) {
+     ResTarget* t = (ResTarget*)targetList-&gt;elements[i].ptr;
+-    // we don't care about the data type or length here 
++    // we don't care about the data type, length, or nullability here
+-    construct_column_desc(&amp;rd-&gt;cols[i], t-&gt;name, DT_UNKNOWN, i, 0);
++    construct_column_desc(&amp;rd-&gt;cols[i], t-&gt;name, DT_UNKNOWN, i, 0, true);
+   }
+
+   return rd;
+ }
+</code></pre>
+<p>And here, we make sure to pass in a value to the new <code>isNotNull</code> parameter.</p>
+<h2 id="recordset">RecordSet</h2>
+<p>Back to our top-level code, the next line we dive into is:</p>
+<pre><code class="language-c">    RecordSet* rs = new_recordset();
+</code></pre>
+<p>We have similar changes to the <code>RecordSet</code> regime as we had to <code>RecordDescriptor</code>. The changes are primarily focused on the <code>RecordSetRow</code> struct. Similar to how it keeps an array of column values, we also need to keep a <code>bool</code> array to identify if the column is null or not. This will make it easier for our output code to identify when a column's value is <code>NULL</code> or not.</p>
+<p><code>src/include/resultset/recordset.h</code></p>
+<pre><code class="language-diff"> typedef struct RecordSetRow {
+   Datum* values;
++  bool* isnull;
+ } RecordSetRow;
+</code></pre>
+<p><code>src/resultset/recordset.c</code></p>
+<pre><code class="language-diff"> RecordSetRow* new_recordset_row(int ncols) {
+   RecordSetRow* row = malloc(sizeof(RecordSetRow));
+   row-&gt;values = malloc(ncols * sizeof(Datum));
++  row-&gt;isnull = malloc(ncols * sizeof(bool));
+   return row;
+ }
+
+ void free_recordset_row(RecordSetRow* row, RecordDescriptor* rd) {
+   if (row-&gt;values != NULL) {
+     free_recordset_row_columns(row, rd);
+     free(row-&gt;values);
++    free(row-&gt;isnull);
+   }
+   free(row);
+ }
+</code></pre>
+<p>These basic changes simply allocate and free the memory reserved for the new <code>bool</code> array in a <code>RecordSetRow</code>.</p>
+<h2 id="defill_record">defill_record</h2>
+<p>Continuing along our top-level code block, the next line we dive into:</p>
+<pre><code class="language-c">    tableam_fullscan(bp, td, rs-&gt;rows);
+</code></pre>
+<p>This function makes a call to <code>defill_record</code>. Since we made several changes to <code>fill_record</code>, it only makes sense we have to refactor its opposite.</p>
+<p><code>src/access/tableam.c</code></p>
+<pre><code class="language-diff"> void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows) {
+   BufPoolSlot* slot = bufpool_read_page(bp, 1);
+
+   while (slot != NULL) {
+     PageHeader* pgHdr = (PageHeader*)slot-&gt;pg;
+     int numRecords = pgHdr-&gt;numRecords;
+
+     for (int i = 0; i &lt; numRecords; i++) {
+       RecordSetRow* row = new_recordset_row(td-&gt;rd-&gt;ncols);
+       int slotPointerOffset = conf-&gt;pageSize - (sizeof(SlotPointer) * (i + 1));
+       SlotPointer* sp = (SlotPointer*)(slot-&gt;pg + slotPointerOffset);
+-      defill_record(td-&gt;rd, slot-&gt;pg + sp-&gt;offset, row-&gt;values);
++      defill_record(td-&gt;rd, slot-&gt;pg + sp-&gt;offset, row-&gt;values, row-&gt;isnull);
+       linkedlist_append(rows, row);
+     }
+
+     slot = bufpool_read_page(bp, pgHdr-&gt;nextPageId);
+   }
+ }
+</code></pre>
+<p>We simply need to pass it a reference to <code>ResultSetRow</code>'s array of nulls. The magic happens below..</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-diff">-void defill_record(RecordDescriptor* rd, Record r, Datum* values);
++void defill_record(RecordDescriptor* rd, Record r, Datum* values, bool* isnull);
+</code></pre>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff">-void defill_record(RecordDescriptor* rd, Record r, Datum* values) {
++void defill_record(RecordDescriptor* rd, Record r, Datum* values, bool* isnull) {
+   int offset = sizeof(RecordHeader);
++  uint16_t nullOffset = ((RecordHeader*)r)-&gt;nullOffset;
++  uint8_t* nullBitmap = r + nullOffset;
+
+   Column* col;
+   for (int i = 0; i &lt; rd-&gt;ncols; i++) {
++    // we've passed the fixed-length, so we skip over the null bitmap
++    if (i == rd-&gt;nfixed) offset += compute_null_bitmap_length(rd);
+
+     if (i &lt; rd-&gt;nfixed) {
+       col = get_nth_col(rd, true, i);
+     } else {
+       col = get_nth_col(rd, false, i - rd-&gt;nfixed);
+     }
+
+-    values[col-&gt;colnum] = record_get_col_value(col, r, &amp;offset);
++    if (col_isnull(i, nullBitmap)) {
++      values[col-&gt;colnum] = (Datum)NULL;
++      isnull[col-&gt;colnum] = true;
++    } else {
++      values[col-&gt;colnum] = record_get_col_value(col, r, &amp;offset);
++      isnull[col-&gt;colnum] = false;
+     }
+   }
+ }
+</code></pre>
+<p>Because we're now dealing with <code>Null</code> columns, we need to find the null bitmap. Fortunately the <code>RecordHeader</code> stores a pointer to the location of the null bitmap, which makes it trivial to find the beginning of the null bitmap.</p>
+<p>When we're reading data from a record, we read left to right. And remember fixed-length columns are physically stored on the left side of a record, while variable-length columns are stored on the right - separated by the null bitmap. So at the beginning of the loop, we need to check if we've read through all of the fixed-length columns. If so, we need to adjust the read pointer (<code>offset</code>) to skip past the null bitmap and start reading the variable-length columns.</p>
+<p>THe last set of changes involves logic to set the <code>isnull</code> array appropriately. The check utilizes a new function that finds the corresponding bit in the null bitmap for the current column we're trying to read:</p>
+<p><code>src/include/storage/record.h</code></p>
+<pre><code class="language-diff">+bool col_isnull(int colnum, uint8_t* nullBitmap);
+</code></pre>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff">+bool col_isnull(int colnum, uint8_t* nullBitmap) {
++  return !(nullBitmap[colnum &gt;&gt; 3] &amp; (1 &lt;&lt; (colnum &amp; 0x07)));
++}
+</code></pre>
+<p>This function takes two parameters: the column number in the table (counting from left to right as the data are physically stored), and a pointer to the null bitmap. It returns true if the column corresponding to <code>colnum</code> is <code>Null</code>, false if there is data stored in the column. At first glance this function may look a little funky due to the weird-looking bitwise operations, but it will make a lot of sense as we work through some examples.</p>
+<p>Recall the bitwise logic in the <code>fill_val</code> function from the previous section. The entire purpose of the bit-shift and bitwise OR operations were to reset the the bitmask to 1 each time we hit a byte boundary. The bitwise operations in this function serve a very similar purpose. Let's run through some examples to see how it works.</p>
+<h2 id="col_isnull-examples">col_isnull examples</h2>
+<p>Let's say we have a table with 16 columns; meaning we'll need a 2-byte null bitmap.</p>
+<pre><code>Bitmap: 0010 1110   1101 1100
+</code></pre>
+<h3 id="col_isnull-colnum-3">col_isnull - colnum = 3</h3>
+<pre><code>colnum: 0000 0010
+</code></pre>
+<p>Remember <code>colnum</code> is a zero-based index, so <code>colnum = 3</code> is referring to the fourth column in this record. Reading right to left, the fourth column is a binary <code>1</code>, which means the column is not null.</p>
+<p>Let's evaluate the function step-by-step.</p>
+<pre><code>colnum &gt;&gt; 3
+
+0000 0010 &gt;&gt; 3 = 0000 0000
+</code></pre>
+<p>Left-shifting colnum by 3 bits results in a decimal value of 0. Using that, we access the <code>nullBitmap</code> as if it were an array; meaning we want the 0th <code>uint8_t</code> block in the array - the first byte of the null bitmap.</p>
+<pre><code>nullBitmap[0] = 1101 1100
+</code></pre>
+<p>Now on the right side, we left-shift decimal 1 by the result of <code>colnum &amp; 0x07</code></p>
+<pre><code>colnum &amp; 0x07 = 3 &amp; 0x07
+
+0000 0010  &lt;-- 3
+0000 0111  &lt;-- 0x07
+--------- &amp;
+0000 0010  &lt;-- bitwise &amp; result
+= 3
+</code></pre>
+<p>So we left-shift decimal 1 by 3 bits.</p>
+<pre><code>0000 0001 &lt;&lt; 3 = 0000 1000
+</code></pre>
+<p>Finally, we bitwise &amp; the left side with the right side</p>
+<pre><code>1101 1100  &lt;-- 0th byte of the null bitmap
+0000 1000  &lt;-- result of the right side
+--------- &amp;
+0000 1000
+= 8
+</code></pre>
+<p>So the function will return <code>!(8)</code>. In C, <code>false</code> is defined as exactly 0; <code>true</code> is defined as "not false". Since 8 is not zero, it evaluates to <code>true</code> and we return the NOT of <code>true</code>. So our function will return <code>false</code>, meaning our column has data.</p>
+<h3 id="col_isnull-colnum-8">col_isnull - colnum = 8</h3>
+<p>This time, we'll pick a <code>colnum</code> representing a column in the first bit of the second byte in the null bitmap. This example will really show the purpose of these bitwise operations.</p>
+<pre><code>colnum: 0000 1000
+
+colnum &gt;&gt; 3
+0000 1000 &gt;&gt; 3 = 0000 0001
+= 1
+</code></pre>
+<p>Meaning we want the 1st (0-based) <code>uint8_t</code> block in the <code>nullBitmap</code> array.</p>
+<pre><code>nullBitmap[1] = 0010 1110
+</code></pre>
+<p>On the right side we evaluate the following:</p>
+<pre><code>colnum &amp; 0x07 = 8 &amp; 0x07
+
+0000 1000  &lt;-- 8
+0000 0111  &lt;-- 0x07
+--------- &amp;
+0000 0000
+= 0
+</code></pre>
+<p>Left-shift decimal 1 by 0 bits yeilds decimal 1. So our final operation:</p>
+<pre><code>0010 1110  &lt;-- 1st (0-based) byte of the null bitmap
+0000 0000  &lt;-- result of the right side
+--------- &amp;
+0000 0000
+= 0
+</code></pre>
+<p>We return the opposite of <code>false</code>, which is <code>true</code>. Our column is <code>Null</code>.</p>
+<p>Hopefully the above made it clear how these operations keep our nullBitmap inspection coordinated. I.e. the purpose of the bit-shift in <code>nullBitmap[colnum &gt;&gt; 3]</code> is to access the next block of 8-bits for every 8 values of <code>colnum</code>.</p>
+<p>The purpose of <code>colnum &amp; 0x07</code> is to effectively normalize <code>colnum</code> to a value between 0 and 7. Then the <code>1 &lt;&lt; (...)</code> piece maps that normalized 0-7 value to the correct bit.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../03-writing-data/" class="btn btn-neutral float-left" title="Writing Data"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../03-writing-data/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

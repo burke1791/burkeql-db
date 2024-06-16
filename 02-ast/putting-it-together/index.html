@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/02-ast/putting-it-together/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Putting It Together - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Putting It Together";
+        var mkdocs_page_input_path = "02-ast/putting-it-together.md";
+        var mkdocs_page_url = "/burkeql-db/02-ast/putting-it-together/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Putting It Together</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#makefile">Makefile</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-structure">Project Structure</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-the-program">Running the Program</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">2. Abstract Syntax Trees</li>
+      <li class="breadcrumb-item active">Putting It Together</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/02-ast/putting-it-together.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="putting-it-together">Putting It Together</h1>
+<p>With all of the complex pieces code written, all we need to do is refactor the <code>main.c</code> file and update our <code>Makefile</code>.</p>
+<p>Here's the full diff of <code>src/main.c</code>:</p>
+<pre><code class="language-diff"> #include &lt;stdio.h&gt;
+ #include &lt;stdlib.h&gt;
++#include &lt;stdbool.h&gt;
++#include &lt;string.h&gt;
+
+ #include &quot;gram.tab.h&quot;
++#include &quot;parser/parsetree.h&quot;
++#include &quot;parser/parse.h&quot;
+
+ static void print_prompt() {
+   printf(&quot;bql &gt; &quot;);
+ }
+
+ int main(int argc, char** argv) {
+-  print_prompt();
+
+-  while(!yyparse()) { 
++  while(true) {
++    print_prompt();
++    Node* n = parse_sql();
++
++    if (n == NULL) continue;
++
++    switch (n-&gt;type) {
++      case T_SysCmd:
++        if (strcmp(((SysCmd*)n)-&gt;cmd, &quot;quit&quot;) == 0) {
++          print_node(n);
++          free_node(n);
++          printf(&quot;Shutting down...\n&quot;);
++          return EXIT_SUCCESS;
++        }
++      default:
++        print_node(n);
++        free_node(n);
++    }
++  }
+
+   return EXIT_SUCCESS;
+ }
+</code></pre>
+<p>We essentially rewrite the main function from scratch. Using an infinite loop, we make a call to the parse function and get an AST in return. If the tree is <code>NULL</code>, as is the case for our current <code>insert_stmt</code> and <code>select_stmt</code> grammar paths, we jump back to the beginning of the loop.</p>
+<p>If we receive an actual AST, we check to see if the user provided the <code>\quit</code> command. If so, we clean up our allocated memory and exit the program.</p>
+<h2 id="makefile">Makefile</h2>
+<p>Here's the full diff of the inner Makefile (<code>src/Makefile</code>):</p>
+<pre><code class="language-diff"> CC = gcc
+ LEX = flex
+ YACC = bison
+-CFLAGS = -fsanitize=address -static-libasan -g
++CFLAGS = -I./ -I./include -fsanitize=address -static-libasan -g
+
+ TARGET_EXEC = burkeql
+
+ BUILD_DIR = ..
+
+-SRC_FILES = main.c 
++SRC_FILES = main.c \
++            parser/parse.c \
++            parser/parsetree.c
+
+
+ $(BUILD_DIR)/$(TARGET_EXEC): gram.tab.o lex.yy.o ${SRC_FILES}
+    ${CC} ${CFLAGS} -o $@ $?
+
+ gram.tab.c gram.tab.h: parser/gram.y
+    ${YACC} -vd $?
+
+ lex.yy.c: parser/scan.l
+    ${LEX} -o $*.c $&lt;
+
+ lex.yy.o: gram.tab.h lex.yy.c
+
+ clean:
+    rm -f $(wildcard *.o)
+    rm -f $(wildcard *.output)
+    rm -f $(wildcard *.tab.*)
+    rm -f lex.yy.c
++   rm -f $(wildcard *.lex.*)
+    rm -f $(BUILD_DIR)/$(TARGET_EXEC)
+</code></pre>
+<h2 id="project-structure">Project Structure</h2>
+<p>And here is how our repo structure looks:</p>
+<pre><code class="language-shell">├── Makefile
+└── src
+    ├── Makefile
+    ├── include
+    │   └── parser
+    │       ├── parse.h
+    │       └── parsetree.h
+    ├── main.c
+    └── parser
+        ├── gram.y
+        ├── parse.c
+        ├── parsetree.c
+        └── scan.l
+</code></pre>
+<h2 id="running-the-program">Running the Program</h2>
+<pre><code class="language-shell">$ make
+*** There will be several warnings, but you can safely ignore them ***
+make[1]: Leaving directory '***'
+$ ./burkeql
+bql &gt; select
+SELECT command received
+bql &gt; insert
+INSERT command received
+bql &gt; \q
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: q
+bql &gt; \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+$ 
+</code></pre>
+<p>Our parser still recognizes the select and insert tokens, but we don't do anything with them. It also recognizes a <code>\</code> as a system command flag, but <code>\q</code> isn't a valid system command so we don't do anything with it. But when we type <code>\quit</code>, our code recognizes the system command flag AND knows to actually quit the program.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../parser-interface/" class="btn btn-neutral float-left" title="Parser Interface"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../03-db-page/page-structure/" class="btn btn-neutral float-right" title="Page Structure">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../parser-interface/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../03-db-page/page-structure/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/02-ast/ast-interface/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>AST Interface - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "AST Interface";
+        var mkdocs_page_input_path = "02-ast/ast-interface.md";
+        var mkdocs_page_url = "/burkeql-db/02-ast/ast-interface/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">AST Interface</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-node">The Node</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#header-file">Header File</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#structs">Structs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#macros">Macros</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#api">API</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#full-file">Full File</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">2. Abstract Syntax Trees</li>
+      <li class="breadcrumb-item active">AST Interface</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/02-ast/ast-interface.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="ast-interface">AST Interface</h1>
+<p>The first thing we need to do is begin writing the header file for our AST. In it we'll define all structs available to the parser, as well as some helper functions for creating and destroying nodes.</p>
+<h2 id="the-node">The Node</h2>
+<p>The most basic unit of our AST is the <code>Node</code> struct - every single node in our tree is a <code>Node</code>. A <code>Node</code> can be one of many different types that we'll define later, but they're all just the same base unit.</p>
+<p>The primary benefit of doing it this way is minimizing the number of tree-walker functions we need to expose to external processes. We only need to expose a single <code>void process_node(Node* n)</code> function that is capable of handling everything. If we had separate node types, e.g. <code>SelectNode</code>, <code>FromNode</code>, <code>SortNode</code>, etc. We would need to expose a different function for each of them. Moreover, there's a clever trick we can do with macros that makes creating different node types in the parser very easy.</p>
+<h2 id="header-file">Header File</h2>
+<h3 id="structs">Structs</h3>
+<p>First we define our structs:</p>
+<pre><code class="language-c">typedef enum NodeTag {
+  T_SysCmd
+} NodeTag;
+
+typedef struct Node {
+  NodeTag type;
+} Node;
+
+typedef struct SysCmd {
+  NodeTag type;
+  char* cmd;
+} SysCmd;
+</code></pre>
+<p>The <code>NodeTag</code> enum is how we signify the type of node we're dealing with. Next up is the <code>Node</code>, our basic AST building block. Containing only a single property, the <code>Node</code>'s only purpose is a common junction for jumping between node types. And finally, we introduce the <code>SysCmd</code> struct. All <code>SysCmd</code> structs will have <code>type = T_SysCmd</code>, and a string representing the command the user passed to it. For example, the quit command (<code>\q</code>) will produce a <code>SysCmd</code> struct with <code>cmd = "q"</code>.</p>
+<h3 id="macros">Macros</h3>
+<p>Next we define a couple macros that well help us in the bison grammar for easily creating nodes. Though the "easily" part may not become apparent until we begin supporting a lot more node types.</p>
+<pre><code class="language-c">#define new_node(size, tag) \
+({ Node* _result; \
+  _result = (Node*)malloc(size); \
+  _result-&gt;type = (tag); \
+  _result; \
+})
+
+#define create_node(_type_)   ((_type_*) new_node(sizeof(_type_), T_##_type_))
+</code></pre>
+<p>When the parser encounters a system command, the grammar rule will have it run:</p>
+<pre><code class="language-c">SysCmd* sc = create_node(SysCmd);
+</code></pre>
+<p>Using macro expansion, it's able to allocate the correct amount of memory for the <code>SysCmd</code> node type and set the <code>type</code> property correctly. The <code>create_node</code> macro is essentially shorthand for: </p>
+<pre><code class="language-c">SysCmd* sc = malloc(sizeof(SysCmd));
+sc-&gt;type = T_SysCmd;
+</code></pre>
+<h3 id="api">API</h3>
+<p>Finally, we want to define the interface functions to our AST:</p>
+<pre><code class="language-c">void free_node(Node* n);
+
+void print_node(Node* n);
+</code></pre>
+<p>At the moment, we only need two functions - one for cleanup and one for printing/debugging. Again, because we use the <code>Node</code> as our basic building block, we're only exposing <code>free_node</code> and <code>print_node</code> instead of <code>free_syscmd</code> and <code>print_syscmd</code> (plus any other future node types).</p>
+<h2 id="full-file">Full File</h2>
+<p><code>src/include/parser/parsetree.h</code></p>
+<pre><code class="language-c">#ifndef PARSETREE_H
+#define PARSETREE_H
+
+typedef enum NodeTag {
+  T_SysCmd
+} NodeTag;
+
+typedef struct Node {
+  NodeTag type;
+} Node;
+
+typedef struct SysCmd {
+  NodeTag type;
+  char* cmd;
+} SysCmd;
+
+#define new_node(size, tag) \
+({ Node* _result; \
+  _result = (Node*)malloc(size); \
+  _result-&gt;type = (tag); \
+  _result; \
+})
+
+#define create_node(_type_)   ((_type_*) new_node(sizeof(_type_), T_##_type_))
+
+void free_node(Node* n);
+
+void print_node(Node* n);
+
+#endif /* PARSETREE_H */
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../intro/" class="btn btn-neutral float-left" title="Intro"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ast-implementation/" class="btn btn-neutral float-right" title="AST Implementation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../intro/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ast-implementation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

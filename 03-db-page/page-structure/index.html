@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/03-db-page/page-structure/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Page Structure - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Page Structure";
+        var mkdocs_page_input_path = "03-db-page/page-structure.md";
+        var mkdocs_page_url = "/burkeql-db/03-db-page/page-structure/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Page Structure</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#data-file">Data File</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-page">Data Page</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#page-header">Page Header</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#slot-array">Slot Array</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#record-structure">Record Structure</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#record-data-layout">Record Data Layout</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#variable-length-offsets">Variable-Length Offsets</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">3. The Database Page</li>
+      <li class="breadcrumb-item active">Page Structure</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/03-db-page/page-structure.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="the-database-page">The Database Page</h1>
+<p>In this section I am going to introduce and discuss the concept of a database "page". I won't be writing any code, so if that's all you're interested in, I suggest you skip to the next section.</p>
+<p>TODO: Add more diagrams, especially for the Record Structure section.</p>
+<h2 id="data-file">Data File</h2>
+<p>Databases store data in files on disk. They aren't doing any magic voodoo behind the scenes (although they're so clever it kind of seems like magic), it's just reading and writing data to regular files. Some of the magic comes in to play with how the storage engine organizes data in those files.</p>
+<p>Not all RDBMS platforms implement storage in the same way. Some (e.g. postgres) use hundreds of different files - you create a new table, you get a new set of files just for that table. Others (e.g. Microsoft SQL Server) use far fewer files - in its default setup, you get two files. One for the data and one for the transaction log.</p>
+<p>The system we're building is going to be similar to MS SQL Server - one file for the data, and one for the transaction log.. if I ever get around to implementing it. Moreover, the structure of our data pages will not align with any existing RDBMS out there. Instead I'm using a combination of MS SQL Server and Postgres - taking the things I like about both and ignoring what I don't like.</p>
+<h2 id="data-page">Data Page</h2>
+<p>Within the data files, the storage engine organizes the data into uniformly-sized chunks - typically 8kB. The is the most basic unit that database systems work with. If you ask the DB to return a single row from a table, it first has to read an entire 8kB page into memory, then it can scan the page for the record you requested.</p>
+<p>So we have 8kB pages, how are they structured?</p>
+<p><img alt="Data Page Structure" src="../assets/data_page.png" /></p>
+<h3 id="page-header">Page Header</h3>
+<p>You can think of a data page as being composed of three sections. The first is the page header, which contains metadata about itself. The size and type of information stored in a page header differ from system to system. In our system, we will be working with pages that have 20-byte headers.</p>
+<p>The header fields are as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Header Field</th>
+<th>Size</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pageId</td>
+<td>4-bytes</td>
+<td>One-based page identifier. Used to mark the byte position of the page in the file.</td>
+</tr>
+<tr>
+<td>pageType</td>
+<td>1-byte</td>
+<td>Identifies the type of page. 0 = data page, 1 = index page</td>
+</tr>
+<tr>
+<td>indexLevel</td>
+<td>1-byte</td>
+<td>Level of the page in an index. 0 = leaf level (or heap page)</td>
+</tr>
+<tr>
+<td>prevPageId</td>
+<td>4-bytes</td>
+<td>Points to the previous page at the same <code>indexLevel</code>. If there is no previous page, then its value is 0.</td>
+</tr>
+<tr>
+<td>nextPageId</td>
+<td>4-bytes</td>
+<td>Points to the next page at the same <code>indexLevel</code>. If there is no next page, then its value is 0.</td>
+</tr>
+<tr>
+<td>numRecords</td>
+<td>2-bytes</td>
+<td>Number of records stored on the page</td>
+</tr>
+<tr>
+<td>freeBytes</td>
+<td>2-bytes</td>
+<td>Number of unclaimed bytes on the page</td>
+</tr>
+<tr>
+<td>freeData</td>
+<td>2-bytes</td>
+<td>Number of continuous free bytes between the end of the last record and the beginning of the slot array</td>
+</tr>
+</tbody>
+</table>
+<p><strong>pageId</strong></p>
+<p>The <code>pageId</code>'s purpose is to tell the storage engine where it belongs within the data file. In a database with 8kB pages, we know that <code>pageId=1</code> belongs at the beginning of the file. <code>pageId=3</code> belongs at byte offset (3-1) * 8192 = 16,384 in the file.</p>
+<p>The first thing that probably popped out at you is the <code>pageId</code> being a one-based identifier instead of zero-based. That's because we need to reserve zero as "nothing" for the <code>prevPageId</code> and <code>nextPageId</code> header fields. The "nothing" indicating there is not prev or next page.</p>
+<p><strong>pageType and indexLevel</strong></p>
+<p>These fields will be important when we implement indexes. But it does serve an important purpose for the query engine. The data stored on index pages looks a lot different than the data stored on data pages, so the query engine needs to know which type of data it's dealing with.</p>
+<p><strong>prevPageId and nextPageId</strong></p>
+<p>Database pages exist as part of a doubly-linked list, and these two fields serve as the pointers in the list. Since we're using a single file for the data in our database, we have to store the data for multiple different tables in the same file. This means the data for <code>tableA</code> will not be a contiguous chunk of the file - it will have pages from <code>tableB</code> interspersed. These prev and next pointers help the query engine efficiently scan the file for the data it cares about.</p>
+<p><strong>numRecords</strong></p>
+<p>Exactly as the name suggests, it stores the number of records on the page. This field won't be very useful in the near term, but it will help us later on when we decide to store statistics about the tables in our database.</p>
+<p><strong>freeBytes and freeData</strong></p>
+<p>These two will often have the same value, but they serve two different roles. The former is used to determine if the storage engine can reorganize and compact the existing data records to make room for a new one. The latter is used to determine if a new record can fit on the page or not.</p>
+<p>In a typical transactional database, we have lots of inserts, updates, and deletes happening all the time. Let's say we have a data page that's completely full and a user wants to delete a record in the middle of the page. The storage engine will mark it as deleted, but it WILL NOT reorganize the existing records towards the beginning of the page. Instead, there will be a hole of empty space in the middle.</p>
+<p>Because the empty space is in the middle of the page, when a new insert comes along the storage engine will still consider this page full because the value stored in <code>freeData</code> is not large enough. However, <code>freeBytes</code> IS large enough, so the storage engine might decide now is a good time to compact the existing records on the page in order to make room at the end of the page for the new one.</p>
+<h3 id="slot-array">Slot Array</h3>
+<p>Growing from the end of the page towards the beginning, each slot array item consumes 4-bytes and stores two pieces of information:</p>
+<ul>
+<li>A byte offset from the beginning of the page to the beginning of its corresponding data record</li>
+<li>The byte length of the data record</li>
+</ul>
+<p>The slot array is also responsible for maintaining the order of records stored on the page. This is not as significant in a heap as it is in an index; however, it's important to understand that the records themselves ARE NOT physically stored in any particular order. The slot array is what determines the sort order of data records on the page.</p>
+<p>The slot array grows from the end of the page towards the beginning. For each new record inserted on the page, the data itself is <strong>appended</strong> to the end of the last record on the page, and a new slot array item is <strong>prepended</strong> to the beginning of the slot array. This means in order for a page to have enough space for the new record, it must have enough empty space for the record itself AND space for the new slot array entry.</p>
+<h3 id="record-structure">Record Structure</h3>
+<p>Data records are added to the page starting at the end of the header and growing towards the end of the page.</p>
+<p>Much like data pages, data records also have a fixed-length header that stores certain metadata about the record. The header fields we use in this project are most similar to postgres because the way we handle transaction isolation will be like postgres. In fact, we won't even use most of these fields for a while, but building them in right now so we don't have to do as much refactoring in the future. The record header is a fixed 12 bytes long with the following fields:</p>
+<table>
+<thead>
+<tr>
+<th>Header Field</th>
+<th>Size</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>xmin</td>
+<td>4-bytes</td>
+<td>Transaction Id that inserted the record</td>
+</tr>
+<tr>
+<td>xmax</td>
+<td>4-bytes</td>
+<td>Transaction Id that deleted the record</td>
+</tr>
+<tr>
+<td>infomask</td>
+<td>2-bytes</td>
+<td>Bit fields containing meta-information about record, e.g. if the row has Nullable columns or variable-length columns.</td>
+</tr>
+<tr>
+<td>nullOffset</td>
+<td>2-bytes</td>
+<td>The byte-offset from the beginning of the record to the start of the Null bitmap</td>
+</tr>
+</tbody>
+</table>
+<p><code>xmin</code>, <code>xmax</code>, and some of the bit fields in <code>infomask</code> won't be used until we implement transaction isolation.</p>
+<h4 id="record-data-layout">Record Data Layout</h4>
+<p>After the header, the columns in the record are organized in a particular manner. To demonstrate this, we'll use the following table definition as an example:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    first_name Varchar(20) Null,
+    last_name Varchar(20) Not Null,
+    age Int Null
+);
+</code></pre>
+<p>This table has both fixed-length (<code>Int</code>) and variable-length (<code>Varchar</code>) columns, as well as nullable columns. After the record header, the storage engine stores data in the following order:</p>
+<ol>
+<li>Fixed-length columns</li>
+<li>Null bitmap (iff the table has Nullable columns)</li>
+<li>Variable-length columns (if any)</li>
+</ol>
+<p>So if we inserted data like this:</p>
+<pre><code class="language-sql">Insert Into person ( person_id, first_name, last_name, age )
+Values
+(1, Null, 'burke', 30);
+</code></pre>
+<p>At a high level, the engine would store the data on disk like so:</p>
+<pre><code>| &lt;record_header&gt; | 1 | 30 | &lt;null_bitmap&gt; | burke |
+</code></pre>
+<p>Notice the two fixed-length columns come first, sorted in the order they were defined in the <code>Create Table</code> statement, then the Null bitmap, and finally the variable-length columns. However, since <code>first_name</code> is Null, the storage engine does not need to store anything for it in the variable-length portion of the record because the Null bitmap will let the engine know that it's Null.</p>
+<h4 id="variable-length-offsets">Variable-Length Offsets</h4>
+<p>The last thing we need to cover is the storage overhead associated with <code>Varchar</code> columns. Each non-null <code>Varchar</code> column has a corresponding 2-byte field storing the length of the data. These 2-byte fields are stored immediately before the <code>Varchar</code> value. If we zoom in on the data shown above:</p>
+<pre><code>| ... | &lt;null_bitmap&gt; | 7-burke |
+</code></pre>
+<p>It's a little wonky to represent it like this. But, we store <code>7</code> to represent the entire length of the <code>Varchar</code> column: 2-bytes for the overhead + 5-bytes for the data (1-byte per character).</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../02-ast/putting-it-together/" class="btn btn-neutral float-left" title="Putting It Together"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../04-data-persistence/01-intro/" class="btn btn-neutral float-right" title="Intro">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../02-ast/putting-it-together/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../04-data-persistence/01-intro/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

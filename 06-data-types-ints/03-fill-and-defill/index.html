@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/06-data-types-ints/03-fill-and-defill/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Fill and Defill - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Fill and Defill";
+        var mkdocs_page_input_path = "06-data-types-ints/03-fill-and-defill.md";
+        var mkdocs_page_url = "/burkeql-db/06-data-types-ints/03-fill-and-defill/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Fill and Defill</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#datum-conversions">Datum Conversions</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing-it-out">Testing It Out</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bigint-overflow">BigInt Overflow?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#defill">Defill</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../09-data-constraint-null/04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">6. Data Types: Ints</li>
+      <li class="breadcrumb-item active">Fill and Defill</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/06-data-types-ints/03-fill-and-defill.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="fill-and-defill">Fill and Defill</h1>
+<p>In this section, we're going to update our code to actually insert our new data, and we'll finally be able to test it out by running some insert statements.</p>
+<p>Let's pretend we're an insert statement being shuffled along our program's insert code path and make the necessary changes as we find them. Starting at the top, our main function requests input from the user and sends it through the parser. Processing the parse tree is where we come in:</p>
+<p><code>src/main.c</code></p>
+<pre><code class="language-diff"> int main(int argc, char** argv) {
+
+ *** code omitted for brevity
+
+         break;
+       case T_InsertStmt: {
+         int32_t person_id = ((InsertStmt*)n)-&gt;personId;
+         char* name = ((InsertStmt*)n)-&gt;name;
++        uint8_t age = ((InsertStmt*)n)-&gt;age;
++        int16_t dailySteps = ((InsertStmt*)n)-&gt;dailySteps;
++        int64_t distanceFromHome = ((InsertStmt*)n)-&gt;distanceFromHome;
+-        if (!insert_record(bp, person_id, name)) {
++        if (!insert_record(bp, person_id, name, age, dailySteps, distanceFromHome)) {
+           printf(&quot;Unable to insert record\n&quot;);
+         }
+         break;
+       }
+       case T_SelectStmt:
+
+ *** code omitted for brevity ***
+
+ }
+</code></pre>
+<p>We need to extract the new fields from our <code>InsertStmt</code> node and pass them to the <code>insert_record</code> function. Next we follow the insert path until we get to the <code>fill_record</code> and <code>fill_val</code> functions.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff"> static void fill_val(Column* col, char** dataP, Datum datum) {
+   int16_t dataLen;
+   char* data = *dataP;
+
+   switch (col-&gt;dataType) {
++    case DT_TINYINT:
++      dataLen = 1;
++      uint8_t valTinyInt = datumGetUInt8(datum);
++      memcpy(data, &amp;valTinyInt, dataLen);
++      break;
++    case DT_SMALLINT:
++      dataLen = 2;
++      int16_t valSmallInt = datumGetInt16(datum);
++      memcpy(data, &amp;valSmallInt, dataLen);
++      break;
+     case DT_INT:
+       dataLen = 4;
+       int32_t valInt = datumGetInt32(datum);
+       memcpy(data, &amp;valInt, dataLen);
+       break;
++    case DT_BIGINT:
++      dataLen = 8;
++      int64_t valBigInt = datumGetInt64(datum);
++      memcpy(data, &amp;valBigInt, dataLen);
++      break;
+     case DT_CHAR:
+       dataLen = col-&gt;len;
+       char* str = strdup(datumGetString(datum));
+       int charLen = strlen(str);
+       if (charLen &gt; dataLen) charLen = dataLen;
+       memcpy(data, str, charLen);
+       free(str);
+       break;
+   }
+
+   data += dataLen;
+   *dataP = data;
+ }
+</code></pre>
+<p>We're simply adding more cases to the switch statement to account for the new data types. Make sure you set the <code>dataLen</code> to the correct byte size for the data type.</p>
+<h2 id="datum-conversions">Datum Conversions</h2>
+<p>Since we've made several calls to the datum conversion functions for the new data types, we actually need to write them now.</p>
+<p><code>src/include/storage/datum.h</code></p>
+<pre><code class="language-diff">+Datum uint8GetDatum(uint8_t i);
++Datum int16GetDatum(int16_t i);
+ Datum int32GetDatum(int32_t i);
++Datum int64GetDatum(int64_t i);
+ Datum charGetDatum(char* c);
+
++uint8_t datumGetUInt8(Datum d);
++int16_t datumGetInt16(Datum d);
+ int32_t datumGetInt32(Datum d);
++int64_t datumGetInt64(Datum d);
+ char* datumGetString(Datum d);
+</code></pre>
+<p><code>src/storage/datum.c</code></p>
+<pre><code class="language-diff">+Datum uint8GetDatum(uint8_t i) {
++  return (Datum) i;
++}
++
++Datum int16GetDatum(int16_t i) {
++  return (Datum) i;
++}
+
+ Datum int32GetDatum(int32_t i) {
+   return (Datum) i;
+ }
+
++Datum int64GetDatum(int64_t i) {
++  return (Datum) i;
++}
+
+ Datum charGetDatum(char* c) {
+   return (Datum) c;
+ }
+
+
++uint8_t datumGetUInt8(Datum d) {
++  return (uint8_t) d;
++}
++
++int16_t datumGetInt16(Datum d) {
++  return (int16_t) d;
++}
+
+ int32_t datumGetInt32(Datum d) {
+   return (int32_t) d;
+ }
+
++int64_t datumGetInt64(Datum d) {
++  return (int64_t) d;
++}
+
+ char* datumGetString(Datum d) {
+   return (char*) d;
+ }
+</code></pre>
+<h2 id="testing-it-out">Testing It Out</h2>
+<p>That's everything we need for insert operations, let's test it out. Make sure you delete the <code>main.dbd</code> file before compiling and running the program because any existing data was built on the old table definition.</p>
+<pre><code class="language-bash">$ rm -f db_files/main.dbd
+$ make clean &amp;&amp; make &amp;&amp; ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; insert 69 'Chris Burke' 45 12345 1234567890;
+======  Node  ======
+=  Type: Insert
+=  person_id:           69
+=  name:                Chris Burke
+=  age:                 45
+=  daily_steps:         12345
+=  distance_from_home:  1234567890
+Bytes read: 0
+bql &gt; \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+</code></pre>
+<p>From the node print piece, you can see the values we parsed out of the insert statement. And <code>\quit</code> makes sure the data is written to disk. Let's check it out:</p>
+<p><code>xxd db_files/main.dbd</code></p>
+<p><img alt="Ints Data Page" src="../assets/ints_data_page.png" /></p>
+<p>The orange and purple boxes are the page header and record header, respectively. Then the yellow and green boxes are the columns we're already used to: <code>person_id</code> and <code>name</code>. The new ones follow in the order we inserted them.</p>
+<p><code>age</code> is the light blue box and represented in hex as 0x2d, which is the same as 45 in decimal. Check.</p>
+<p><code>daily_steps</code> is the next two bytes. Remember, my machine is a little endian machine, so the bytes are stored in the opposite order you'd expect. So the actual hex representation of the number is 0x3039, which translates to 12,345 in decimal. Check.</p>
+<p><code>distance_from_home</code> is the remaining 8 bytes in the record and is also stored in little endian. So the hex representation is 0x499602d2, which translates to 1,234,567,890.</p>
+<p>Everything checks out, right? Wrong. Let's revisit that edge case I mentioned a little while back.</p>
+<h2 id="bigint-overflow">BigInt Overflow?</h2>
+<p>You may remember our lexer tokenizes numbers using the <code>atoi()</code> function. This will only work for numbers that fit inside a 4-byte int. What happens if we try to insert a number that overflows a 4-byte int, e.g. is greater than 2.1 billion? Let's find out:</p>
+<pre><code class="language-shell">$ make clean &amp;&amp; make &amp;&amp; ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; insert 69 'Chris Burke' 45 12345 12345678900;
+======  Node  ======
+=  Type: Insert
+=  person_id:           69
+=  name:                Chris Burke
+=  age:                 45
+=  daily_steps:         12345
+=  distance_from_home:  -539222988
+bql &gt; \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+</code></pre>
+<p>This time I inserted the same data, except for <code>distance_from_home</code> I added a zero to the end, making the total 12 billion. Turns out, our code wraps around to the negative regime of the 4-byte number space. Let's fix this.</p>
+<p><code>src/parser/scan.l</code></p>
+<pre><code class="language-diff">--?[0-9]+    { yylval-&gt;intval = atoi(yytext); return INTVAL; }
++-?[0-9]+    { yylval-&gt;numval = strtoll(yytext, &amp;yytext, 10); return NUMBER; }
+</code></pre>
+<p>We changed our converter function to use <code>strtoll</code> from the C standard, which can handle up to the <code>long long</code> data type. We also changed the names of the tokens defined by bison:</p>
+<p><code>src/parser/gram.y</code></p>
+<pre><code class="language-diff"> %union {
+   char* str;
+-  int intval;
++  long long numval;
+
+   struct Node* node;
+   struct ParseList* list;
+ }
+
+ %parse-param { struct Node** n }
+ %param { void* scanner }
+
+ %token &lt;str&gt; SYS_CMD STRING IDENT
+
+-%token &lt;intval&gt; INTNUM
++%token &lt;numval&gt; NUMBER
+
+*** code omitted for brevity ***
+
+-insert_stmt: INSERT INTNUM STRING INTNUM INTNUM INTNUM  {
++insert_stmt: INSERT NUMBER STRING NUMBER NUMBER NUMBER  {
+       InsertStmt* ins = create_node(InsertStmt);
+       ins-&gt;personId = $2;
+       ins-&gt;name = str_strip_quotes($3);
+       ins-&gt;age = $4;
+       ins-&gt;dailySteps = $5;
+       ins-&gt;distanceFromHome = $6;
+       $$ = (Node*)ins;
+     }
+   ;
+</code></pre>
+<p>Here we just changed <code>INTNUM</code> to <code>NUMBER</code>.</p>
+<p>Now if we run it and try to insert the same large number...</p>
+<pre><code class="language-shell">$ rm -f db_files/main.dbd
+$ make clean &amp;&amp; make &amp;&amp; ./burkeql
+======   BurkeQL Config   ======
+= DATA_FILE: /home/burke/source_control/burkeql-db/db_files/main.dbd
+= PAGE_SIZE: 128
+bql &gt; insert 69 'Chris Burke' 45 12345 12345678900;
+======  Node  ======
+=  Type: Insert
+=  person_id:           69
+=  name:                Chris Burke
+=  age:                 45
+=  daily_steps:         12345
+=  distance_from_home:  12345678900
+Bytes read: 0
+bql &gt; \quit
+======  Node  ======
+=  Type: SysCmd
+=  Cmd: quit
+Shutting down...
+</code></pre>
+<p>We can see that the lexer/parser successfully handled the large number.</p>
+<h2 id="defill">Defill</h2>
+<p>Now, let's refactor the code required for defilling the new data types. The pattern is pretty simple, we just need to add more switch/case branches for the new <code>DT_*</code> types.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff"> static Datum record_get_col_value(Column* col, Record r, int* offset) {
+   switch (col-&gt;dataType) {
++    case DT_TINYINT:
++      return record_get_tinyint(r, offset);
++    case DT_SMALLINT:
++      return record_get_smallint(r, offset);
+     case DT_INT:
+       return record_get_int(r, offset);
++    case DT_BIGINT:
++      return record_get_bigint(r, offset);
+     case DT_CHAR:
+       return record_get_char(r, offset, col-&gt;len);
+     default:
+       printf(&quot;record_get_col_value() | Unknown data type!\n&quot;);
+       return (Datum)NULL;
+   }
+ }
+</code></pre>
+<p>This function is called in a loop by the <code>defill_record</code> function. We simple add our new data types to the switch/case block. But we also need to create new <code>record_get_*</code> functions for each of the new data types.</p>
+<p><code>src/storage/record.c</code></p>
+<pre><code class="language-diff">+static Datum record_get_tinyint(Record r, int* offset) {
++  uint8_t tinyintVal;
++  memcpy(&amp;tinyintVal, r + *offset, 1);
++  *offset += 1;
++  return uint8GetDatum(tinyintVal);
++}
++
++static Datum record_get_smallint(Record r, int* offset) {
++  int16_t smallintVal;
++  memcpy(&amp;smallintVal, r + *offset, 2);
++  *offset += 2;
++  return int16GetDatum(smallintVal);
++}
+
+ static Datum record_get_int(Record r, int* offset) {
+   int32_t intVal;
+   memcpy(&amp;intVal, r + *offset, 4);
+   *offset += 4;
+   return int32GetDatum(intVal);
+ }
+
++static Datum record_get_bigint(Record r, int* offset) {
++  int64_t bigintVal;
++  memcpy(&amp;bigintVal, r + *offset, 8);
++  *offset += 8;
++  return int64GetDatum(bigintVal);
++}
+</code></pre>
+<p>We can see the pattern is the exact same as we already have for the <code>Int</code> type. The only differences are calling the correct datum conversion function and incrementing <code>offset</code> by the correct amount.</p>
+<p>We have one final thing to do before we can run select statements, but this page has gone on too long, so I'm going to move it to its own dedicated page.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../02-parser-refactor/" class="btn btn-neutral float-left" title="Parser Refactor"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../04-select-updates/" class="btn btn-neutral float-right" title="Select Updates">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../02-parser-refactor/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../04-select-updates/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

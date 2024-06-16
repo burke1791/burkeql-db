@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://burke1791.github.io/burkeql-db/09-data-constraint-null/02-parser-refactor/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Parser Refactor - BurkeQL Tutorial</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Parser Refactor";
+        var mkdocs_page_input_path = "09-data-constraint-null/02-parser-refactor.md";
+        var mkdocs_page_url = "/burkeql-db/09-data-constraint-null/02-parser-refactor/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BurkeQL Tutorial
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../00-intro/project-plan/">Project Roadmap</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1. Basic CLI</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/flex/">Flex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/bison/">Bison</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../01-basic-cli/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2. Abstract Syntax Trees</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-interface/">AST Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/ast-implementation/">AST Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/parser-interface/">Parser Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../02-ast/putting-it-together/">Putting It Together</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3. The Database Page</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../03-db-page/page-structure/">Page Structure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">4. Data Persistence</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/02-config-file/">Config File</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/03-loading-config/">Loading Config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/04-file-interface/">DB File Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/05-page-interface/">DB Page Interface</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/06-page-implementation/">DB Page Implementation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/07-parser-refactor-insert/">Parser Refactor - Insert</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../04-data-persistence/08-serializing-and-inserting-data/">Serializing and Inserting Data</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">5. Selecting Data</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/01-parser-refactor-select/">Parser Refactor - Select</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/02-the-sql-analyzer/">The SQL Analyzer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/03-buffer-pool/">Buffer Pool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/04-table-scan/">Table Scan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../05-selecting-data/05-displaying-results/">Displaying Results</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">6. Data Types: Ints</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../06-data-types-ints/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">7. Data Types: Bool</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/01-hard-coded-table-refactor/">Hard-Coded Table Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/02-parser-refactor/">Parser Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/03-fill-and-defill/">Fill and Defill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../07-data-types-bool/04-select-updates/">Select Updates</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">8. Data Types: Varchar</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/02-storage-and-fill/">Storage and Fill</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/03-temporary-code-refactor/">Temporary Code Refactor</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/04-inserting-data/">Inserting Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../08-data-types-varchar/05-defill-and-display/">Defill and Display</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">9. Data Constraint: NULL</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../01-intro/">Intro</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Parser Refactor</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#scanner">Scanner</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#grammar">Grammar</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#parsetree-refactor">Parsetree Refactor</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03-writing-data/">Writing Data</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../04-reading-data/">Reading Data</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BurkeQL Tutorial</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">9. Data Constraint: NULL</li>
+      <li class="breadcrumb-item active">Parser Refactor</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/burke1791/burkeql-db/edit/master/docs/09-data-constraint-null/02-parser-refactor.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="parser-refactor">Parser Refactor</h1>
+<p>This is the last time we'll have to refactor code that we know is going to be thrown out in the future. Hurray! But I must begin with an apology. The amount of refactoring we need to do is quite significant, and it's made worse knowing we're going to toss it all out when we implement system catalogs soon.</p>
+<p>But this is the last time we'll have to write a bunch of throwaway code, so that's something!</p>
+<p>You're probably wondering why the refactor will be so large since our table is pretty much the same. Well, in order to support <code>Null</code>'s, we need to restructure our parser's insert statement grammar, which means we need to redo the <code>InsertStmt</code> struct, which means all of our temporary code that works with that struct needs to change as well. It's a real house of cards/trail of dominos situation.</p>
+<p>Let's just dive right in, starting with the parser.</p>
+<h2 id="scanner">Scanner</h2>
+<p>As a reminder, our table DDL looks like this:</p>
+<pre><code class="language-sql">Create Table person (
+    person_id Int Not Null,
+    first_name Varchar(20) Null,
+    last_name Varchar(20) Not Null,
+    age Int Null
+);
+</code></pre>
+<p>We have two columns that can store <code>Null</code> values. And in order to consume <code>Null</code>'s from the client, we need to update our scanner and grammar to be able to parse them.</p>
+<p>From the client's perspective, we want to consume <code>Null</code>'s like this:</p>
+<pre><code class="language-shell">bql &gt; insert 1 Null 'Burke' Null;
+</code></pre>
+<p>The <code>insert</code> command still expects four inputs, but in order to indicate you want a <code>Null</code> in a given field, you just pass in the literal keyword: "Null".</p>
+<p>Fortunately, the scanner update is quite simple:</p>
+<p><code>src/parser/scan.l</code></p>
+<pre><code class="language-diff"> INSERT    { return INSERT; }
+
++NULL      { return KW_NULL; }
+
+ SELECT    { return SELECT; }
+</code></pre>
+<p>We just add a new "NULL" keyword.</p>
+<h2 id="grammar">Grammar</h2>
+<p>The grammar, on the other hand, is a lot more complex by comparison.</p>
+<p><code>src/parser/gram.y</code></p>
+<pre><code class="language-diff"> %token INSERT
+
++%token KW_NULL
+
+ %token SELECT
+
+ %token KW_TRUE
+
+-%type &lt;node&gt; cmd stmt sys_cmd select_stmt insert_stmt target
++%type &lt;node&gt; cmd stmt sys_cmd select_stmt insert_stmt target literal
+
+-%type &lt;list&gt; target_list
++%type &lt;list&gt; target_list literal_values_list
+
+ %start query
+</code></pre>
+<p>We have to add a new token for <code>KW_NULL</code> to match what the new scanner token. Then we add two new rules, a <code>&lt;node&gt;</code> type called <code>literal</code>, and a <code>&lt;list&gt;</code> type called <code>literal_values_list</code>. As you can probably guess, the latter is just a <code>ParseList</code> of the former. More on these below.</p>
+<p><code>src/parser/gram.y</code></p>
+<pre><code class="language-diff">-insert_stmt: INSERT NUMBER STRING STRING NUMBER {
++insert_stmt: INSERT literal_values_list  {
+       InsertStmt* ins = create_node(InsertStmt);
+-      ins-&gt;personId = $2;
+-      ins-&gt;firstName = str_strip_quotes($3);
+-      ins-&gt;lastName = str_strip_quotes($4);
+-      ins-&gt;age = $5;
++      ins-&gt;values = $2;
+
+       $$ = (Node*)ins;
+     }
+   ;
+
++literal_values_list: literal {
++      $$ = create_parselist($1);
++    }
++  | literal_values_list literal {
++      $$ = parselist_append($1, $2);
++    }
++  ;
+</code></pre>
+<p>The big change in the insert grammar is instead of explicitly defined input rules for each of the four inputs, we now consume a list. And that list pattern is almost exactly the same pattern we use for the <code>target_list</code> in the select statement grammar.</p>
+<p>Notice that instead of individual fields hard-coded in the <code>InsertStmt</code> node, we have a new field called <code>values</code>. This is the big change that necessitates a bunch of downstream refactoring in our temporary code. But more on that later.</p>
+<p>What the heck is a <code>literal</code>?</p>
+<p><code>src/parser/gram.y</code></p>
+<pre><code class="language-diff">-bool: KW_FALSE {
+-      $$ = 0;
+-    }
+-  | KW_TRUE {
+-      $$ = 1;
+-    }
+-  ;
+
++literal: NUMBER {
++      Literal* l = create_node(Literal);
++      l-&gt;str = NULL;
++      l-&gt;intVal = $1;
++      l-&gt;isNull = false;
++      
++      $$ = (Node*)l;
++    }
++  | STRING {
++      Literal* l = create_node(Literal);
++      l-&gt;str = str_strip_quotes($1);
++      l-&gt;isNull = false;
++
++      $$ = (Node*)l;
++    }
++  | KW_NULL {
++      Literal* l = create_node(Literal);
++      l-&gt;str = NULL;
++      l-&gt;isNull = true;
++
++      $$ = (Node*)l;
++    }
++  | KW_FALSE {
++      Literal* l = create_node(Literal);
++      l-&gt;str = NULL;
++      l-&gt;boolVal = false;
++      l-&gt;isNull = false;
++
++      $$ = (Node*)l;
++    }
++  | KW_TRUE {
++      Literal* l = create_node(Literal);
++      l-&gt;str = NULL;
++      l-&gt;boolVal = true;
++      l-&gt;isNull = false;
++
++      $$ = (Node*)l;
++    }
++  ;
+</code></pre>
+<p>First, we toss out the <code>bool</code> grammar rule because we don't need it anymore. Then we define our <code>literal</code>. Glancing at the five different ways a literal is defined, you can see they just correspond to the different data types.</p>
+<p>Starting from the top, our first literal corresponds to the <code>NUMBER</code> token and is just an <code>int</code>. You'll notice we're creating a new node type, called <code>Literal</code>, which we'll need to define. But suffice to say, the <code>Literal</code> struct has a field for each type of data we support. <code>NUMBER</code>'s get assigned to the <code>intVal</code> field, <code>STRING</code>'s are assigned to the <code>str</code> field, and so on.</p>
+<p>Two noteworthy things to mention. (1) the <code>isNull</code> field is set in all cases. And (2) we set <code>str</code> to <code>NULL</code> for all non-<code>STRING</code> data types.</p>
+<p>The first, <code>isNull</code>, is super important for downstream processing. Our <code>fill_val</code> function needs to know if the incoming data is null or not so it can either write data to the record or not.</p>
+<p>The second, <code>str</code>, is important simply because it is a pointer. All unused pointers must be explicitly set to <code>NULL</code> otherwise any access to them, even to attempt freeing the memory, is undefined behavior. So we MUST set it to <code>NULL</code> if we're not using it.</p>
+<h2 id="parsetree-refactor">Parsetree Refactor</h2>
+<p>Now that our scanner and grammar refactor is complete, let's update our parsetree structs and code.</p>
+<p><code>src/include/parser/parsetree.h</code></p>
+<pre><code class="language-diff"> #ifndef PARSETREE_H
+ #define PARSETREE_H
+
+ #include &lt;stdint.h&gt;
++#include &lt;stdbool.h&gt;
+
+ typedef enum NodeTag {
+   T_SysCmd,
+   T_InsertStmt,
+   T_SelectStmt,
+   T_ParseList,
+   T_ResTarget,
++  T_Literal
+ } NodeTag;
+</code></pre>
+<p>We need to include a new standard library to support using the <code>bool</code> primitive in our new <code>Literal</code> struct below. And we also add the <code>T_Literal</code> node tag to the enum.</p>
+<p><code>src/include/parser/parsetree.h</code></p>
+<pre><code class="language-diff"> typedef struct InsertStmt {
+   NodeTag type;
+-  int32_t personId;
+-  char* firstName;
+-  char* lastName;
+-  int32_t age;
++  ParseList* values;
+ } InsertStmt;
+
+ typedef struct ResTarget {
+   NodeTag type;
+   char* name;
+ } ResTarget;
+
+ typedef struct SelectStmt {
+   NodeTag type;
+   ParseList* targetList;
+ } SelectStmt;
+
++typedef struct Literal {
++  NodeTag type;
++  bool isNull;
++  int64_t intVal;
++  char* str;
++  bool boolVal;
++} Literal;
+</code></pre>
+<p>Next we delete the hard-coded fields in the <code>InsertStmt</code> struct and replace them with a more flexible <code>ParseList*</code> field. This is how the grammar can stash its <code>literal_values_list</code> grammar rule into the <code>InsertStmt</code> node.</p>
+<p>Next, we define the <code>Literal</code> struct. It has a field for each of the data type we support, <code>bool</code>, <code>int</code>'s, and <code>char*</code>, as well as a meta <code>isNull</code> field. The <code>int</code> is an 8-byte integer because it's the largest number type our database supports and upsize conversions are lossless. If the client tries to input a number that would overflow the data type.. well that's a problem for the analyzer - which we will not implement yet.</p>
+<p>Anyways, moving on to the parsetree code.</p>
+<p><code>src/parser/parsetree.c</code></p>
+<pre><code class="language-diff"> static void free_insert_stmt(InsertStmt* ins) {
+   if (ins == NULL) return;
+
+-  free(ins-&gt;firstName);
+-  free(ins-&gt;lastName);
++  free_parselist(ins-&gt;values);
++  free(ins-&gt;values);
+ }
+
++static void free_literal(Literal* l) {
++  if (l-&gt;str != NULL) {
++    free(l-&gt;str);
++  }
++}
+
+ void free_node(Node* n) {
+   if (n == NULL) return;
+
+   switch (n-&gt;type) {
+     case T_SysCmd:
+       free_syscmd((SysCmd*)n);
+       break;
+     case T_InsertStmt:
+       free_insert_stmt((InsertStmt*)n);
+       break;
+     case T_SelectStmt:
+       free_selectstmt((SelectStmt*)n);
+       break;
+     case T_ParseList:
+       free_parselist((ParseList*)n);
+       break;
+     case T_ResTarget:
+       free_restarget((ResTarget*)n);
+       break;
++    case T_Literal:
++      free_literal((Literal*)n);
++      break;
+     default:
+       printf(&quot;Unknown node type\n&quot;);
+   }
+
+   free(n);
+ }
+</code></pre>
+<p>First, we update code for freeing the memory consumed by our refactored <code>InsertStmt</code> node and the new <code>Literal</code> node. Pretty straightforward.</p>
+<p><code>src/parser/parsetree.c</code></p>
+<pre><code class="language-diff"> #include &quot;parser/parsetree.h&quot;
++#include &quot;storage/record.h&quot;
+
+*** omitted for brevity ***
+
++// Probably a temporary function
++static void print_insertstmt_literal(Literal* l, char* colname, DataType dt) {
++  int padLen = 20 - strlen(colname);
++
++  if (l-&gt;isNull) {
++    printf(&quot;=  %s%*sNULL\n&quot;, colname, padLen, &quot; &quot;);
++  } else {
++    switch (dt) {
++      case DT_VARCHAR:
++        printf(&quot;=  %s%*s%s\n&quot;, colname, padLen, &quot; &quot;, l-&gt;str);
++        break;
++      case DT_INT:
++        printf(&quot;=  %s%*s%d\n&quot;, colname, padLen, &quot; &quot;, (int32_t)l-&gt;intVal);
++        break;
++    }
++  }
++}
+
+ void print_node(Node* n) {
+   if (n == NULL) {
+     printf(&quot;print_node() | Node is NULL\n&quot;);
+     return;
+   }
+
+   printf(&quot;======  Node  ======\n&quot;);
+
+   switch (n-&gt;type) {
+     case T_SysCmd:
+       printf(&quot;=  Type: SysCmd\n&quot;);
+       printf(&quot;=  Cmd: %s\n&quot;, ((SysCmd*)n)-&gt;cmd);
+       break;
+     case T_InsertStmt: {
++      InsertStmt* i = (InsertStmt*)n;
+       printf(&quot;=  Type: Insert\n&quot;);
+-      printf(&quot;=  person_id:           %d\n&quot;, ((InsertStmt*)n)-&gt;personId);
+-      printf(&quot;=  first_name:          %s\n&quot;, ((InsertStmt*)n)-&gt;firstName);
+-      printf(&quot;=  last_name:           %s\n&quot;, ((InsertStmt*)n)-&gt;lastName);
+-      printf(&quot;=  age:                 %d\n&quot;, ((InsertStmt*)n)-&gt;age);
++      print_insertstmt_literal((Literal*)i-&gt;values-&gt;elements[0].ptr, &quot;person_id&quot;, DT_INT);
++      print_insertstmt_literal((Literal*)i-&gt;values-&gt;elements[1].ptr, &quot;first_name&quot;, DT_VARCHAR);
++      print_insertstmt_literal((Literal*)i-&gt;values-&gt;elements[2].ptr, &quot;last_name&quot;, DT_VARCHAR);
++      print_insertstmt_literal((Literal*)i-&gt;values-&gt;elements[3].ptr, &quot;age&quot;, DT_INT);
+       break;
+     }
+     case T_SelectStmt:
+       print_selectstmt((SelectStmt*)n);
+       break;
+     default:
+       printf(&quot;print_node() | unknown node type\n&quot;);
+   }
+ }
+</code></pre>
+<p>Next, we restructure how our <code>print_node</code> function works. Instead of explicitly printing the hard-coded fields of the <code>InsertStmt</code> node, we create a helper function (probably temporary, ugh!), that prints what we want.</p>
+<p>The reason we're using a temporary function instead of drilling into the <code>Literal</code> struct in a <code>printf</code> call is because we need to check if the value is <code>Null</code> first. If the value is <code>Null</code>, then we just want to print the string "NULL", otherwise we print its value.</p>
+<p>Since our table only has <code>Varchar</code> and <code>Int</code> types, I'm only including <code>DT_VARCHAR</code> and <code>DT_INT</code> in the switch/case block of the helper function. If we had more than just those columns, we would need to voer those types.</p>
+<p>That concludes our parser refactor. In the next section we're going to refactor how our storage engine writes data to a record. And it gets interesting because we're going to delve into the wonderful world of bitfield manipulation.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../01-intro/" class="btn btn-neutral float-left" title="Intro"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../03-writing-data/" class="btn btn-neutral float-right" title="Writing Data">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/burke1791/burkeql-db/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../01-intro/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../03-writing-data/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
