@@ -113,57 +113,57 @@ static void serialize_data(RecordDescriptor* rd, Record r, ParseList* values) {
   free(varlenNull);
 }
 
-static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
-  int len = 12; // start with the 12-byte header
-  len += compute_null_bitmap_length(rd);
+// static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
+//   int len = 12; // start with the 12-byte header
+//   len += compute_null_bitmap_length(rd);
 
-  len += 4; // person_id
+//   len += 4; // person_id
 
-  Literal* firstName = (Literal*)values->elements[1].ptr;
-  Literal* lastName = (Literal*)values->elements[2].ptr;
-  Literal* age = (Literal*)values->elements[3].ptr;
+//   Literal* firstName = (Literal*)values->elements[1].ptr;
+//   Literal* lastName = (Literal*)values->elements[2].ptr;
+//   Literal* age = (Literal*)values->elements[3].ptr;
 
-  /* for the varlen columns, we default to their max length if the values
-     we're trying to insert would overflow them (they'll get truncated later) */
-  if (firstName->isNull) {
-    len += 0; // Nulls do not consume any space
-  } else if (strlen(firstName->str) > rd->cols[1].len) {
-    len += (rd->cols[1].len + 2);
-  } else {
-    len += (strlen(firstName->str) + 2);
-  }
+//   /* for the varlen columns, we default to their max length if the values
+//      we're trying to insert would overflow them (they'll get truncated later) */
+//   if (firstName->isNull) {
+//     len += 0; // Nulls do not consume any space
+//   } else if (strlen(firstName->str) > rd->cols[1].len) {
+//     len += (rd->cols[1].len + 2);
+//   } else {
+//     len += (strlen(firstName->str) + 2);
+//   }
 
-  // We don't need a null check because this column is constrained to be Not Null
-  if (strlen(lastName->str) > rd->cols[2].len) {
-    len += (rd->cols[2].len + 2);
-  } else {
-    len += (strlen(lastName->str) + 2);
-  }
+//   // We don't need a null check because this column is constrained to be Not Null
+//   if (strlen(lastName->str) > rd->cols[2].len) {
+//     len += (rd->cols[2].len + 2);
+//   } else {
+//     len += (strlen(lastName->str) + 2);
+//   }
 
-  if (age->isNull) {
-    len += 0; // Nulls do not consume any space
-  } else {
-    len += 4; // age
-  }
+//   if (age->isNull) {
+//     len += 0; // Nulls do not consume any space
+//   } else {
+//     len += 4; // age
+//   }
 
-  return len;
-}
+//   return len;
+// }
 
-static bool insert_record(BufMgr* buf, ParseList* values) {
-  RecordDescriptor* rd = construct_record_descriptor();
+// static bool insert_record(BufMgr* buf, ParseList* values) {
+//   RecordDescriptor* rd = construct_record_descriptor();
 
-  int recordLength = compute_record_length(rd, values);
-  Record r = record_init(recordLength);
+//   int recordLength = compute_record_length(rd, values);
+//   Record r = record_init(recordLength);
 
-  serialize_data(rd, r, values);
+//   serialize_data(rd, r, values);
 
-  bool insertSuccessful = tableam_insert(buf, NULL, r, recordLength);
+//   bool insertSuccessful = tableam_insert(buf, NULL, r, recordLength);
 
-  free_record_desc(rd);
-  free(r);
+//   free_record_desc(rd);
+//   free(r);
   
-  return insertSuccessful;
-}
+//   return insertSuccessful;
+// }
 
 static bool analyze_selectstmt(SelectStmt* s) {
   for (int i = 0; i < s->targetList->length; i++) {
@@ -205,16 +205,6 @@ static bool analyze_node(Node* n) {
   return false;
 }
 
-static void run_syscmd(const char* cmd, BufMgr* buf) {
-  switch (parse_syscmd(cmd)) {
-    case SYSCMD_BUFFER_SUMMARY:
-      bufmgr_diag_summary(buf);
-      break;
-    case SYSCMD_UNRECOGNIZED:
-      printf("Unrecognized system command\n");
-  }
-}
-
 /* END TEMPORARY CODE */
 
 static void print_prompt() {
@@ -234,7 +224,13 @@ int main(int argc, char** argv) {
 
   BufMgr* buf = bufmgr_init();
 
-  // initdb(buf);
+  if (!initdb(buf)) {
+    printf("initdb failed\n");
+    printf("Shutting down...\n");
+    bufmgr_flush_all(buf);
+    bufmgr_destroy(buf);
+    return EXIT_SUCCESS;
+  }
 
   while(true) {
     print_prompt();
@@ -257,14 +253,14 @@ int main(int argc, char** argv) {
         }
         break;
       case T_InsertStmt: {
-        if (!analyze_node(n)) {
-          printf("Semantic analysis failed\n");
-        } else {
-          InsertStmt* i = (InsertStmt*)n;
-          if (!insert_record(buf, i->values)) {
-            printf("Unable to insert record\n");
-          }
-        }
+        // if (!analyze_node(n)) {
+        //   printf("Semantic analysis failed\n");
+        // } else {
+        //   InsertStmt* i = (InsertStmt*)n;
+        //   if (!insert_record(buf, i->values)) {
+        //     printf("Unable to insert record\n");
+        //   }
+        // }
         break;
       }
       case T_SelectStmt:
@@ -274,10 +270,9 @@ int main(int argc, char** argv) {
           TableDesc* td = new_tabledesc("person");
           td->rd = construct_record_descriptor();
           RecordSet* rs = new_recordset();
-          rs->rows = new_linkedlist();
           RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)->targetList);
           
-          tableam_fullscan(buf, td, rs->rows);
+          tableam_fullscan(buf, td, rs);
           resultset_print(td->rd, rs, targets);
 
           free_recordset(rs, td->rd);

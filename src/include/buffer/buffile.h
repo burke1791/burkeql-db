@@ -27,4 +27,6 @@ FileDesc* buffile_search(FileDescList* fdl, uint32_t fileId);
 
 uint32_t buffile_get_new_pageid(FileDescList* fdl, uint32_t fileId);
 
+void buffile_diag_summary(FileDescList* fdl);
+
 #endif /* BUFFILE_H */

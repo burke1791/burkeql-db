@@ -47,6 +47,7 @@ Page new_page();
 void free_page(Page pg);
 
 void page_zero(Page pg);
+void pageheader_init_datapage(Page pg);
 
 void pageheader_set_pageid(Page pg, uint32_t pageId);
 void pageheader_set_prevpageid(Page pg, uint32_t pageId);

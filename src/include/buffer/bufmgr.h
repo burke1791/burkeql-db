@@ -51,29 +51,30 @@ BufMgr* bufmgr_init();
 void bufmgr_destroy(BufMgr* buf);
 
 int32_t bufmgr_request_bufId(BufMgr* buf, BufTag* tag);
+void bufmgr_release_bufId(BufMgr* buf, int32_t bufId);
 int32_t bufmgr_allocate_new_page(BufMgr* buf, uint32_t fileId);
-
-/**
- * @brief Allocates a new page at the end of a linkedlist of pages
- * 
- * @param buf 
- * @param prev 
- * @return int32_t 
- */
-int32_t bufmgr_pagesplit_append(BufMgr* buf, BufTag* prev);
-
-/**
- * @brief Allocates a new page in the middle of a linked list of pages
- * 
- * @param buf 
- * @param prev 
- * @param next 
- * @return int32_t 
- */
-int32_t bufmgr_pagesplit_insert(BufMgr* buf, BufTag* prev, BufTag* next);
 
 void bufmgr_flush_page(BufMgr* buf, BufTag* tag);
 void bufmgr_flush_all(BufMgr* buf);
+
+/**
+ * @brief Splits a database page. The page represented by `tag`
+ * will be the "prevPageId" for the new page.
+ * 
+ * @details This function allocates a new page for the table or index
+ * represented by `objectId`. It then synchronizes the linked list
+ * of pageId's in the page header. If this is an "append" page split, 
+ * then we only update the previous page's header fields. If this is an
+ * "insert" page split, then we need to update both the previous page
+ * and the next page.
+ * 
+ * @param buf 
+ * @param tag 
+ * @return int32_t
+ */
+int32_t bufmgr_page_split(BufMgr* buf, int32_t bufId);
+/* Same as the above, but it does not synchronize the `lastPageId` column */
+int32_t bufmgrinit_page_split(BufMgr* buf, BufTag* tag);
 
 /**
  * @brief System command functions for printing diagnostic information to the terminal
@@ -81,5 +82,6 @@ void bufmgr_flush_all(BufMgr* buf);
  */
 
 void bufmgr_diag_summary(BufMgr* buf);
+void bufmgr_diag_details(BufMgr* buf);
 
 #endif /* BUFMGR_H */

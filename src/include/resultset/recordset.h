@@ -16,7 +16,7 @@ typedef struct RecordSet {
 RecordSet* new_recordset();
 void free_recordset(RecordSet* rs, RecordDescriptor* rd);
 
-RecordSetRow* new_recordset_row(int ncols);
+RecordSetRow* new_recordset_row(LinkedList* rows, int ncols);
 void free_recordset_row(RecordSetRow* row, RecordDescriptor* rd);
 
 #endif /* RECORDSET_H */

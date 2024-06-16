@@ -96,3 +96,20 @@ uint32_t buffile_get_new_pageid(FileDescList* fdl, uint32_t fileId) {
   fdesc->nextPageId++;
   return newPageId;
 }
+
+void buffile_diag_summary(FileDescList* fdl) {
+  printf("----------------------------------\n");
+  printf("---     Buffer File Summary    ---\n");
+  printf("----------------------------------\n");
+  
+  ListItem* li = fdl->head;
+
+  while (li != NULL) {
+    FileDesc* fdesc = (FileDesc*)li->ptr;
+    printf("= Filename: %s\n", fdesc->filename);
+    printf("= FileId:   %d\n", fdesc->fileId);
+    printf("----------------------------------\n");
+
+    li = li->next;
+  }
+}

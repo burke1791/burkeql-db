@@ -57,7 +57,6 @@ bool bufpool_read_page(FileDescList* fdl, BufPool* bp, int32_t bufId, BufTag* ta
   int bytes_read = read(fdesc->fd, bp->pages[bufId], conf->pageSize);
 
   if (bytes_read != conf->pageSize) {
-    printf("Bytes read: %d\n", bytes_read);
     return false;
   }
 
@@ -66,6 +65,8 @@ bool bufpool_read_page(FileDescList* fdl, BufPool* bp, int32_t bufId, BufTag* ta
 
 bool bufpool_flush_page(FileDescList* fdl, BufDescArr* bd, BufPool* bp, int32_t bufId) {
   BufDesc* bdesc = (BufDesc*)bd->descArr[bufId];
+  if (bdesc->tag->fileId == 0 || bdesc->tag->pageId == 0) return true;
+  
   FileDesc* fdesc = buffile_open(fdl, bdesc->tag->fileId);
 
   lseek(fdesc->fd, (bdesc->tag->pageId - 1) * conf->pageSize, SEEK_SET);

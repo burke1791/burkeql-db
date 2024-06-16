@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "system/boot.h"
 #include "global/config.h"
@@ -10,6 +11,13 @@ bool init_boot_page(BufMgr* buf, BufTag* tag) {
   tag->pageId = BOOT_PAGE_ID;
   
   int32_t bufId = bufmgr_request_bufId(buf, tag);
+  if (bufId < 0) {
+    bufId = bufmgr_allocate_new_page(buf, FILE_DATA);
+    if (buf->bd->descArr[bufId]->tag->pageId != BOOT_PAGE_ID) {
+      printf("Allocated page is not the boot page\n");
+      return false;
+    }
+  }
   page_zero(buf->bp->pages[bufId]);
 
   set_major_version(buf, bufId, MAJOR_VERSION);
@@ -23,7 +31,9 @@ bool init_boot_page(BufMgr* buf, BufTag* tag) {
 }
 
 static int32_t get_boot_page_bufid(BufMgr* buf) {
-  int32_t bufId = bufmgr_request_bufId(buf, BOOT_PAGE_ID);
+  BufTag* tag = bufdesc_new_buftag(FILE_DATA, BOOT_PAGE_ID);
+  int32_t bufId = bufmgr_request_bufId(buf, tag);
+  bufdesc_free_buftag(tag);
 
   return bufId;
 }

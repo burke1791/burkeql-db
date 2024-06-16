@@ -9,13 +9,24 @@
 typedef char* Record;
 
 typedef enum DataType {
-  DT_TINYINT,     /* 1-byte, unsigned */
-  DT_SMALLINT,    /* 2-bytes, signed */
-  DT_INT,         /* 4-bytes, signed */
-  DT_BIGINT,      /* 8-bytes, signed */
-  DT_BOOL,        /* 1-byte, unsigned | similar to DT_TINYINT, but always evaluates to 1 or 0 */
-  DT_CHAR,        /* Byte-size defined at table creation */
-  DT_VARCHAR,     /* Variable length. A 2-byte "header" stores the length of the column
+  DT_TINYINT = 0,     /* 1-byte, unsigned */
+  DT_SMALLINT = 1,    /* 2-bytes, signed */
+  DT_INT = 2,         /* 4-bytes, signed */
+  DT_BIGINT = 3,      /* 8-bytes, signed */
+  DT_BOOL = 4,        /* 1-byte, unsigned | similar to DT_TINYINT, but always evaluates to 1 or 0 */
+  // DT_DECIMAL = 5,     /* Storage size depends on the precision:
+  //                        Precision  |  Bytes
+  //                        1 - 9      |  5
+  //                        10 - 19    |  9
+  //                        20 - 28    |  13
+  //                        29 - 38    |  17
+                         
+  //                        The first byte stores metadata about the number,
+  //                        e.g. location of the decimal point, and the remaining
+  //                        bytes store the digits as if it were a whole number */
+  // DT_DATETIME = 6,    /* Undecided how to store these */
+  DT_CHAR = 7,        /* Byte-size defined at table creation */
+  DT_VARCHAR = 8,     /* Variable length. A 2-byte "header" stores the length of the column
                      followed by the actual column bytes */
   DT_UNKNOWN
 } DataType;
@@ -71,7 +82,10 @@ int compute_record_length(
   bool* varlenNull
 );
 int compute_record_fixed_length(RecordDescriptor* rd, bool* fixedNull);
+int compute_offset_to_column(RecordDescriptor* rd, Record r, int colId);
 
 bool col_isnull(int colnum, uint8_t* nullBitmap);
+
+void free_datum_array(RecordDescriptor* rd, Datum* values);
 
 #endif /* RECORD_H */

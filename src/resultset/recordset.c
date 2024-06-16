@@ -5,9 +5,19 @@
 
 RecordSet* new_recordset() {
   RecordSet* rs = malloc(sizeof(RecordSet));
-  rs->rows = NULL;
+  rs->rows = new_linkedlist();
 
   return rs;
+}
+
+RecordSetRow* new_recordset_row(LinkedList* rows, int ncols) {
+  RecordSetRow* row = malloc(sizeof(RecordSetRow));
+  row->values = malloc(ncols * sizeof(Datum));
+  row->isnull = malloc(ncols * sizeof(bool));
+
+  linkedlist_append(rows, row);
+
+  return row;
 }
 
 static void free_recordset_row_columns(RecordSetRow* row, RecordDescriptor* rd) {
@@ -38,15 +48,8 @@ void free_recordset(RecordSet* rs, RecordDescriptor* rd) {
   free(rs);
 }
 
-RecordSetRow* new_recordset_row(int ncols) {
-  RecordSetRow* row = malloc(sizeof(RecordSetRow));
-  row->values = malloc(ncols * sizeof(Datum));
-  row->isnull = malloc(ncols * sizeof(bool));
-  return row;
-}
-
 void free_recordset_row(RecordSetRow* row, RecordDescriptor* rd) {
-  if (row->values != NULL) {
+  if (row != NULL && row->values != NULL) {
     free_recordset_row_columns(row, rd);
     free(row->values);
     free(row->isnull);

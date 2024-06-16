@@ -43,7 +43,7 @@ void bufdesc_free_buftag(BufTag* tag) {
   free(tag);
 }
 
-static bool bufdesc_is_unused(BufDesc* desc) {
+bool bufdesc_is_unused(BufDesc* desc) {
   if (desc->tag->fileId == 0 || desc->tag->pageId == 0) return true;
 
   return false;
@@ -62,9 +62,25 @@ void bufdesc_pin(BufDesc* desc) {
   desc->useCount++;
 }
 
+void bufdesc_unpin(BufDesc* desc) {
+  desc->pinCount--;
+}
+
 void bufdesc_set_tag(BufDesc* desc, BufTag* tag) {
   desc->tag->fileId = tag->fileId;
   desc->tag->pageId = tag->pageId;
+}
+
+void bufdesc_set_dirty(BufDesc* desc) {
+  desc->isDirty = true;
+}
+
+void bufdesc_reset(BufDesc* desc) {
+  desc->isDirty = false;
+  desc->pinCount = 0;
+  desc->useCount = 0;
+  desc->tag->fileId = 0;
+  desc->tag->pageId = 0;
 }
 
 static bool bufdesc_tag_comparison(BufTag* tag1, BufTag* tag2) {

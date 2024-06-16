@@ -42,11 +42,16 @@ void bufdesc_destroy(BufDescArr* bd);
 BufTag* bufdesc_new_buftag(uint32_t fileId, int32_t pageId);
 void bufdesc_free_buftag(BufTag* tag);
 
+bool bufdesc_is_unused(BufDesc* desc);
+
 void bufdesc_start_io(BufDesc* desc);
 void bufdesc_end_io(BufDesc* desc);
 void bufdesc_pin(BufDesc* desc);
+void bufdesc_unpin(BufDesc* desc);
 
 void bufdesc_set_tag(BufDesc* desc, BufTag* tag);
+void bufdesc_set_dirty(BufDesc* desc);
+void bufdesc_reset(BufDesc* desc);
 
 int32_t bufdesc_find_slot(BufDescArr* bd, BufTag* tag);
 int32_t bufdesc_find_empty_slot(BufDescArr* bd);

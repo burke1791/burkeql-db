@@ -22,7 +22,12 @@ SRC_FILES = main.c \
 						storage/record.c \
 						storage/datum.c \
 						storage/table.c \
+						system/boot.c \
+						system/initdb.c \
 						system/syscmd.c \
+						system/systable.c \
+						system/syscolumn.c \
+						system/syssequence.c \
 						utility/linkedlist.c
 
 

@@ -22,6 +22,14 @@ void page_zero(Page pg) {
   memset(pg, 0, conf->pageSize);
 }
 
+void pageheader_init_datapage(Page pg) {
+  PageHeader* pgHdr = (PageHeader*)pg;
+  pgHdr->pageType = 0;
+  pgHdr->numRecords = 0;
+  pgHdr->freeBytes = conf->pageSize - sizeof(PageHeader);
+  pgHdr->freeData = conf->pageSize - sizeof(PageHeader);
+}
+
 void pageheader_set_pageid(Page pg, uint32_t pageId) {
   PageHeader* pgHdr = (PageHeader*)pg;
   pgHdr->pageId = pageId;
@@ -59,7 +67,9 @@ static bool page_has_space(Page pg, int length) {
  */
 bool page_insert(Page pg, Record data, uint16_t length) {
   int spaceRequired = length + sizeof(SlotPointer);
-  if (!page_has_space(pg, spaceRequired)) return false;
+  if (!page_has_space(pg, spaceRequired)) {
+    return false;
+  }
 
   SlotPointer* sp = malloc(sizeof(SlotPointer));
   sp->length = length;
