@@ -15,8 +15,9 @@ typedef struct LinkedList {
 } LinkedList;
 
 LinkedList* new_linkedlist();
-void free_linkedlist(LinkedList* l);
+void free_linkedlist(LinkedList* l, void (*cleanup)(void*));
 
 void linkedlist_append(LinkedList* l, void* ptr);
+ListItem* linkedlist_search(LinkedList* l, void* ptr, bool (*comparison)(void*, void*));
 
 #endif /* LINKEDLIST_H */

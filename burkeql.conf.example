@@ -5,3 +5,6 @@ DATA_FILE=
 
 # Byte size of a data page (must be a power of two)
 PAGE_SIZE=
+
+# Number of slots in the buffer pool
+BUFPOOL_SIZE=

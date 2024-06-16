@@ -17,13 +17,15 @@ void free_config(Config* conf) {
 
 void print_config(Config* conf) {
   printf("======   BurkeQL Config   ======\n");
-  printf("= DATA_FILE: %s\n", conf->dataFile);
-  printf("= PAGE_SIZE: %d\n", conf->pageSize);
+  printf("= DATA_FILE:    %s\n", conf->dataFile);
+  printf("= PAGE_SIZE:    %d\n", conf->pageSize);
+  printf("= BUFPOOL_SIZE: %d\n", conf->bufpoolSize);
 }
 
 static ConfigParameter parse_config_param(char* p) {
   if (strcmp(p, "DATA_FILE") == 0) return CONF_DATA_FILE;
   if (strcmp(p, "PAGE_SIZE") == 0) return CONF_PAGE_SIZE;
+  if (strcmp(p, "BUFPOOL_SIZE") == 0) return CONF_BUFPOOL_SIZE;
 
   return CONF_UNRECOGNIZED;
 }
@@ -37,6 +39,8 @@ static void set_config_value(Config* conf, ConfigParameter p, char* v) {
     case CONF_PAGE_SIZE:
       conf->pageSize = atoi(v);
       break;
+    case CONF_BUFPOOL_SIZE:
+      conf->bufpoolSize = atoi(v);
   }
 }
 

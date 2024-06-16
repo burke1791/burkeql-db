@@ -1,35 +1,76 @@
 #include <stdlib.h>
 
 #include "access/tableam.h"
-#include "resultset/recordset.h"
 #include "global/config.h"
+#include "system/systable.h"
 
 extern Config* conf;
 
 /**
- * scan_table
+ * @brief 
  * 
- * Starting with pageId 1, we loop through all slot pointers.
- * 1. Allocate a Datum array
- * 2. `defill_record` the Datum array only with the columns in RecordSet->RecordDescriptor
- * 3. Append the Datum array to RecordSet->rows
- * 4. Repeat until the PgHdr->nextPageId = 0
+ * @param buf 
+ * @param td 
+ * @param rs 
  */
-void tableam_fullscan(BufPool* bp, TableDesc* td, LinkedList* rows) {
-  BufPoolSlot* slot = bufpool_read_page(bp, 1);
+void tableam_fullscan(BufMgr* buf, TableDesc* td, RecordSet* rs) {
+  int32_t pageId = systable_get_first_pageid(buf, td->tablename);
+  BufTag* tag = bufdesc_new_buftag(FILE_DATA, pageId);
+  int32_t bufId = bufmgr_request_bufId(buf, tag);
 
-  while (slot != NULL) {
-    PageHeader* pgHdr = (PageHeader*)slot->pg;
+  while (bufId >= 0) {
+    Page pg = (Page)buf->bp->pages[bufId];
+    PageHeader* pgHdr = (PageHeader*)pg;
     int numRecords = pgHdr->numRecords;
 
     for (int i = 0; i < numRecords; i++) {
-      RecordSetRow* row = new_recordset_row(td->rd->ncols);
+      RecordSetRow* row = new_recordset_row(rs->rows, td->rd->ncols);
       int slotPointerOffset = conf->pageSize - (sizeof(SlotPointer) * (i + 1));
-      SlotPointer* sp = (SlotPointer*)(slot->pg + slotPointerOffset);
-      defill_record(td->rd, slot->pg + sp->offset, row->values, row->isnull);
-      linkedlist_append(rows, row);
+      SlotPointer* sp = (SlotPointer*)(pg + slotPointerOffset);
+      defill_record(td->rd, pg + sp->offset, row->values, row->isnull);
     }
 
-    slot = bufpool_read_page(bp, pgHdr->nextPageId);
+    tag->pageId = pgHdr->nextPageId;
+    bufmgr_release_bufId(buf, bufId);
+    bufId = bufmgr_request_bufId(buf, tag);
   }
+
+  bufdesc_free_buftag(tag);
+}
+
+/**
+ * @brief Inserts a record into a table
+ * 
+ * Loops through all pages until it finds enough empty space to insert the record
+ * 
+ * @hardcode - we're hard-coding pageId = 1 for now
+ * 
+ * @param buf 
+ * @param td (currently unused)
+ * @param values 
+ * @return true 
+ * @return false 
+ */
+bool tableam_insert(BufMgr* buf, TableDesc* td, Record r, uint16_t recordLen) {
+  BufTag* tag = malloc(sizeof(BufTag));
+  tag->fileId = FILE_DATA;
+  tag->pageId = 1;
+  int32_t bufId = bufmgr_request_bufId(buf, tag);
+
+  if (bufId < 0) return false;
+
+  while (bufId >= 0) {
+    Page pg = buf->bp->pages[bufId];
+    if (page_insert(pg, r, recordLen)) {
+      free(tag);
+      return true;
+    }
+
+    tag->pageId = ((PageHeader*)pg)->nextPageId;
+    bufId = bufmgr_request_bufId(buf, tag);
+  }
+
+  free(tag);
+
+  return false;
 }

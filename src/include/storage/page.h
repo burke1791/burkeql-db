@@ -46,6 +46,13 @@ typedef struct SlotPointer {
 Page new_page();
 void free_page(Page pg);
 
+void page_zero(Page pg);
+void pageheader_init_datapage(Page pg);
+
+void pageheader_set_pageid(Page pg, uint32_t pageId);
+void pageheader_set_prevpageid(Page pg, uint32_t pageId);
+void pageheader_set_nextpageid(Page pg, uint32_t pageId);
+
 bool page_insert(Page pg, Record data, uint16_t length);
 
 #endif /* PAGE_H */

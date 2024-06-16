@@ -186,6 +186,8 @@ Create Table person (
 
 - Create a new page when an insert won't fit on an existing page
 - Page metadata functionality - linked list in the header fields
+- Because tables are heaps, we will loop through all existing pages until we find one that has enough space
+- Introduce buffer tags and fully flesh out the buffer pool (except for locks)
 
 ### System Catalog - _tables (planned)
 

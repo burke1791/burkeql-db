@@ -8,15 +8,16 @@
 #include "parser/parsetree.h"
 #include "parser/parse.h"
 #include "global/config.h"
-#include "storage/file.h"
 #include "storage/page.h"
 #include "storage/table.h"
-#include "buffer/bufpool.h"
+#include "buffer/bufmgr.h"
 #include "storage/table.h"
 #include "resultset/recordset.h"
 #include "resultset/resultset_print.h"
 #include "access/tableam.h"
 #include "utility/linkedlist.h"
+#include "system/syscmd.h"
+#include "system/initdb.h"
 
 Config* conf;
 
@@ -112,58 +113,57 @@ static void serialize_data(RecordDescriptor* rd, Record r, ParseList* values) {
   free(varlenNull);
 }
 
-static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
-  int len = 12; // start with the 12-byte header
-  len += compute_null_bitmap_length(rd);
+// static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
+//   int len = 12; // start with the 12-byte header
+//   len += compute_null_bitmap_length(rd);
 
-  len += 4; // person_id
+//   len += 4; // person_id
 
-  Literal* firstName = (Literal*)values->elements[1].ptr;
-  Literal* lastName = (Literal*)values->elements[2].ptr;
-  Literal* age = (Literal*)values->elements[3].ptr;
+//   Literal* firstName = (Literal*)values->elements[1].ptr;
+//   Literal* lastName = (Literal*)values->elements[2].ptr;
+//   Literal* age = (Literal*)values->elements[3].ptr;
 
-  /* for the varlen columns, we default to their max length if the values
-     we're trying to insert would overflow them (they'll get truncated later) */
-  if (firstName->isNull) {
-    len += 0; // Nulls do not consume any space
-  } else if (strlen(firstName->str) > rd->cols[1].len) {
-    len += (rd->cols[1].len + 2);
-  } else {
-    len += (strlen(firstName->str) + 2);
-  }
+//   /* for the varlen columns, we default to their max length if the values
+//      we're trying to insert would overflow them (they'll get truncated later) */
+//   if (firstName->isNull) {
+//     len += 0; // Nulls do not consume any space
+//   } else if (strlen(firstName->str) > rd->cols[1].len) {
+//     len += (rd->cols[1].len + 2);
+//   } else {
+//     len += (strlen(firstName->str) + 2);
+//   }
 
-  // We don't need a null check because this column is constrained to be Not Null
-  if (strlen(lastName->str) > rd->cols[2].len) {
-    len += (rd->cols[2].len + 2);
-  } else {
-    len += (strlen(lastName->str) + 2);
-  }
+//   // We don't need a null check because this column is constrained to be Not Null
+//   if (strlen(lastName->str) > rd->cols[2].len) {
+//     len += (rd->cols[2].len + 2);
+//   } else {
+//     len += (strlen(lastName->str) + 2);
+//   }
 
-  if (age->isNull) {
-    len += 0; // Nulls do not consume any space
-  } else {
-    len += 4; // age
-  }
+//   if (age->isNull) {
+//     len += 0; // Nulls do not consume any space
+//   } else {
+//     len += 4; // age
+//   }
 
-  return len;
-}
+//   return len;
+// }
 
-static bool insert_record(BufPool* bp, ParseList* values) {
-  BufPoolSlot* slot = bufpool_read_page(bp, 1);
-  if (slot == NULL) slot = bufpool_new_page(bp);
-  RecordDescriptor* rd = construct_record_descriptor();
+// static bool insert_record(BufMgr* buf, ParseList* values) {
+//   RecordDescriptor* rd = construct_record_descriptor();
 
-  int recordLength = compute_record_length(rd, values);
-  Record r = record_init(recordLength);
+//   int recordLength = compute_record_length(rd, values);
+//   Record r = record_init(recordLength);
 
-  serialize_data(rd, r, values);
-  bool insertSuccessful = page_insert(slot->pg, r, recordLength);
+//   serialize_data(rd, r, values);
 
-  free_record_desc(rd);
-  free(r);
+//   bool insertSuccessful = tableam_insert(buf, NULL, r, recordLength);
+
+//   free_record_desc(rd);
+//   free(r);
   
-  return insertSuccessful;
-}
+//   return insertSuccessful;
+// }
 
 static bool analyze_selectstmt(SelectStmt* s) {
   for (int i = 0; i < s->targetList->length; i++) {
@@ -222,8 +222,15 @@ int main(int argc, char** argv) {
   // print config
   print_config(conf);
 
-  FileDesc* fdesc = file_open(conf->dataFile);
-  BufPool* bp = bufpool_init(fdesc, BUFPOOL_SLOTS);
+  BufMgr* buf = bufmgr_init();
+
+  if (!initdb(buf)) {
+    printf("initdb failed\n");
+    printf("Shutting down...\n");
+    bufmgr_flush_all(buf);
+    bufmgr_destroy(buf);
+    return EXIT_SUCCESS;
+  }
 
   while(true) {
     print_prompt();
@@ -235,24 +242,25 @@ int main(int argc, char** argv) {
 
     switch (n->type) {
       case T_SysCmd:
-        if (strcmp(((SysCmd*)n)->cmd, "quit") == 0) {
+        if (parse_syscmd(((SysCmd*)n)->cmd) == SYSCMD_QUIT) {
           free_node(n);
           printf("Shutting down...\n");
-          bufpool_flush_all(bp);
-          bufpool_destroy(bp);
-          file_close(fdesc);
+          bufmgr_flush_all(buf);
+          bufmgr_destroy(buf);
           return EXIT_SUCCESS;
+        } else {
+          run_syscmd(((SysCmd*)n)->cmd, buf);
         }
         break;
       case T_InsertStmt: {
-        if (!analyze_node(n)) {
-          printf("Semantic analysis failed\n");
-        } else {
-          InsertStmt* i = (InsertStmt*)n;
-          if (!insert_record(bp, i->values)) {
-            printf("Unable to insert record\n");
-          }
-        }
+        // if (!analyze_node(n)) {
+        //   printf("Semantic analysis failed\n");
+        // } else {
+        //   InsertStmt* i = (InsertStmt*)n;
+        //   if (!insert_record(buf, i->values)) {
+        //     printf("Unable to insert record\n");
+        //   }
+        // }
         break;
       }
       case T_SelectStmt:
@@ -262,10 +270,9 @@ int main(int argc, char** argv) {
           TableDesc* td = new_tabledesc("person");
           td->rd = construct_record_descriptor();
           RecordSet* rs = new_recordset();
-          rs->rows = new_linkedlist();
           RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)->targetList);
           
-          tableam_fullscan(bp, td, rs->rows);
+          tableam_fullscan(buf, td, rs);
           resultset_print(td->rd, rs, targets);
 
           free_recordset(rs, td->rd);
