@@ -1,6 +1,10 @@
 #include <stdlib.h>
 
+#include "resultset/recordset.h"
 #include "storage/table.h"
+#include "access/tableam.h"
+
+
 
 TableDesc* new_tabledesc(char* tablename) {
   TableDesc* td = malloc(sizeof(TableDesc));

@@ -27,7 +27,9 @@
 %token <numval> NUMBER
 
 /* reserved keywords in alphabetical order */
-%token KW_FALSE
+%token AS
+
+%token KW_FALSE FROM
 
 %token INSERT
 
@@ -37,9 +39,9 @@
 
 %token KW_TRUE
 
-%type <node> cmd stmt sys_cmd select_stmt insert_stmt target literal
+%type <node> cmd stmt sys_cmd select_stmt insert_stmt target literal table_ref opt_alias alias
 
-%type <list> target_list literal_values_list
+%type <list> target_list literal_values_list from_clause from_list
 
 %start query
 
@@ -68,9 +70,12 @@ stmt: select_stmt
   | insert_stmt
   ;
 
-select_stmt: SELECT target_list {
+select_stmt: 
+    SELECT target_list 
+    from_clause {
       SelectStmt* s = create_node(SelectStmt);
       s->targetList = $2;
+      s->fromClause = $3;
       $$ = (Node*)s;
     }
   ;
@@ -96,6 +101,46 @@ insert_stmt: INSERT literal_values_list  {
       
       $$ = (Node*)ins;
     }
+  ;
+
+from_clause: FROM from_list {
+        { $$ = $2; }
+      }
+    | /* empty */ { $$ = NULL; }
+  ;
+
+from_list: table_ref {
+      $$ = create_parselist($1);
+    }
+  ;
+
+table_ref: IDENT opt_alias {
+      TableRef* t = create_node(TableRef);
+      t->name = $1;
+      t->alias = $2;
+
+      $$ = (Node*)t;
+    }
+  ;
+
+opt_alias: alias {
+        $$ = $1;
+      }
+    | /* empty */  { $$ = NULL; }
+  ;
+
+alias: IDENT {
+        Alias* a = create_node(Alias);
+        a->aliasName = $1;
+
+        $$ = (Node*)a;
+      }
+    | AS IDENT {
+        Alias* a = create_node(Alias);
+        a->aliasName = $2;
+
+        $$ = (Node*)a;
+      }
   ;
 
 literal_values_list: literal {

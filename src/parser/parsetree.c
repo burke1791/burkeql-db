@@ -18,6 +18,10 @@ static void free_insert_stmt(InsertStmt* ins) {
   free(ins->values);
 }
 
+static void free_alias(Alias* a) {
+  free(a->aliasName);
+}
+
 static void free_selectstmt(SelectStmt* s) {
   if (s == NULL) return;
 
@@ -25,6 +29,16 @@ static void free_selectstmt(SelectStmt* s) {
     free_parselist(s->targetList);
     free(s->targetList);
   }
+
+  if (s->fromClause != NULL) {
+    free_parselist(s->fromClause);
+    free(s->fromClause);
+  }
+}
+
+static void free_tableref(TableRef* t) {
+  free(t->name);
+  free_node((Node*)t->alias);
 }
 
 static void free_restarget(ResTarget* r) {
@@ -49,8 +63,14 @@ void free_node(Node* n) {
     case T_InsertStmt:
       free_insert_stmt((InsertStmt*)n);
       break;
+    case T_Alias:
+      free_alias((Alias*)n);
+      break;
     case T_SelectStmt:
       free_selectstmt((SelectStmt*)n);
+      break;
+    case T_TableRef:
+      free_tableref((TableRef*)n);
       break;
     case T_ParseList:
       free_parselist((ParseList*)n);
@@ -72,6 +92,11 @@ static void print_restarget(ResTarget* r) {
   printf("%s", r->name);
 }
 
+static void print_tableref(TableRef* t) {
+  printf("%s", t->name);
+  if (t->alias != NULL) printf(" (%s)", t->alias);
+}
+
 static void print_selectstmt(SelectStmt* s) {
   printf("=  Type: Select\n");
   printf("=  Targets:\n");
@@ -85,6 +110,15 @@ static void print_selectstmt(SelectStmt* s) {
     printf("=    ");
     print_restarget((ResTarget*)s->targetList->elements[i].ptr);
     printf("\n");
+  }
+
+  if (s->fromClause != NULL && s->fromClause->length > 0) {
+    printf("=  From:\n");
+    for (int i = 0; i < s->fromClause->length; i++) {
+      printf("=    ");
+      print_tableref((TableRef*)s->fromClause->elements[i].ptr);
+      printf("\n");
+    }
   }
 }
 

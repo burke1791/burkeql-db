@@ -7,6 +7,7 @@
 #include "gram.tab.h"
 #include "parser/parsetree.h"
 #include "parser/parse.h"
+#include "parser/analyze.h"
 #include "global/config.h"
 #include "storage/page.h"
 #include "storage/table.h"
@@ -165,45 +166,45 @@ static void serialize_data(RecordDescriptor* rd, Record r, ParseList* values) {
 //   return insertSuccessful;
 // }
 
-static bool analyze_selectstmt(SelectStmt* s) {
-  for (int i = 0; i < s->targetList->length; i++) {
-    ResTarget* r = (ResTarget*)s->targetList->elements[i].ptr;
-    if (
-      !(
-        strcasecmp(r->name, "person_id") == 0 ||
-        strcasecmp(r->name, "first_name") == 0 ||
-        strcasecmp(r->name, "last_name") == 0 ||
-        strcasecmp(r->name, "age") == 0
-      )
-    ) {
-      return false;
-    }
-  }
-  return true;
-}
+// static bool analyze_selectstmt(SelectStmt* s) {
+//   for (int i = 0; i < s->targetList->length; i++) {
+//     ResTarget* r = (ResTarget*)s->targetList->elements[i].ptr;
+//     if (
+//       !(
+//         strcasecmp(r->name, "person_id") == 0 ||
+//         strcasecmp(r->name, "first_name") == 0 ||
+//         strcasecmp(r->name, "last_name") == 0 ||
+//         strcasecmp(r->name, "age") == 0
+//       )
+//     ) {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 
-static bool analyze_insertstmt(InsertStmt* i) {
-  Literal* personId = (Literal*)i->values->elements[0].ptr;
-  Literal* lastName = (Literal*)i->values->elements[2].ptr;
+// static bool analyze_insertstmt(InsertStmt* i) {
+//   Literal* personId = (Literal*)i->values->elements[0].ptr;
+//   Literal* lastName = (Literal*)i->values->elements[2].ptr;
 
-  if (personId->isNull) return false;
-  if (lastName->isNull) return false;
+//   if (personId->isNull) return false;
+//   if (lastName->isNull) return false;
 
-  return true;
-}
+//   return true;
+// }
 
-static bool analyze_node(Node* n) {
-  switch (n->type) {
-    case T_SelectStmt:
-      return analyze_selectstmt((SelectStmt*)n);
-    case T_InsertStmt:
-      return analyze_insertstmt((InsertStmt*)n);
-    default:
-      printf("analyze_node() | unhandled node type");
-  }
+// static bool analyze_node(Node* n) {
+//   switch (n->type) {
+//     case T_SelectStmt:
+//       return analyze_selectstmt((SelectStmt*)n);
+//     case T_InsertStmt:
+//       return analyze_insertstmt((InsertStmt*)n);
+//     default:
+//       printf("analyze_node() | unhandled node type");
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
 /* END TEMPORARY CODE */
 
@@ -240,6 +241,11 @@ int main(int argc, char** argv) {
 
     print_node(n);
 
+    if (!analyze_parsetree(buf, n)) {
+      printf("semantic analysis failed\n");
+      continue;
+    }
+
     switch (n->type) {
       case T_SysCmd:
         if (parse_syscmd(((SysCmd*)n)->cmd) == SYSCMD_QUIT) {
@@ -264,21 +270,22 @@ int main(int argc, char** argv) {
         break;
       }
       case T_SelectStmt:
-        if (!analyze_node(n)) {
-          printf("Semantic analysis failed\n");
-        } else {
-          TableDesc* td = new_tabledesc("person");
-          td->rd = construct_record_descriptor();
-          RecordSet* rs = new_recordset();
-          RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)->targetList);
+        // if (!analyze_node(n)) {
+        //   printf("Semantic analysis failed\n");
+        // } else {
+        //   TableDesc* td = new_tabledesc("person");
+        //   td->rd = construct_record_descriptor();
+        //   RecordSet* rs = new_recordset();
+        //   RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)->targetList);
           
-          tableam_fullscan(buf, td, rs);
-          resultset_print(td->rd, rs, targets);
+        //   tableam_fullscan(buf, td, rs);
+        //   resultset_print(td->rd, rs, targets);
 
-          free_recordset(rs, td->rd);
-          free_tabledesc(td);
-          free_record_desc(targets);
-        }
+        //   free_recordset(rs, td->rd);
+        //   free_tabledesc(td);
+        //   free_record_desc(targets);
+        // }
+        
         break;
     }
 

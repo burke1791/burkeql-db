@@ -21,7 +21,10 @@ void yyerror(char* s, ...);
 <SYSCMD>[A-Za-z]+   { yylval->str = strdup(yytext); return SYS_CMD; }
 
   /* keywords */
+AS        { return AS; }
+
 FALSE     { return KW_FALSE; }
+FROM      { return FROM; }
 
 INSERT    { return INSERT; }
 

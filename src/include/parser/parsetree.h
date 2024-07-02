@@ -17,16 +17,24 @@
 
 typedef enum NodeTag {
   T_SysCmd,
+  T_Alias,
   T_InsertStmt,
   T_SelectStmt,
+  T_TableRef,
   T_ParseList,
   T_ResTarget,
   T_Literal
 } NodeTag;
 
+#pragma pack(push, 1)
 typedef struct Node {
   NodeTag type;
 } Node;
+
+typedef struct Alias {
+  NodeTag type;
+  char* aliasName;
+} Alias;
 
 typedef struct ParseCell {
   void* ptr;
@@ -54,10 +62,18 @@ typedef struct ResTarget {
   char* name;
 } ResTarget;
 
+#pragma pack(push, 1)
 typedef struct SelectStmt {
   NodeTag type;
   ParseList* targetList;
+  ParseList* fromClause;
 } SelectStmt;
+
+typedef struct TableRef {
+  NodeTag type;
+  char* name;
+  Alias* alias;
+} TableRef;
 
 typedef struct Literal {
   NodeTag type;
