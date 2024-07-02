@@ -23,7 +23,10 @@ typedef enum NodeTag {
   T_TableRef,
   T_ParseList,
   T_ResTarget,
-  T_Literal
+  T_Literal,
+  T_Query,
+  T_TableEntry,
+  T_TargetEntry
 } NodeTag;
 
 #pragma pack(push, 1)

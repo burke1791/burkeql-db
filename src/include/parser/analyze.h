@@ -1,9 +1,9 @@
 #ifndef ANALYZE_H
 #define ANALYZE_H
 
-#include "parser/parsetree.h"
+#include "parser/querytree.h"
 #include "buffer/bufmgr.h"
 
-bool analyze_parsetree(BufMgr* buf, Node* tree);
+Query* analyze_parsetree(BufMgr* buf, Node* tree);
 
 #endif /* ANALYZE_H */

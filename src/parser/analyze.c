@@ -77,7 +77,9 @@ static bool analyze_selectstmt_table_columns(BufMgr* buf, ParseList* fromClause,
  * @return true 
  * @return false 
  */
-static bool analyze_selectstmt(BufMgr* buf, Node* tree) {
+static bool analyze_selectstmt(BufMgr* buf, Query* qt, Node* tree) {
+  qt->stmt = STMT_SELECT;
+
   SelectStmt* s = (SelectStmt*)tree;
 
   if (s->fromClause != NULL && !analyze_selectstmt_tables(buf, s->fromClause)) {
@@ -93,11 +95,38 @@ static bool analyze_selectstmt(BufMgr* buf, Node* tree) {
   return true;
 }
 
-bool analyze_parsetree(BufMgr* buf, Node* tree) {
+
+/**
+ * @brief populates the query tree with information from the system tables about the columns
+ * and tables referenced in the query
+ * 
+ * @details First we extract two datasets from the system tables: (1) table info from the _tables
+ * system table, and (2) column info from the _columns system tables.
+ * 
+ * Then we loop through the `targets` and `tables` lists to make sure everything referenced exists
+ * in the database.
+ * 
+ * @param buf 
+ * @param qt 
+ * @param targets 
+ * @param tables 
+ */
+static void analyze_sources(BufMgr* buf, Query* qt, ParseList* targets, ParseList* tables) {
+
+}
+
+Query* analyze_parsetree(BufMgr* buf, Node* tree) {
+  Query* qt = new_querytree();
+
   switch (tree->type) {
     case T_SelectStmt:
-      return analyze_selectstmt(buf, tree);
-    default:
-      return true;
+      SelectStmt* s = (SelectStmt*)tree;
+      qt->stmt = STMT_SELECT;
+
+      analyze_sources(buf, qt, s->targetList, s->fromClause);
+      
+      break;
   }
+
+  return qt;
 }

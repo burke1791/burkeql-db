@@ -241,8 +241,10 @@ int main(int argc, char** argv) {
 
     print_node(n);
 
-    if (!analyze_parsetree(buf, n)) {
+    Query* qt = analyze_parsetree(buf, n);
+    if (qt->stmt == STMT_ERROR) {
       printf("semantic analysis failed\n");
+      free_querytree(qt);
       continue;
     }
 

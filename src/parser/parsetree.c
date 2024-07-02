@@ -94,7 +94,7 @@ static void print_restarget(ResTarget* r) {
 
 static void print_tableref(TableRef* t) {
   printf("%s", t->name);
-  if (t->alias != NULL) printf(" (%s)", t->alias);
+  if (t->alias != NULL) printf(" (%s)", t->alias->aliasName);
 }
 
 static void print_selectstmt(SelectStmt* s) {
