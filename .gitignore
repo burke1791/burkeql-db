@@ -55,3 +55,8 @@ dkms.conf
 site/
 db_files/
 burkeql.conf
+
+*.tab.*
+*.output
+lex.yy.c
+*.lex.*

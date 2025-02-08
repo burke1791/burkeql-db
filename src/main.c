@@ -114,98 +114,6 @@ static void serialize_data(RecordDescriptor* rd, Record r, ParseList* values) {
   free(varlenNull);
 }
 
-// static int compute_record_length(RecordDescriptor* rd, ParseList* values) {
-//   int len = 12; // start with the 12-byte header
-//   len += compute_null_bitmap_length(rd);
-
-//   len += 4; // person_id
-
-//   Literal* firstName = (Literal*)values->elements[1].ptr;
-//   Literal* lastName = (Literal*)values->elements[2].ptr;
-//   Literal* age = (Literal*)values->elements[3].ptr;
-
-//   /* for the varlen columns, we default to their max length if the values
-//      we're trying to insert would overflow them (they'll get truncated later) */
-//   if (firstName->isNull) {
-//     len += 0; // Nulls do not consume any space
-//   } else if (strlen(firstName->str) > rd->cols[1].len) {
-//     len += (rd->cols[1].len + 2);
-//   } else {
-//     len += (strlen(firstName->str) + 2);
-//   }
-
-//   // We don't need a null check because this column is constrained to be Not Null
-//   if (strlen(lastName->str) > rd->cols[2].len) {
-//     len += (rd->cols[2].len + 2);
-//   } else {
-//     len += (strlen(lastName->str) + 2);
-//   }
-
-//   if (age->isNull) {
-//     len += 0; // Nulls do not consume any space
-//   } else {
-//     len += 4; // age
-//   }
-
-//   return len;
-// }
-
-// static bool insert_record(BufMgr* buf, ParseList* values) {
-//   RecordDescriptor* rd = construct_record_descriptor();
-
-//   int recordLength = compute_record_length(rd, values);
-//   Record r = record_init(recordLength);
-
-//   serialize_data(rd, r, values);
-
-//   bool insertSuccessful = tableam_insert(buf, NULL, r, recordLength);
-
-//   free_record_desc(rd);
-//   free(r);
-  
-//   return insertSuccessful;
-// }
-
-// static bool analyze_selectstmt(SelectStmt* s) {
-//   for (int i = 0; i < s->targetList->length; i++) {
-//     ResTarget* r = (ResTarget*)s->targetList->elements[i].ptr;
-//     if (
-//       !(
-//         strcasecmp(r->name, "person_id") == 0 ||
-//         strcasecmp(r->name, "first_name") == 0 ||
-//         strcasecmp(r->name, "last_name") == 0 ||
-//         strcasecmp(r->name, "age") == 0
-//       )
-//     ) {
-//       return false;
-//     }
-//   }
-//   return true;
-// }
-
-// static bool analyze_insertstmt(InsertStmt* i) {
-//   Literal* personId = (Literal*)i->values->elements[0].ptr;
-//   Literal* lastName = (Literal*)i->values->elements[2].ptr;
-
-//   if (personId->isNull) return false;
-//   if (lastName->isNull) return false;
-
-//   return true;
-// }
-
-// static bool analyze_node(Node* n) {
-//   switch (n->type) {
-//     case T_SelectStmt:
-//       return analyze_selectstmt((SelectStmt*)n);
-//     case T_InsertStmt:
-//       return analyze_insertstmt((InsertStmt*)n);
-//     default:
-//       printf("analyze_node() | unhandled node type");
-//   }
-
-//   return false;
-// }
-
 /* END TEMPORARY CODE */
 
 static void print_prompt() {
@@ -242,16 +150,12 @@ int main(int argc, char** argv) {
     print_node(n);
 
     Query* qt = analyze_parsetree(buf, n);
-    if (qt->stmt == STMT_ERROR) {
-      printf("semantic analysis failed\n");
-      free_querytree(qt);
-      continue;
-    }
 
-    switch (n->type) {
-      case T_SysCmd:
+    switch (qt->stmt) {
+      case STMT_SYSCMD:
         if (parse_syscmd(((SysCmd*)n)->cmd) == SYSCMD_QUIT) {
           free_node(n);
+          free_querytree(qt);
           printf("Shutting down...\n");
           bufmgr_flush_all(buf);
           bufmgr_destroy(buf);
@@ -260,38 +164,19 @@ int main(int argc, char** argv) {
           run_syscmd(((SysCmd*)n)->cmd, buf);
         }
         break;
-      case T_InsertStmt: {
-        // if (!analyze_node(n)) {
-        //   printf("Semantic analysis failed\n");
-        // } else {
-        //   InsertStmt* i = (InsertStmt*)n;
-        //   if (!insert_record(buf, i->values)) {
-        //     printf("Unable to insert record\n");
-        //   }
-        // }
+      case STMT_SELECT:
+        // run a select statement (single table only for now)
+        // get a table descriptor with only the columns needed
+        TableDesc *td = new_tabledesc(qt->tableList->)
         break;
-      }
-      case T_SelectStmt:
-        // if (!analyze_node(n)) {
-        //   printf("Semantic analysis failed\n");
-        // } else {
-        //   TableDesc* td = new_tabledesc("person");
-        //   td->rd = construct_record_descriptor();
-        //   RecordSet* rs = new_recordset();
-        //   RecordDescriptor* targets = construct_record_descriptor_from_target_list(((SelectStmt*)n)->targetList);
-          
-        //   tableam_fullscan(buf, td, rs);
-        //   resultset_print(td->rd, rs, targets);
-
-        //   free_recordset(rs, td->rd);
-        //   free_tabledesc(td);
-        //   free_record_desc(targets);
-        // }
-        
+      case STMT_ERROR:
+        printf("semantic analysis failed\n");
+        printf("Error: %s\n", qt->errorMessage);
         break;
     }
 
     free_node(n);
+    free_querytree(qt);
   }
 
   return EXIT_SUCCESS;

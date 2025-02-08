@@ -72,7 +72,10 @@ bool bufpool_flush_page(FileDescList* fdl, BufDescArr* bd, BufPool* bp, int32_t 
   lseek(fdesc->fd, (bdesc->tag->pageId - 1) * conf->pageSize, SEEK_SET);
   int bytes_written = write(fdesc->fd, bp->pages[bufId], conf->pageSize);
 
-  if (bytes_written != conf->pageSize) return false;
+  if (bytes_written != conf->pageSize) {
+    printf("bytes_written: %d\n", bytes_written);
+    return false;
+  }
 
   return true;
 }

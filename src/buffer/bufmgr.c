@@ -55,9 +55,12 @@ static int32_t bufmgr_evict_page(BufMgr* buf) {
       if (bufpool_flush_page(buf->fdl, buf->bd, buf->bp, i)) {
         bufdesc_reset(bdesc);
         return i;
+      } else {
+        printf("Failed to flush page\n");
       }
     }
   }
+  bufmgr_diag_details(buf);
   printf("Unable to evict page\n");
   return -1;
 }

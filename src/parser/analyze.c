@@ -16,7 +16,7 @@
  * @return true 
  * @return false 
  */
-static bool analyze_selectstmt_tables(BufMgr* buf, ParseList* fromClause) {
+static bool analyze_selectstmt_tables(BufMgr* buf, Query *qt, ParseList* fromClause) {
   TableDesc* td = new_tabledesc("_tables");
   td->rd = systable_get_record_desc();
 
@@ -74,25 +74,25 @@ static bool analyze_selectstmt_table_columns(BufMgr* buf, ParseList* fromClause,
  * types play nice with each other, etc.
  * 
  * @param tree 
- * @return true 
- * @return false 
  */
-static bool analyze_selectstmt(BufMgr* buf, Query* qt, Node* tree) {
+static void analyze_selectstmt(BufMgr* buf, Query* qt, Node* tree) {
   qt->stmt = STMT_SELECT;
 
   SelectStmt* s = (SelectStmt*)tree;
 
   if (s->fromClause != NULL && !analyze_selectstmt_tables(buf, s->fromClause)) {
     printf("referenced table does not exist\n");
-    return false;
+    qt->stmt = STMT_ERROR;
+    qt->errorMessage = "one or more referenced tables do not exist";
+    return;
   }
 
   if (!analyze_selectstmt_table_columns(buf, s->fromClause, s->targetList)) {
     printf("referenced columns do not exist in the referenced tables\n");
-    return false;
+    qt->stmt = STMT_ERROR;
+    qt->errorMessage = "one or more referenced columns do not exist";
+    return;
   }
-
-  return true;
 }
 
 
@@ -112,19 +112,20 @@ static bool analyze_selectstmt(BufMgr* buf, Query* qt, Node* tree) {
  * @param tables 
  */
 static void analyze_sources(BufMgr* buf, Query* qt, ParseList* targets, ParseList* tables) {
-
+  RecordDescriptor *tableRD = systable_get_record_desc();
+  RecordSet *tableRecords = new_recordset();
+  
 }
 
 Query* analyze_parsetree(BufMgr* buf, Node* tree) {
   Query* qt = new_querytree();
 
   switch (tree->type) {
+    case T_SysCmd:
+      qt->stmt = STMT_SYSCMD;
+      break;
     case T_SelectStmt:
-      SelectStmt* s = (SelectStmt*)tree;
-      qt->stmt = STMT_SELECT;
-
-      analyze_sources(buf, qt, s->targetList, s->fromClause);
-      
+      analyze_selectstmt(buf, qt, tree);
       break;
   }
 

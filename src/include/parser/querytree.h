@@ -17,6 +17,7 @@ typedef enum StatementType {
   STMT_INSERT,
   STMT_UPDATE,
   STMT_DELETE,
+  STMT_SYSCMD,
   STMT_ERROR
 } StatementType;
 
@@ -25,11 +26,14 @@ typedef struct Query {
   StatementType stmt;
   List* targetList;
   List* tableList;
+  char *errorMessage;
 } Query;
 
 
 /**
- * @brief 
+ * @brief Query tree node representing a table in the from clause.
+ * The analyzer will populate it with enough information for the
+ * planner to generate a plan tree
  * 
  */
 typedef struct TableEntry {
@@ -58,5 +62,9 @@ typedef struct TargetEntry {
 
 Query* new_querytree();
 void free_querytree(Query* qt);
+
+TableEntry *new_tableentry(int32_t tableId, char *name, Alias *alias, List *columns) {
+  
+}
 
 #endif /* QUERYTREE_H */

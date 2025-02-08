@@ -117,7 +117,7 @@ from_list: table_ref {
 table_ref: IDENT opt_alias {
       TableRef* t = create_node(TableRef);
       t->name = $1;
-      t->alias = $2;
+      t->alias = (Alias*)$2;
 
       $$ = (Node*)t;
     }

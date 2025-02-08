@@ -17,6 +17,7 @@ SRC_FILES = main.c \
 						parser/analyze.c \
 						parser/parse.c \
 						parser/parsetree.c \
+						parser/querytree.c \
 						resultset/recordset.c \
 						resultset/resultset_print.c \
 						storage/page.c \

@@ -1,7 +1,12 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "parser/querytree.h"
 
 Query* new_querytree() {
   Query* qt = create_node(Query);
+  qt->targetList = NULL;
+  qt->tableList = NULL;
   return qt;
 }
 
