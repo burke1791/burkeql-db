@@ -41,7 +41,7 @@ typedef struct TableEntry {
   int32_t tableId;
   char* name;
   Alias* alias;
-  List* columns;
+  // List* columns;
 } TableEntry;
 
 
@@ -63,8 +63,6 @@ typedef struct TargetEntry {
 Query* new_querytree();
 void free_querytree(Query* qt);
 
-TableEntry *new_tableentry(int32_t tableId, char *name, Alias *alias, List *columns) {
-  
-}
+TableEntry *new_tableentry(int32_t tableId, char *name, Alias *alias);
 
 #endif /* QUERYTREE_H */

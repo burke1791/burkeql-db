@@ -18,3 +18,10 @@ void free_querytree(Query* qt) {
 
   free(qt);
 }
+
+TableEntry *new_tableentry(int32_t tableId, char *name, Alias *alias) {
+  TableEntry *t = malloc(sizeof(TableEntry));
+  t->type = T_TableEntry;
+  t->tableId = tableId;
+  t->name = 
+}

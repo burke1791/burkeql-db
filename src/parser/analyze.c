@@ -12,11 +12,9 @@
  * @brief Checks the system tables to ensure all tables referenced
  * in the `fromClause` exist in the database
  * 
- * @param fromClause 
- * @return true 
- * @return false 
+ * @param fromClause
  */
-static bool analyze_selectstmt_tables(BufMgr* buf, Query *qt, ParseList* fromClause) {
+static void analyze_selectstmt_tables(BufMgr* buf, Query *qt, ParseList* fromClause) {
   TableDesc* td = new_tabledesc("_tables");
   td->rd = systable_get_record_desc();
 
@@ -80,12 +78,9 @@ static void analyze_selectstmt(BufMgr* buf, Query* qt, Node* tree) {
 
   SelectStmt* s = (SelectStmt*)tree;
 
-  if (s->fromClause != NULL && !analyze_selectstmt_tables(buf, s->fromClause)) {
-    printf("referenced table does not exist\n");
-    qt->stmt = STMT_ERROR;
-    qt->errorMessage = "one or more referenced tables do not exist";
-    return;
-  }
+  analyze_selectstmt_tables(buf, qt, s->fromClause);
+
+  if (qt->stmt == STMT_ERROR) return;
 
   if (!analyze_selectstmt_table_columns(buf, s->fromClause, s->targetList)) {
     printf("referenced columns do not exist in the referenced tables\n");
