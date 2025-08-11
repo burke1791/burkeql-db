@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "parser/querytree.h"
 
@@ -23,5 +24,7 @@ TableEntry *new_tableentry(int32_t tableId, char *name, Alias *alias) {
   TableEntry *t = malloc(sizeof(TableEntry));
   t->type = T_TableEntry;
   t->tableId = tableId;
-  t->name = 
+  t->name = malloc(strlen(name) + 1);
+  strcpy(t->name, name);
+  
 }
